@@ -1,6 +1,6 @@
 {
   "global": {
-    "title": "Tse",
+    "title": "TSE",
     "browsehappy": "You are using an <strong>outdated</strong> browser. Please <a href=\"http://browsehappy.com/?locale=en\">upgrade your browser</a> to improve your experience.",
     "menu": {
       "home": "Home",
@@ -31,7 +31,8 @@
         "database": "Database",
         "jhipster-needle-menu-add-admin-element": "JHipster will add additional menu entries here (do not translate!)"
       },
-      "language": "Language"
+      "language": "Language",
+      "strategy-executions": "Strategy executions"
     },
     "form": {
       "username.label": "Username",
@@ -43,7 +44,9 @@
       "confirmpassword.label": "New password confirmation",
       "confirmpassword.placeholder": "Confirm the new password",
       "email.label": "Email",
-      "email.placeholder": "Your email"
+      "email.placeholder": "Your email",
+      "login": "Login",
+      "password": "Password"
     },
     "messages": {
       "info": {

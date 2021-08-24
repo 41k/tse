@@ -25,6 +25,15 @@ const LAYOUT_ROUTES = [navbarRoute, ...errorRoute];
           path: 'account',
           loadChildren: () => import('./account/account.module').then(m => m.AccountModule),
         },
+        {
+          path: 'sign-in',
+          loadChildren: () => import('./shared/sign-in/sign-in.module').then(m => m.SignInModule),
+        },
+        {
+          path: 'strategy-executions',
+          loadChildren: () =>
+            import('./tse/component/strategy-executions/strategy-executions.module').then(m => m.StrategyExecutionsModule),
+        },
         ...LAYOUT_ROUTES,
       ],
       { enableTracing: DEBUG_INFO_ENABLED }

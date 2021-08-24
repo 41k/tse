@@ -1,12 +1,12 @@
 import { Route } from '@angular/router';
 
-import { HomeComponent } from './home.component';
+import { SignInComponent } from '../shared/sign-in/sign-in.component';
 
 export const HOME_ROUTE: Route = {
   path: '',
-  component: HomeComponent,
+  component: SignInComponent,
   data: {
     authorities: [],
-    pageTitle: 'home.title',
+    pageTitle: 'login.form.button',
   },
 };

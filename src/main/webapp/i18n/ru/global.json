@@ -1,6 +1,6 @@
 {
   "global": {
-    "title": "Tse",
+    "title": "TSE",
     "browsehappy": "Ваш браузер <strong>устарел</strong>. Пожалуйста <a href=\"http://browsehappy.com/?locale=ru\">обновите ваш браузер</a>.",
     "menu": {
       "home": "Главная",
@@ -31,7 +31,8 @@
         "database": "База данных",
         "jhipster-needle-menu-add-admin-element": "JHipster will add additional menu entries here (do not translate!)"
       },
-      "language": "Язык"
+      "language": "Язык",
+      "strategy-executions": "Strategy executions"
     },
     "form": {
       "username.label": "Логин",
@@ -43,7 +44,9 @@
       "confirmpassword.label": "Подтверждение нового пароля",
       "confirmpassword.placeholder": "Подтвердите новый пароль",
       "email.label": "Email",
-      "email.placeholder": "Ваш email"
+      "email.placeholder": "Ваш email",
+      "login": "Логин",
+      "password": "Пароль"
     },
     "messages": {
       "info": {

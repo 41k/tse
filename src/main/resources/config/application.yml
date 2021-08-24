@@ -95,6 +95,7 @@ spring:
     basename: i18n/messages
   main:
     allow-bean-definition-overriding: true
+    banner-mode: off
   task:
     execution:
       thread-name-prefix: tse-task-
