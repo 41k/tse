@@ -23,7 +23,7 @@ public class MarketScanningTask implements Runnable {
 
     @Override
     public void run() {
-        log.info(">>> Market scanning task for strategy execution [{}] has been started.", strategyExecution.getId());
+        log.info(">>> market scanning task for strategy execution [{}] has been started.", strategyExecution.getId());
         var checkedSymbols = new ArrayList<String>();
         for (String symbol : symbols) {
             var shouldNotScan = !shouldScan.get();
@@ -33,7 +33,7 @@ public class MarketScanningTask implements Runnable {
             var checkedSymbol = check(symbol);
             checkedSymbols.add(checkedSymbol);
         }
-        log.info(">>> Market scanning task for strategy execution [{}] has been finished/stopped. " +
+        log.info(">>> market scanning task for strategy execution [{}] has been finished/stopped. " +
                 "{} of {} symbols have been checked.", strategyExecution.getId(), checkedSymbols.size(), symbols.size());
     }
 

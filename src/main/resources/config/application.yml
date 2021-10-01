@@ -164,3 +164,22 @@ jhipster:
 # ===================================================================
 
 # application:
+
+exchange-gateway:
+  api-key: api-key-1
+  secret-key: secret-key-1
+  base-rest-api-url: https://api-adapter.backend.currency.com/api/v1
+  series-uri: ${exchange-gateway.base-rest-api-url}/klines
+  order-uri: ${exchange-gateway.base-rest-api-url}/order
+  transaction-fee: 0.002
+  interval-to-representation-map:
+    ONE_MINUTE: 1m
+    FIVE_MINUTES: 5m
+    FIFTEEN_MINUTES: 15m
+    THIRTY_MINUTES: 30m
+    ONE_HOUR: 1h
+    FOUR_HOURS: 4h
+    ONE_DAY: 1d
+  rate-limit-per-second: 9
+  retry-attempts-number: 4
+  retry-backoff-in-milliseconds: 500

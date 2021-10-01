@@ -21,6 +21,7 @@
 
     <properties>
         <ta4j.version>0.13</ta4j.version>
+        <commons-codec.version>1.13</commons-codec.version>
         <lombok.version>1.18.8</lombok.version>
         <groovy.version>1.2-groovy-2.4</groovy.version>
         <gmavenplus.version>1.6</gmavenplus.version>
@@ -113,6 +114,15 @@
             <groupId>org.ta4j</groupId>
             <artifactId>ta4j-core</artifactId>
             <version>${ta4j.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>commons-codec</groupId>
+            <artifactId>commons-codec</artifactId>
+            <version>${commons-codec.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.retry</groupId>
+            <artifactId>spring-retry</artifactId>
         </dependency>
         <dependency>
             <groupId>org.projectlombok</groupId>
