@@ -13,10 +13,17 @@
 # http://docs.spring.io/spring-boot/docs/current/reference/html/common-application-properties.html
 # ===================================================================
 
+logging:
+  level:
+    ROOT: INFO
+    io.github.jhipster: INFO
+    root: INFO
+    root.tse: DEBUG
+
 spring:
   profiles:
     # Uncomment the following line to enable tests against production database type rather than H2, using Testcontainers
-    #active: testcontainers
+    active: testcontainers
   application:
     name: tse
   datasource:
@@ -33,7 +40,7 @@ spring:
   jpa:
     database-platform: io.github.jhipster.domain.util.FixedH2Dialect
     open-in-view: false
-    show-sql: false
+    show-sql: true
     hibernate:
       ddl-auto: none
       naming:
@@ -53,6 +60,7 @@ spring:
     host: localhost
   main:
     allow-bean-definition-overriding: true
+    banner-mode: off
   messages:
     basename: i18n/messages
   task:
@@ -115,3 +123,21 @@ jhipster:
 # ===================================================================
 
 # application:
+exchange-gateway:
+  api-key: api-key-1
+  secret-key: secret-key-1
+  base-rest-api-url: http://localhost:7777
+  series-uri: ${exchange-gateway.base-rest-api-url}/klines
+  order-uri: ${exchange-gateway.base-rest-api-url}/order
+  transaction-fee: 0.002
+  interval-to-representation-map:
+    ONE_MINUTE: 1m
+    FIVE_MINUTES: 5m
+    FIFTEEN_MINUTES: 15m
+    THIRTY_MINUTES: 30m
+    ONE_HOUR: 1h
+    FOUR_HOURS: 4h
+    ONE_DAY: 1d
+  rate-limit-per-second: 9
+  retry-attempts-number: 4
+  retry-backoff-in-milliseconds: 500

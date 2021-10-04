@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.9.xsd
+                        http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
+
+    <property name="autoIncrement" value="true"/>
+
+    <changeSet id="10000000000000" author="41k">
+
+        <createTable tableName="trade">
+            <column name="id" type="varchar(36)">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="strategy_execution_id" type="varchar(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="type" type="varchar(5)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="symbol" type="varchar(30)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="entry_order_type" type="varchar(4)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="entry_order_amount" type="double">
+                <constraints nullable="false"/>
+            </column>
+            <column name="entry_order_price" type="double">
+                <constraints nullable="false"/>
+            </column>
+            <column name="entry_order_timestamp" type="timestamp">
+                <constraints nullable="false"/>
+            </column>
+            <column name="entry_order_status" type="varchar(10)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="exit_order_type" type="varchar(4)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="exit_order_amount" type="double">
+                <constraints nullable="false"/>
+            </column>
+            <column name="exit_order_price" type="double">
+                <constraints nullable="false"/>
+            </column>
+            <column name="exit_order_timestamp" type="timestamp">
+                <constraints nullable="false"/>
+            </column>
+            <column name="exit_order_status" type="varchar(10)">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+    </changeSet>
+
+</databaseChangeLog>

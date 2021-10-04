@@ -8,7 +8,7 @@ import root.tse.domain.strategy_execution.Interval;
 import root.tse.domain.strategy_execution.trade.Order;
 import root.tse.domain.strategy_execution.trade.OrderType;
 
-@Component
+//@Component
 @RequiredArgsConstructor
 public class ExchangeGatewayChecker implements CommandLineRunner {
 
