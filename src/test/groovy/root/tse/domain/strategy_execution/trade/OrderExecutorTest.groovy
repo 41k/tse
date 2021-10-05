@@ -1,10 +1,9 @@
 package root.tse.domain.strategy_execution.trade
 
 import root.tse.domain.strategy_execution.ExchangeGateway
+import root.tse.domain.strategy_execution.StrategyExecutionMode
 import spock.lang.Specification
 
-import static root.tse.domain.strategy_execution.StrategyExecutionType.INCUBATION
-import static root.tse.domain.strategy_execution.StrategyExecutionType.TRADING
 import static root.tse.domain.strategy_execution.trade.OrderStatus.*
 
 class OrderExecutorTest extends Specification {
@@ -20,7 +19,7 @@ class OrderExecutorTest extends Specification {
         assert orderToExecute.status == NEW
 
         when:
-        def executedOrder = orderExecutor.execute(orderToExecute, TRADING)
+        def executedOrder = orderExecutor.execute(orderToExecute, StrategyExecutionMode.TRADING)
 
         then:
         1 * exchangeGateway.execute(orderToExecute) >> {
@@ -32,7 +31,7 @@ class OrderExecutorTest extends Specification {
         executedOrder.status == FILLED
     }
 
-    def 'should not execute order for INCUBATION strategy execution type but return FILLED order'() {
+    def 'should not execute order in INCUBATION strategy execution mode but return FILLED order'() {
         given:
         def orderToExecute = Order.builder().build()
 
@@ -40,7 +39,7 @@ class OrderExecutorTest extends Specification {
         assert orderToExecute.status == NEW
 
         when:
-        def executedOrder = orderExecutor.execute(orderToExecute, INCUBATION)
+        def executedOrder = orderExecutor.execute(orderToExecute, StrategyExecutionMode.INCUBATION)
 
         then:
         0 * _
@@ -57,7 +56,7 @@ class OrderExecutorTest extends Specification {
         assert orderToExecute.status == NEW
 
         when:
-        def executedOrder = orderExecutor.execute(orderToExecute, TRADING)
+        def executedOrder = orderExecutor.execute(orderToExecute, StrategyExecutionMode.TRADING)
 
         then:
         1 * exchangeGateway.execute(orderToExecute) >> {

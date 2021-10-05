@@ -13,7 +13,7 @@ import java.time.Instant;
 @Entity
 @Table(name = "trade")
 @Data
-@Builder
+@Builder(toBuilder = true)
 @NoArgsConstructor
 @AllArgsConstructor
 public class TradeDbEntry {
@@ -40,16 +40,11 @@ public class TradeDbEntry {
     @Enumerated(EnumType.STRING)
     private OrderStatus entryOrderStatus;
 
-    @NotNull
     @Enumerated(EnumType.STRING)
     private OrderType exitOrderType;
-    @NotNull
     private Double exitOrderAmount;
-    @NotNull
     private Double exitOrderPrice;
-    @NotNull
     private Instant exitOrderTimestamp;
-    @NotNull
     @Enumerated(EnumType.STRING)
     private OrderStatus exitOrderStatus;
 }

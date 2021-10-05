@@ -4,7 +4,6 @@ import org.ta4j.core.Bar
 import org.ta4j.core.num.PrecisionNum
 import root.tse.domain.strategy_execution.clock.ClockSignalDispatcher
 import root.tse.domain.strategy_execution.event.StrategyExecutionEventBus
-import root.tse.domain.strategy_execution.funds.FundsManager
 import root.tse.domain.strategy_execution.market_scanning.MarketScanningTask
 import root.tse.domain.strategy_execution.rule.EntryRule
 import root.tse.domain.strategy_execution.rule.ExitRule
@@ -16,22 +15,16 @@ import java.time.ZoneId
 import java.time.ZonedDateTime
 import java.util.concurrent.ScheduledExecutorService
 
+import static root.tse.util.TestData.*
+import static root.tse.util.TestUtils.*
 import static root.tse.domain.strategy_execution.trade.OrderStatus.*
 import static root.tse.domain.strategy_execution.trade.OrderType.BUY
 import static root.tse.domain.strategy_execution.trade.OrderType.SELL
+import static root.tse.domain.strategy_execution.trade.TradeType.LONG
 
 class StrategyExecutionTest extends Specification {
 
-    private static final STRATEGY_EXECUTION_ID = 'STRATEGY-EXECUTION-1'
-    private static final STRATEGY_EXECUTION_TYPE = StrategyExecutionType.TRADING
-    private static final TRADE_TYPE = TradeType.LONG
-    private static final SYMBOL = 'symbol'
-    private static final SYMBOLS = [SYMBOL] as Set
-    private static final INTERVAL = Interval.ONE_MINUTE
-    private static final AMOUNT = 2.5d
-    private static final LAST_BAR_CLOSE_PRICE = 2000d
-    private static final PRICE_AT_ORDER_EXECUTION_TIME = 2010d
-    private static final LAST_BAR_TIMESTAMP = 1631106725000L
+    private static final SYMBOLS = [SYMBOL_1] as Set
 
     private bar = Mock(Bar)
     private entryRule = Mock(EntryRule)
@@ -41,18 +34,21 @@ class StrategyExecutionTest extends Specification {
     private marketScanningTask = Mock(MarketScanningTask)
     private clockSignalDispatcher = Mock(ClockSignalDispatcher)
     private tradeExecution = Mock(TradeExecution)
-    private fundsManager = Mock(FundsManager)
     private orderExecutor = Mock(OrderExecutor)
     private tradeExecutionFactory = Mock(TradeExecutionFactory)
     private tradeRepository = Mock(TradeRepository)
     private eventBus = Mock(StrategyExecutionEventBus)
+    private strategyExecutionContext = StrategyExecutionContext.builder()
+        .strategy(strategy).symbols(SYMBOLS).executionMode(StrategyExecutionMode.TRADING)
+        .allowedNumberOfSimultaneouslyOpenedTrades(NUMBER_OF_SIMULTANEOUSLY_OPENED_TRADES)
+        .fundsPerTrade(FUNDS_PER_TRADE).build()
 
     private StrategyExecution strategyExecution
 
     def setup() {
         strategyExecution = new StrategyExecution(
-            STRATEGY_EXECUTION_ID, strategy, SYMBOLS, STRATEGY_EXECUTION_TYPE, marketScanningTaskExecutor,
-            clockSignalDispatcher, fundsManager, orderExecutor, tradeExecutionFactory, tradeRepository, eventBus)
+            STRATEGY_EXECUTION_ID, strategyExecutionContext, marketScanningTaskExecutor,
+            clockSignalDispatcher, orderExecutor, tradeExecutionFactory, tradeRepository, eventBus)
     }
 
     def 'should provide id'() {
@@ -65,8 +61,8 @@ class StrategyExecutionTest extends Specification {
         strategyExecution.start()
 
         then:
-        1 * entryRule.getHighestInterval() >> INTERVAL
-        1 * clockSignalDispatcher.subscribe(INTERVAL, strategyExecution)
+        1 * entryRule.getHighestInterval() >> Interval.ONE_MINUTE
+        1 * clockSignalDispatcher.subscribe(Interval.ONE_MINUTE, strategyExecution)
         0 * _
     }
 
@@ -78,16 +74,16 @@ class StrategyExecutionTest extends Specification {
         def tradeExecution1 = Mock(TradeExecution)
         def tradeExecution2 = Mock(TradeExecution)
         strategyExecution.tradeExecutions << [
-            'symbol-1' : tradeExecution1,
-            'symbol-2' : tradeExecution2
+            (SYMBOL_1) : tradeExecution1,
+            (SYMBOL_2) : tradeExecution2
         ]
 
         when:
         strategyExecution.stop()
 
         then:
-        1 * entryRule.getHighestInterval() >> INTERVAL
-        1 * clockSignalDispatcher.unsubscribe(INTERVAL, strategyExecution)
+        1 * entryRule.getHighestInterval() >> Interval.ONE_MINUTE
+        1 * clockSignalDispatcher.unsubscribe(Interval.ONE_MINUTE, strategyExecution)
         1 * marketScanningTask.stop()
         1 * marketScanningTaskExecutor.shutdownNow()
         1 * tradeExecution1.stop()
@@ -129,20 +125,16 @@ class StrategyExecutionTest extends Specification {
         assert strategyExecution.tradeExecutions.isEmpty()
 
         when:
-        strategyExecution.openTrade(SYMBOL, bar)
+        strategyExecution.openTrade(SYMBOL_1, bar)
 
         then: 'execute entry order'
-        1 * bar.getClosePrice() >> PrecisionNum.valueOf(LAST_BAR_CLOSE_PRICE)
-        1 * bar.getEndTime() >> ZonedDateTime.ofInstant(Instant.ofEpochMilli(LAST_BAR_TIMESTAMP), ZoneId.systemDefault())
-        1 * fundsManager.acquireFundsAndProvideTradeAmount(LAST_BAR_CLOSE_PRICE) >> AMOUNT
-        1 * orderExecutor.execute(_, STRATEGY_EXECUTION_TYPE) >> {
+        1 * tradeRepository.getAllTradesByStrategyExecutionId(STRATEGY_EXECUTION_ID) >> [CLOSED_TRADE, OPENED_TRADE]
+        1 * bar.getClosePrice() >> PrecisionNum.valueOf(PRICE_1)
+        1 * bar.getEndTime() >> ZonedDateTime.ofInstant(Instant.ofEpochMilli(TIMESTAMP_1), ZoneId.systemDefault())
+        1 * orderExecutor.execute(_, StrategyExecutionMode.TRADING) >> {
             def entryOrder = it[0] as Order
-            assertOrderBeforeExecution(entryOrder, BUY)
-            return entryOrder.toBuilder()
-                .status(FILLED)
-                // usually order is executed at a little bit different price due to time lag
-                .price(PRICE_AT_ORDER_EXECUTION_TIME)
-                .build()
+            assertEntryOrderBeforeExecution(entryOrder)
+            return entryOrder.toBuilder().status(FILLED).build()
         }
 
         and: 'create and save opened trade'
@@ -154,7 +146,7 @@ class StrategyExecutionTest extends Specification {
             return tradeExecution
         }
         1 * tradeExecution.start()
-        strategyExecution.tradeExecutions.get(SYMBOL) == tradeExecution
+        strategyExecution.tradeExecutions.get(SYMBOL_1) == tradeExecution
         strategyExecution.tradeExecutions.size() == 1
 
         and: 'publish correct event'
@@ -166,13 +158,13 @@ class StrategyExecutionTest extends Specification {
 
     def 'should not open trade if trade execution exists for the same symbol'() {
         given: 'trade execution'
-        strategyExecution.tradeExecutions << [(SYMBOL) : tradeExecution]
+        strategyExecution.tradeExecutions << [(SYMBOL_1) : tradeExecution]
 
         when:
-        strategyExecution.openTrade(SYMBOL, bar)
+        strategyExecution.openTrade(SYMBOL_1, bar)
 
         then: 'publish correct event'
-        1 * eventBus.publishTradeWasNotOpenedEvent(STRATEGY_EXECUTION_ID, SYMBOL, 'there is trade execution for the same symbol')
+        1 * eventBus.publishTradeWasNotOpenedEvent(STRATEGY_EXECUTION_ID, SYMBOL_1, 'there is trade execution for the same symbol')
 
         and: 'no other actions'
         0 * _
@@ -181,16 +173,17 @@ class StrategyExecutionTest extends Specification {
         strategyExecution.tradeExecutions.size() == 1
     }
 
-    def 'should not open trade if funds are not enough for entry order'() {
+    def 'should not open trade if allowed number of simultaneously opened trades has been reached'() {
         when:
-        strategyExecution.openTrade(SYMBOL, bar)
+        strategyExecution.openTrade(SYMBOL_1, bar)
 
-        then: 'funds are not enough'
-        1 * bar.getClosePrice() >> PrecisionNum.valueOf(LAST_BAR_CLOSE_PRICE)
-        1 * fundsManager.acquireFundsAndProvideTradeAmount(LAST_BAR_CLOSE_PRICE) >> null
+        then: 'number of simultaneously opened trades has been reached'
+        1 * tradeRepository.getAllTradesByStrategyExecutionId(STRATEGY_EXECUTION_ID) >> [
+            CLOSED_TRADE, OPENED_TRADE, CLOSED_TRADE, OPENED_TRADE, OPENED_TRADE, CLOSED_TRADE
+        ]
 
         then: 'publish correct event'
-        1 * eventBus.publishTradeWasNotOpenedEvent(STRATEGY_EXECUTION_ID, SYMBOL, 'not enough funds for entry order')
+        1 * eventBus.publishTradeWasNotOpenedEvent(STRATEGY_EXECUTION_ID, SYMBOL_1, 'allowed number of simultaneously opened trades has been reached')
 
         and: 'no other actions'
         0 * _
@@ -201,23 +194,20 @@ class StrategyExecutionTest extends Specification {
 
     def 'should not open trade if entry order was not filled'() {
         when:
-        strategyExecution.openTrade(SYMBOL, bar)
+        strategyExecution.openTrade(SYMBOL_1, bar)
 
         then: 'failed entry order execution'
-        1 * bar.getClosePrice() >> PrecisionNum.valueOf(LAST_BAR_CLOSE_PRICE)
-        1 * bar.getEndTime() >> ZonedDateTime.ofInstant(Instant.ofEpochMilli(LAST_BAR_TIMESTAMP), ZoneId.systemDefault())
-        1 * fundsManager.acquireFundsAndProvideTradeAmount(LAST_BAR_CLOSE_PRICE) >> AMOUNT
-        1 * orderExecutor.execute(_, STRATEGY_EXECUTION_TYPE) >> {
+        1 * tradeRepository.getAllTradesByStrategyExecutionId(STRATEGY_EXECUTION_ID) >> [CLOSED_TRADE, OPENED_TRADE]
+        1 * bar.getClosePrice() >> PrecisionNum.valueOf(PRICE_1)
+        1 * bar.getEndTime() >> ZonedDateTime.ofInstant(Instant.ofEpochMilli(TIMESTAMP_1), ZoneId.systemDefault())
+        1 * orderExecutor.execute(_, StrategyExecutionMode.TRADING) >> {
             def entryOrder = it[0] as Order
-            assertOrderBeforeExecution(entryOrder, BUY)
+            assertEntryOrderBeforeExecution(entryOrder)
             return entryOrder.toBuilder().status(NOT_FILLED).build()
         }
 
-        and: 'return funds which were acquired for the trade'
-        1 * fundsManager.returnFunds()
-
         and: 'publish correct event'
-        1 * eventBus.publishTradeWasNotOpenedEvent(STRATEGY_EXECUTION_ID, SYMBOL, 'entry order was not filled')
+        1 * eventBus.publishTradeWasNotOpenedEvent(STRATEGY_EXECUTION_ID, SYMBOL_1, 'entry order was not filled')
 
         and: 'no other actions'
         0 * _
@@ -227,35 +217,25 @@ class StrategyExecutionTest extends Specification {
     }
 
     def 'should close trade successfully'() {
-        given: 'trade to close'
-        def tradeToClose = createTradeToClose()
-
-        and: 'trade execution of the trade'
-        strategyExecution.tradeExecutions << [(SYMBOL) : tradeExecution]
+        given: 'trade execution of the trade'
+        strategyExecution.tradeExecutions << [(SYMBOL_1) : tradeExecution]
 
         when:
-        strategyExecution.closeTrade(tradeToClose)
+        strategyExecution.closeTrade(TRADE_TO_CLOSE)
 
         then: 'execute exit order'
-        1 * orderExecutor.execute(_, STRATEGY_EXECUTION_TYPE) >> {
-            def exitOrderBeforeExecution = it[0] as Order
-            assertOrderBeforeExecution(exitOrderBeforeExecution, SELL)
-            return exitOrderBeforeExecution.toBuilder()
-                .status(FILLED)
-                // usually order is executed at a little bit different price due to time lag
-                .price(PRICE_AT_ORDER_EXECUTION_TIME)
-                .build()
+        1 * orderExecutor.execute(_, StrategyExecutionMode.TRADING) >> {
+            def exitOrder = it[0] as Order
+            assertExitOrderBeforeExecution(exitOrder)
+            return exitOrder.toBuilder().status(FILLED).build()
         }
 
         and: 'save closed trade'
         1 * tradeRepository.save(_) >> { assertClosedTrade(it[0]) }
 
-        and: 'return funds which were acquired for the trade'
-        1 * fundsManager.returnFunds()
-
         and: 'stop trade execution'
         1 * tradeExecution.stop()
-        !strategyExecution.tradeExecutions.get(SYMBOL)
+        !strategyExecution.tradeExecutions.get(SYMBOL_1)
 
         and: 'publish correct event'
         1 * eventBus.publishTradeWasClosedEvent(_) >> { assertClosedTrade(it[0]) }
@@ -265,100 +245,66 @@ class StrategyExecutionTest extends Specification {
     }
 
     def 'should not close trade if exit order was not filled'() {
-        given: 'trade to close'
-        def tradeToClose = createTradeToClose()
-
-        and: 'trade execution of the trade'
-        strategyExecution.tradeExecutions << [(SYMBOL) : tradeExecution]
+        given: 'trade execution of the trade'
+        strategyExecution.tradeExecutions << [(SYMBOL_1) : tradeExecution]
 
         when:
-        strategyExecution.closeTrade(tradeToClose)
+        strategyExecution.closeTrade(TRADE_TO_CLOSE)
 
         then: 'failed entry order execution'
-        1 * orderExecutor.execute(_, STRATEGY_EXECUTION_TYPE) >> {
-            def exitOrderBeforeExecution = it[0] as Order
-            assertOrderBeforeExecution(exitOrderBeforeExecution, SELL)
-            return exitOrderBeforeExecution.toBuilder().status(NOT_FILLED).build()
+        1 * orderExecutor.execute(_, StrategyExecutionMode.TRADING) >> {
+            def exitOrder = it[0] as Order
+            assertExitOrderBeforeExecution(exitOrder)
+            return exitOrder.toBuilder().status(NOT_FILLED).build()
         }
 
         and: 'publish correct event'
-        1 * eventBus.publishTradeWasNotClosedEvent(tradeToClose, 'exit order was not filled')
+        1 * eventBus.publishTradeWasNotClosedEvent(TRADE_TO_CLOSE, 'exit order was not filled')
 
         and: 'no other actions'
         0 * _
 
         and: 'trade execution was not stopped and still exist'
-        strategyExecution.tradeExecutions.get(SYMBOL)
+        strategyExecution.tradeExecutions.get(SYMBOL_1)
     }
 
-    private assertOrderBeforeExecution(Order order, OrderType orderType) {
-        assert order.status == NEW
-        assert order.type == orderType
-        assert order.symbol == SYMBOL
-        assert order.amount == AMOUNT
-        assert order.price == LAST_BAR_CLOSE_PRICE
-        assert order.timestamp == LAST_BAR_TIMESTAMP
+    private assertEntryOrderBeforeExecution(Order entryOrder) {
+        assert entryOrder.status == NEW
+        assert entryOrder.type == BUY
+        assert entryOrder.symbol == SYMBOL_1
+        assert entryOrder.amount == AMOUNT_1
+        assert entryOrder.price == PRICE_1
+        assert entryOrder.timestamp == TIMESTAMP_1
+    }
+
+    private assertExitOrderBeforeExecution(Order exitOrder) {
+        assert exitOrder.status == NEW
+        assert exitOrder.type == SELL
+        assert exitOrder.symbol == SYMBOL_1
+        assert exitOrder.amount == AMOUNT_2
+        assert exitOrder.price == PRICE_2
+        assert exitOrder.timestamp == TIMESTAMP_2
     }
 
     private assertOpenedTrade(Trade openedTrade) {
         assert UUID.fromString(openedTrade.id)
         assert openedTrade.strategyExecutionId == STRATEGY_EXECUTION_ID
-        assert openedTrade.type == TRADE_TYPE
+        assert openedTrade.type == LONG
         assert openedTrade.entryOrder.status == FILLED
         assert openedTrade.entryOrder.type == BUY
-        assert openedTrade.entryOrder.symbol == SYMBOL
-        assert openedTrade.entryOrder.amount == AMOUNT
-        assert openedTrade.entryOrder.price == PRICE_AT_ORDER_EXECUTION_TIME
-        assert openedTrade.entryOrder.timestamp == LAST_BAR_TIMESTAMP
+        assert openedTrade.entryOrder.symbol == SYMBOL_1
+        assert openedTrade.entryOrder.amount == AMOUNT_1
+        assert openedTrade.entryOrder.price == PRICE_1
+        assert openedTrade.entryOrder.timestamp == TIMESTAMP_1
         assert !openedTrade.exitOrder
     }
 
     private assertClosedTrade(Trade closedTrade) {
         assert closedTrade.exitOrder.status == FILLED
         assert closedTrade.exitOrder.type == SELL
-        assert closedTrade.exitOrder.symbol == SYMBOL
-        assert closedTrade.exitOrder.amount == AMOUNT
-        assert closedTrade.exitOrder.price == PRICE_AT_ORDER_EXECUTION_TIME
-        assert closedTrade.exitOrder.timestamp == LAST_BAR_TIMESTAMP
-    }
-
-    private Trade createTradeToClose() {
-        def entryOrder = Order.builder().symbol(SYMBOL).build()
-        def exitOrder = Order.builder()
-            .type(SELL)
-            .symbol(SYMBOL)
-            .amount(AMOUNT)
-            .price(LAST_BAR_CLOSE_PRICE)
-            .timestamp(LAST_BAR_TIMESTAMP)
-            .build()
-        Trade.builder()
-            .entryOrder(entryOrder)
-            .exitOrder(exitOrder)
-            .build()
-    }
-
-    private Strategy createStrategy(EntryRule entryRule, ExitRule exitRule) {
-        new Strategy() {
-            @Override
-            String getId() {
-                return '1'
-            }
-            @Override
-            String getName() {
-                return 'strategy-1'
-            }
-            @Override
-            TradeType getTradeType() {
-                return TRADE_TYPE
-            }
-            @Override
-            EntryRule getEntryRule() {
-                return entryRule
-            }
-            @Override
-            ExitRule getExitRule() {
-                return exitRule
-            }
-        }
+        assert closedTrade.exitOrder.symbol == SYMBOL_1
+        assert closedTrade.exitOrder.amount == AMOUNT_2
+        assert closedTrade.exitOrder.price == PRICE_2
+        assert closedTrade.exitOrder.timestamp == TIMESTAMP_2
     }
 }

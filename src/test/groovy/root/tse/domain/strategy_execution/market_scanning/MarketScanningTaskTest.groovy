@@ -6,17 +6,11 @@ import root.tse.domain.strategy_execution.rule.EntryRule
 import root.tse.domain.strategy_execution.rule.RuleCheckResult
 import spock.lang.Specification
 
+import static root.tse.util.TestData.*
 import static root.tse.domain.strategy_execution.rule.RuleCheckStatus.NOT_SATISFIED
 import static root.tse.domain.strategy_execution.rule.RuleCheckStatus.SATISFIED
 
 class MarketScanningTaskTest extends Specification {
-
-    private static final STRATEGY_EXECUTION_ID = 'STRATEGY-EXECUTION-1'
-
-    private static final SYMBOL_1 = 'SYMBOL-1'
-    private static final SYMBOL_2 = 'SYMBOL-2'
-    private static final SYMBOL_3 = 'SYMBOL-3'
-    private static final SYMBOLS = [SYMBOL_1, SYMBOL_2, SYMBOL_3] as Set
 
     private currentBarForSymbol1 = Mock(Bar)
     private currentBarForSymbol3 = Mock(Bar)

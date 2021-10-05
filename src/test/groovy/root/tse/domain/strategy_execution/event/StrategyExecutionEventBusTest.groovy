@@ -1,7 +1,8 @@
 package root.tse.domain.strategy_execution.event
 
-import root.tse.domain.strategy_execution.trade.Trade
 import spock.lang.Specification
+
+import static root.tse.util.TestData.*
 
 class StrategyExecutionEventBusTest extends Specification {
 
@@ -10,44 +11,36 @@ class StrategyExecutionEventBusTest extends Specification {
     private eventBus = new StrategyExecutionEventBus([eventSubscriber1, eventSubscriber2])
 
     def 'should dispatch events correctly'() {
-        given:
-        def openedTrade = Trade.builder().build()
-        def closedTrade = Trade.builder().build()
-        def tradeToClose = Trade.builder().build()
-        def strategyExecutionId = 'strategy-execution-id'
-        def symbol = 'symbol-1'
-        def reason = 'reason-1'
-
         when:
-        eventBus.publishTradeWasOpenedEvent(openedTrade)
+        eventBus.publishTradeWasOpenedEvent(OPENED_TRADE)
 
         then:
-        1 * eventSubscriber1.acceptTradeWasOpenedEvent(openedTrade)
-        1 * eventSubscriber2.acceptTradeWasOpenedEvent(openedTrade)
+        1 * eventSubscriber1.acceptTradeWasOpenedEvent(OPENED_TRADE)
+        1 * eventSubscriber2.acceptTradeWasOpenedEvent(OPENED_TRADE)
         0 * _
 
         when:
-        eventBus.publishTradeWasNotOpenedEvent(strategyExecutionId, symbol, reason)
+        eventBus.publishTradeWasNotOpenedEvent(STRATEGY_EXECUTION_ID, SYMBOL_1, REASON)
 
         then:
-        1 * eventSubscriber1.acceptTradeWasNotOpenedEvent(strategyExecutionId, symbol, reason)
-        1 * eventSubscriber2.acceptTradeWasNotOpenedEvent(strategyExecutionId, symbol, reason)
+        1 * eventSubscriber1.acceptTradeWasNotOpenedEvent(STRATEGY_EXECUTION_ID, SYMBOL_1, REASON)
+        1 * eventSubscriber2.acceptTradeWasNotOpenedEvent(STRATEGY_EXECUTION_ID, SYMBOL_1, REASON)
         0 * _
 
         when:
-        eventBus.publishTradeWasClosedEvent(closedTrade)
+        eventBus.publishTradeWasClosedEvent(CLOSED_TRADE)
 
         then:
-        1 * eventSubscriber1.acceptTradeWasClosedEvent(closedTrade)
-        1 * eventSubscriber2.acceptTradeWasClosedEvent(closedTrade)
+        1 * eventSubscriber1.acceptTradeWasClosedEvent(CLOSED_TRADE)
+        1 * eventSubscriber2.acceptTradeWasClosedEvent(CLOSED_TRADE)
         0 * _
 
         when:
-        eventBus.publishTradeWasNotClosedEvent(tradeToClose, reason)
+        eventBus.publishTradeWasNotClosedEvent(TRADE_TO_CLOSE, REASON)
 
         then:
-        1 * eventSubscriber1.acceptTradeWasNotClosedEvent(tradeToClose, reason)
-        1 * eventSubscriber2.acceptTradeWasNotClosedEvent(tradeToClose, reason)
+        1 * eventSubscriber1.acceptTradeWasNotClosedEvent(TRADE_TO_CLOSE, REASON)
+        1 * eventSubscriber2.acceptTradeWasNotClosedEvent(TRADE_TO_CLOSE, REASON)
         0 * _
     }
 }

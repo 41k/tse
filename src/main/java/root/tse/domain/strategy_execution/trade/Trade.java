@@ -1,15 +1,19 @@
 package root.tse.domain.strategy_execution.trade;
 
 import lombok.Builder;
+import lombok.NonNull;
 import lombok.Value;
 
 @Value
 @Builder(toBuilder = true)
 public class Trade {
-
+    @NonNull
     String id;
+    @NonNull
     String strategyExecutionId;
+    @NonNull
     TradeType type;
+    @NonNull
     Order entryOrder;
     Order exitOrder;
 

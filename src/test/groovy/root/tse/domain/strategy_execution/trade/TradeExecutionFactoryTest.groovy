@@ -5,6 +5,8 @@ import root.tse.domain.strategy_execution.clock.ClockSignalDispatcher
 import root.tse.domain.strategy_execution.rule.ExitRule
 import spock.lang.Specification
 
+import static root.tse.util.TestData.OPENED_TRADE
+
 class TradeExecutionFactoryTest extends Specification {
 
     private clockSignalDispatcher = Mock(ClockSignalDispatcher)
@@ -12,19 +14,18 @@ class TradeExecutionFactoryTest extends Specification {
 
     def 'should create trade execution correctly'() {
         given:
-        def openedTrade = Trade.builder().build()
         def exitRule = Mock(ExitRule)
         def strategyExecution = Mock(StrategyExecution)
 
         when:
-        def tradeExecution = tradeExecutionFactory.create(openedTrade, strategyExecution)
+        def tradeExecution = tradeExecutionFactory.create(OPENED_TRADE, strategyExecution)
 
         then:
         1 * strategyExecution.getExitRule() >> exitRule
         0 * _
 
         and:
-        tradeExecution.openedTrade == openedTrade
+        tradeExecution.openedTrade == OPENED_TRADE
         tradeExecution.exitRule == exitRule
         tradeExecution.clockSignalDispatcher == clockSignalDispatcher
         tradeExecution.strategyExecution == strategyExecution

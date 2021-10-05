@@ -7,14 +7,12 @@ import org.ta4j.core.Bar;
 import root.tse.domain.strategy_execution.clock.ClockSignalConsumer;
 import root.tse.domain.strategy_execution.clock.ClockSignalDispatcher;
 import root.tse.domain.strategy_execution.event.StrategyExecutionEventBus;
-import root.tse.domain.strategy_execution.funds.FundsManager;
 import root.tse.domain.strategy_execution.market_scanning.MarketScanningTask;
 import root.tse.domain.strategy_execution.rule.ExitRule;
 import root.tse.domain.strategy_execution.trade.*;
 
 import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
@@ -35,17 +33,14 @@ public class StrategyExecution implements ClockSignalConsumer {
     private static final String TRADE_WAS_CLOSED = LOG_MSG_PREFIX + TRADE_DESCRIPTION + " has been closed successfully";
     private static final String TRADE_WAS_NOT_CLOSED = LOG_MSG_PREFIX + TRADE_DESCRIPTION + " was not closed, reason: ";
     private static final String SAME_SYMBOL_EXECUTION_REASON = "there is trade execution for the same symbol";
-    private static final String NOT_ENOUGH_FUNDS_REASON = "not enough funds for entry order";
+    private static final String OPENED_TRADES_NUMBER_THRESHOLD_REASON = "allowed number of simultaneously opened trades has been reached";
     private static final String ENTRY_ORDER_WAS_NOT_FILLED_REASON = "entry order was not filled";
     private static final String EXIT_ORDER_WAS_NOT_FILLED_REASON = "exit order was not filled";
 
     private final String id;
-    private final Strategy strategy;
-    private final Set<String> symbols;
-    private final StrategyExecutionType executionType;
+    private final StrategyExecutionContext context;
     private final ExecutorService marketScanningTaskExecutor;
     private final ClockSignalDispatcher clockSignalDispatcher;
-    private final FundsManager fundsManager;
     private final OrderExecutor orderExecutor;
     private final TradeExecutionFactory tradeExecutionFactory;
     private final TradeRepository tradeRepository;
@@ -55,12 +50,12 @@ public class StrategyExecution implements ClockSignalConsumer {
     private MarketScanningTask marketScanningTask;
 
     public void start() {
-        var interval = strategy.getEntryRule().getHighestInterval();
+        var interval = context.getEntryRule().getHighestInterval();
         clockSignalDispatcher.subscribe(interval, this);
     }
 
     public void stop() {
-        var interval = strategy.getEntryRule().getHighestInterval();
+        var interval = context.getEntryRule().getHighestInterval();
         clockSignalDispatcher.unsubscribe(interval, this);
         Optional.ofNullable(marketScanningTask).ifPresent(MarketScanningTask::stop);
         marketScanningTaskExecutor.shutdownNow();
@@ -80,14 +75,15 @@ public class StrategyExecution implements ClockSignalConsumer {
             log.info(TRADE_WAS_NOT_OPENED + SAME_SYMBOL_EXECUTION_REASON, id, symbol);
             return;
         }
-        var price = bar.getClosePrice().doubleValue();
-        var amount = fundsManager.acquireFundsAndProvideTradeAmount(price);
-        if (isNull(amount) || amount <= 0) {
-            eventBus.publishTradeWasNotOpenedEvent(id, symbol, NOT_ENOUGH_FUNDS_REASON);
-            log.info(TRADE_WAS_NOT_OPENED + NOT_ENOUGH_FUNDS_REASON, id, symbol);
+        if (allowedNumberOfSimultaneouslyOpenedTradesHasBeenReached()) {
+            eventBus.publishTradeWasNotOpenedEvent(id, symbol, OPENED_TRADES_NUMBER_THRESHOLD_REASON);
+            log.info(TRADE_WAS_NOT_OPENED + OPENED_TRADES_NUMBER_THRESHOLD_REASON, id, symbol);
             return;
         }
-        var tradeType = strategy.getTradeType();
+        var tradeType = context.getTradeType();
+        var price = bar.getClosePrice().doubleValue();
+        var fundsPerTrade = context.getFundsPerTrade();
+        var amount = fundsPerTrade / price;
         var timestamp = bar.getEndTime().toInstant().toEpochMilli();
         var entryOrder = Order.builder()
             .type(tradeType.getEntryOrderType())
@@ -96,10 +92,10 @@ public class StrategyExecution implements ClockSignalConsumer {
             .price(price)
             .timestamp(timestamp)
             .build();
-        var executedEntryOrder = orderExecutor.execute(entryOrder, executionType);
+        var executionMode = context.getExecutionMode();
+        var executedEntryOrder = orderExecutor.execute(entryOrder, executionMode);
         var entryOrderWasNotFilled = !FILLED.equals(executedEntryOrder.getStatus());
         if (entryOrderWasNotFilled) {
-            fundsManager.returnFunds();
             eventBus.publishTradeWasNotOpenedEvent(id, symbol, ENTRY_ORDER_WAS_NOT_FILLED_REASON);
             log.error(TRADE_WAS_NOT_OPENED + ENTRY_ORDER_WAS_NOT_FILLED_REASON, id, symbol);
             return;
@@ -119,7 +115,8 @@ public class StrategyExecution implements ClockSignalConsumer {
     public void closeTrade(Trade tradeToClose) {
         var symbol = tradeToClose.getSymbol();
         var exitOrder = tradeToClose.getExitOrder();
-        var executedExitOrder = orderExecutor.execute(exitOrder, executionType);
+        var executionMode = context.getExecutionMode();
+        var executedExitOrder = orderExecutor.execute(exitOrder, executionMode);
         var exitOrderWasNotFilled = !FILLED.equals(executedExitOrder.getStatus());
         if (exitOrderWasNotFilled) {
             eventBus.publishTradeWasNotClosedEvent(tradeToClose, EXIT_ORDER_WAS_NOT_FILLED_REASON);
@@ -128,21 +125,20 @@ public class StrategyExecution implements ClockSignalConsumer {
         }
         var closedTrade = tradeToClose.toBuilder().exitOrder(executedExitOrder).build();
         tradeRepository.save(closedTrade);
-        fundsManager.returnFunds();
         stopTradeExecution(closedTrade);
         eventBus.publishTradeWasClosedEvent(closedTrade);
         log.info(TRADE_WAS_CLOSED, id, symbol);
     }
 
     public ExitRule getExitRule() {
-        return strategy.getExitRule();
+        return context.getExitRule();
     }
 
     private void rerunMarketScanningTask() {
         Optional.ofNullable(marketScanningTask).ifPresent(MarketScanningTask::stop);
         this.marketScanningTask = MarketScanningTask.builder()
-            .entryRule(strategy.getEntryRule())
-            .symbols(symbols)
+            .entryRule(context.getEntryRule())
+            .symbols(context.getSymbols())
             .strategyExecution(this)
             .build();
         marketScanningTaskExecutor.submit(marketScanningTask);
@@ -159,5 +155,13 @@ public class StrategyExecution implements ClockSignalConsumer {
         var symbol = closedTrade.getSymbol();
         var tradeExecution = tradeExecutions.remove(symbol);
         tradeExecution.stop();
+    }
+
+    private boolean allowedNumberOfSimultaneouslyOpenedTradesHasBeenReached() {
+        var numberOfOpenedTrades = tradeRepository.getAllTradesByStrategyExecutionId(id).stream()
+            .filter(trade -> isNull(trade.getExitOrder()))
+            .count();
+        var allowedNumberOfSimultaneouslyOpenedTrades = context.getAllowedNumberOfSimultaneouslyOpenedTrades();
+        return numberOfOpenedTrades >= allowedNumberOfSimultaneouslyOpenedTrades;
     }
 }

@@ -38,21 +38,11 @@
             <column name="entry_order_status" type="varchar(10)">
                 <constraints nullable="false"/>
             </column>
-            <column name="exit_order_type" type="varchar(4)">
-                <constraints nullable="false"/>
-            </column>
-            <column name="exit_order_amount" type="double">
-                <constraints nullable="false"/>
-            </column>
-            <column name="exit_order_price" type="double">
-                <constraints nullable="false"/>
-            </column>
-            <column name="exit_order_timestamp" type="timestamp">
-                <constraints nullable="false"/>
-            </column>
-            <column name="exit_order_status" type="varchar(10)">
-                <constraints nullable="false"/>
-            </column>
+            <column name="exit_order_type" type="varchar(4)"/>
+            <column name="exit_order_amount" type="double"/>
+            <column name="exit_order_price" type="double"/>
+            <column name="exit_order_timestamp" type="timestamp"/>
+            <column name="exit_order_status" type="varchar(10)"/>
         </createTable>
 
     </changeSet>
