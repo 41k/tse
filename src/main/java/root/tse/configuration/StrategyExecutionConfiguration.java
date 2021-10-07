@@ -2,6 +2,7 @@ package root.tse.configuration;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.scheduling.annotation.EnableScheduling;
 import root.tse.domain.strategy_execution.ExchangeGateway;
 import root.tse.domain.strategy_execution.StrategyExecutionFactory;
 import root.tse.domain.strategy_execution.clock.ClockSignalDispatcher;
@@ -9,6 +10,7 @@ import root.tse.domain.strategy_execution.event.StrategyExecutionEventBus;
 import root.tse.domain.strategy_execution.trade.OrderExecutor;
 import root.tse.domain.strategy_execution.trade.TradeExecutionFactory;
 import root.tse.domain.strategy_execution.trade.TradeRepository;
+import root.tse.infrastructure.clock.ClockSignalPropagator;
 import root.tse.infrastructure.persistence.trade.TradeDbEntryJpaRepository;
 import root.tse.infrastructure.persistence.trade.TradeRepositoryImpl;
 import root.tse.infrastructure.persistence.trade.TradeToDbEntryMapper;
@@ -18,6 +20,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 @Configuration
+@EnableScheduling
 public class StrategyExecutionConfiguration {
 
     @Bean
@@ -67,5 +70,10 @@ public class StrategyExecutionConfiguration {
     @Bean
     public StrategyExecutionEventBus eventBus() {
         return new StrategyExecutionEventBus(List.of());
+    }
+
+    @Bean
+    public ClockSignalPropagator clockSignalPropagator(ClockSignalDispatcher clockSignalDispatcher) {
+        return new ClockSignalPropagator(clockSignalDispatcher);
     }
 }

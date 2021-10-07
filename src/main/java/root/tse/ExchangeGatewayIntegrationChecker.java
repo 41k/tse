@@ -10,7 +10,7 @@ import root.tse.domain.strategy_execution.trade.OrderType;
 
 //@Component
 @RequiredArgsConstructor
-public class ExchangeGatewayChecker implements CommandLineRunner {
+public class ExchangeGatewayIntegrationChecker implements CommandLineRunner {
 
     private final ExchangeGateway exchangeGateway;
 

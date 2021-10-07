@@ -30,7 +30,7 @@ public class ClockSignalDispatcher {
             .ifPresent(consumers -> consumers.remove(consumer.getId()));
     }
 
-    public void propagateClockSignal(Interval interval) {
+    public void dispatch(Interval interval) {
         Optional.ofNullable(intervalToConsumersMap.get(interval)).ifPresent(consumers ->
             consumers.values().forEach(consumer -> taskExecutor.submit(new ClockSignalDispatchTask(consumer))));
     }

@@ -79,7 +79,7 @@ class ClockSignalDispatcherTest extends Specification {
         ]
     }
 
-    def 'should propagate clock signal to appropriate consumers'() {
+    def 'should dispatch clock signal to appropriate consumers'() {
         given: 'dispatcher with consumers'
         clockSignalDispatcher.intervalToConsumersMap << [
             (INTERVAL_1) : [
@@ -92,7 +92,7 @@ class ClockSignalDispatcherTest extends Specification {
         ]
 
         when:
-        clockSignalDispatcher.propagateClockSignal(INTERVAL_1)
+        clockSignalDispatcher.dispatch(INTERVAL_1)
 
         then:
         1 * taskExecutor.submit(new ClockSignalDispatchTask(consumer1))
@@ -100,7 +100,7 @@ class ClockSignalDispatcherTest extends Specification {
         0 * _
     }
 
-    def 'should not propagate clock signal if there is no consumer provided interval'() {
+    def 'should not dispatch clock signal if there is no consumer provided interval'() {
         given: 'dispatcher with consumers'
         clockSignalDispatcher.intervalToConsumersMap << [
             (INTERVAL_2) : [
@@ -109,7 +109,7 @@ class ClockSignalDispatcherTest extends Specification {
         ]
 
         when:
-        clockSignalDispatcher.propagateClockSignal(INTERVAL_1)
+        clockSignalDispatcher.dispatch(INTERVAL_1)
 
         then:
         0 * _
