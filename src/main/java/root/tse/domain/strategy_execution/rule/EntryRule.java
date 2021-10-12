@@ -1,6 +1,10 @@
 package root.tse.domain.strategy_execution.rule;
 
-public abstract class EntryRule extends Rule {
+import root.tse.domain.strategy_execution.Interval;
 
-    public abstract RuleCheckResult check(String symbol);
+public interface EntryRule {
+
+    RuleCheckResult check(String symbol);
+
+    Interval getHighestInterval();
 }

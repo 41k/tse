@@ -7,8 +7,6 @@ import root.tse.domain.strategy_execution.clock.ClockSignalConsumer;
 import root.tse.domain.strategy_execution.clock.ClockSignalDispatcher;
 import root.tse.domain.strategy_execution.rule.ExitRule;
 
-import static root.tse.domain.strategy_execution.rule.RuleCheckStatus.SATISFIED;
-
 @Slf4j
 @Builder
 public class TradeExecution implements ClockSignalConsumer {
@@ -38,8 +36,7 @@ public class TradeExecution implements ClockSignalConsumer {
         var symbol = openedTrade.getSymbol();
         var entryOrder = openedTrade.getEntryOrder();
         var ruleCheckResult = exitRule.check(entryOrder);
-        var exitRuleWasSatisfied = SATISFIED.equals(ruleCheckResult.getStatus());
-        if (exitRuleWasSatisfied) {
+        if (ruleCheckResult.ruleWasSatisfied()) {
             var bar = ruleCheckResult.getBarOnWhichRuleWasSatisfied();
             var exitOrder = Order.builder()
                 .type(openedTrade.getExitOrderType())

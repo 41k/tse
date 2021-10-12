@@ -9,8 +9,6 @@ import java.util.ArrayList;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import static root.tse.domain.strategy_execution.rule.RuleCheckStatus.SATISFIED;
-
 @Slf4j
 @Builder
 public class MarketScanningTask implements Runnable {
@@ -43,8 +41,7 @@ public class MarketScanningTask implements Runnable {
 
     private String check(String symbol) {
         var ruleCheckResult = entryRule.check(symbol);
-        var entryRuleWasSatisfied = SATISFIED.equals(ruleCheckResult.getStatus());
-        if (entryRuleWasSatisfied) {
+        if (ruleCheckResult.ruleWasSatisfied()) {
             var bar = ruleCheckResult.getBarOnWhichRuleWasSatisfied();
             strategyExecution.openTrade(symbol, bar);
         }

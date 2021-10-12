@@ -7,19 +7,15 @@ import root.tse.domain.strategy_execution.rule.RuleCheckResult
 import spock.lang.Specification
 
 import static root.tse.util.TestData.*
-import static root.tse.domain.strategy_execution.rule.RuleCheckStatus.NOT_SATISFIED
-import static root.tse.domain.strategy_execution.rule.RuleCheckStatus.SATISFIED
 
 class MarketScanningTaskTest extends Specification {
 
     private currentBarForSymbol1 = Mock(Bar)
     private currentBarForSymbol3 = Mock(Bar)
 
-    private ruleCheckResultForSymbol1 = RuleCheckResult.builder()
-        .status(SATISFIED).barOnWhichRuleWasSatisfied(currentBarForSymbol1).build()
-    private ruleCheckResultForSymbol2 = RuleCheckResult.builder().status(NOT_SATISFIED).build()
-    private ruleCheckResultForSymbol3 = RuleCheckResult.builder()
-        .status(SATISFIED).barOnWhichRuleWasSatisfied(currentBarForSymbol3).build()
+    private ruleCheckResultForSymbol1 = RuleCheckResult.satisfied(currentBarForSymbol1)
+    private ruleCheckResultForSymbol2 = RuleCheckResult.notSatisfied()
+    private ruleCheckResultForSymbol3 = RuleCheckResult.satisfied(currentBarForSymbol3)
 
     private entryRule = Mock(EntryRule)
     private strategyExecution = Mock(StrategyExecution)

@@ -23,7 +23,8 @@
         <ta4j.version>0.13</ta4j.version>
         <commons-codec.version>1.13</commons-codec.version>
         <lombok.version>1.18.8</lombok.version>
-        <groovy.version>1.2-groovy-2.4</groovy.version>
+        <spock.version>2.0-groovy-2.5</spock.version>
+        <wiremock.version>2.26.3</wiremock.version>
         <gmavenplus.version>1.6</gmavenplus.version>
         <!-- Build properties -->
         <maven.version>3.3.9</maven.version>
@@ -133,13 +134,19 @@
         <dependency>
             <groupId>org.spockframework</groupId>
             <artifactId>spock-core</artifactId>
-            <version>${groovy.version}</version>
+            <version>${spock.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.spockframework</groupId>
             <artifactId>spock-spring</artifactId>
-            <version>${groovy.version}</version>
+            <version>${spock.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.github.tomakehurst</groupId>
+            <artifactId>wiremock-standalone</artifactId>
+            <version>${wiremock.version}</version>
             <scope>test</scope>
         </dependency>
 

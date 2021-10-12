@@ -2,8 +2,8 @@ package root.tse.domain.strategy_execution.trade
 
 import org.ta4j.core.Bar
 import org.ta4j.core.num.PrecisionNum
-import root.tse.domain.strategy_execution.StrategyExecution
 import root.tse.domain.strategy_execution.Interval
+import root.tse.domain.strategy_execution.StrategyExecution
 import root.tse.domain.strategy_execution.clock.ClockSignalDispatcher
 import root.tse.domain.strategy_execution.rule.ExitRule
 import root.tse.domain.strategy_execution.rule.RuleCheckResult
@@ -13,12 +13,10 @@ import java.time.Instant
 import java.time.ZoneId
 import java.time.ZonedDateTime
 
-import static root.tse.util.TestData.*
 import static root.tse.domain.strategy_execution.trade.OrderStatus.NEW
 import static root.tse.domain.strategy_execution.trade.OrderType.SELL
 import static root.tse.domain.strategy_execution.trade.TradeType.LONG
-import static root.tse.domain.strategy_execution.rule.RuleCheckStatus.SATISFIED
-import static root.tse.domain.strategy_execution.rule.RuleCheckStatus.NOT_SATISFIED
+import static root.tse.util.TestData.*
 
 class TradeExecutionTest extends Specification {
 
@@ -56,7 +54,7 @@ class TradeExecutionTest extends Specification {
 
     def 'should close trade if exit rule is satisfied'() {
         given:
-        def ruleCheckResult = RuleCheckResult.builder().status(SATISFIED).barOnWhichRuleWasSatisfied(bar).build()
+        def ruleCheckResult = RuleCheckResult.satisfied(bar)
 
         when:
         tradeExecution.acceptClockSignal()
@@ -87,7 +85,7 @@ class TradeExecutionTest extends Specification {
 
     def 'should not close trade if exit rule is not satisfied'() {
         given:
-        def ruleCheckResult = RuleCheckResult.builder().status(NOT_SATISFIED).build()
+        def ruleCheckResult = RuleCheckResult.notSatisfied()
 
         when:
         tradeExecution.acceptClockSignal()

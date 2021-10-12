@@ -1,28 +1,31 @@
 package root.tse.infrastructure.persistence.trade
 
 import org.springframework.beans.factory.annotation.Autowired
-import root.tse.infrastructure.persistence.BaseJpaRepositoryTest
+import org.springframework.boot.test.context.SpringBootTest
+import root.TseApp
+import spock.lang.Specification
 
 import static root.tse.util.TestData.*
 
-class TradeDbEntryJpaRepositoryTest extends BaseJpaRepositoryTest {
+@SpringBootTest(classes = TseApp)
+class TradeDbEntryJpaRepositoryTest extends Specification {
 
     @Autowired
     private TradeDbEntryJpaRepository repository
 
     def setup() {
-        cleanTable('trade')
+        repository.deleteAll()
     }
 
     def 'should save, find and delete opened trade'() {
         given:
-        assert repository.findAll().size() == 0
+        assert repository.count() == 0
 
         when:
         repository.save(OPENED_TRADE_DB_ENTRY)
 
         then:
-        repository.findAll().size() == 1
+        repository.count() == 1
 
         and:
         repository.findById(TRADE_ID).get() == OPENED_TRADE_DB_ENTRY
@@ -31,7 +34,7 @@ class TradeDbEntryJpaRepositoryTest extends BaseJpaRepositoryTest {
         repository.deleteById(TRADE_ID)
 
         then:
-        repository.findAll().size() == 0
+        repository.count() == 0
     }
 
     def 'should save, find and delete closed trade'() {
