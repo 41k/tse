@@ -3,27 +3,27 @@ package root.tse.domain.strategy_execution;
 import lombok.RequiredArgsConstructor;
 import root.tse.domain.strategy_execution.clock.ClockSignalDispatcher;
 import root.tse.domain.strategy_execution.event.StrategyExecutionEventBus;
-import root.tse.domain.strategy_execution.trade.OrderExecutor;
 import root.tse.domain.strategy_execution.trade.TradeExecutionFactory;
-import root.tse.domain.strategy_execution.trade.TradeRepository;
+import root.tse.domain.strategy_execution.trade.TradeService;
 
+import java.time.Clock;
 import java.util.UUID;
 import java.util.concurrent.ExecutorService;
 
 @RequiredArgsConstructor
-public class StrategyExecutionFactory {
+public class MarketScanningStrategyExecutionFactory {
 
     private final ExecutorService marketScanningTaskExecutor;
     private final ClockSignalDispatcher clockSignalDispatcher;
-    private final OrderExecutor orderExecutor;
+    private final TradeService tradeService;
     private final TradeExecutionFactory tradeExecutionFactory;
-    private final TradeRepository tradeRepository;
     private final StrategyExecutionEventBus eventBus;
+    private final Clock clock;
 
-    public StrategyExecution create(StrategyExecutionContext context) {
+    public MarketScanningStrategyExecution create(StrategyExecutionContext context) {
         var strategyExecutionId = UUID.randomUUID().toString();
-        return new StrategyExecution(
-            strategyExecutionId, context, marketScanningTaskExecutor, clockSignalDispatcher, orderExecutor,
-            tradeExecutionFactory, tradeRepository, eventBus);
+        return new MarketScanningStrategyExecution(
+            strategyExecutionId, context, marketScanningTaskExecutor,
+            clockSignalDispatcher, tradeService, tradeExecutionFactory, eventBus, clock);
     }
 }

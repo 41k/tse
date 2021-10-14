@@ -1,12 +1,12 @@
 package root.tse.domain.strategy_execution.market_scanning
 
 import org.ta4j.core.Bar
-import root.tse.domain.strategy_execution.StrategyExecution
+import root.tse.domain.strategy_execution.MarketScanningStrategyExecution
 import root.tse.domain.strategy_execution.rule.EntryRule
 import root.tse.domain.strategy_execution.rule.RuleCheckResult
 import spock.lang.Specification
 
-import static root.tse.util.TestData.*
+import static root.tse.util.TestUtils.*
 
 class MarketScanningTaskTest extends Specification {
 
@@ -18,7 +18,7 @@ class MarketScanningTaskTest extends Specification {
     private ruleCheckResultForSymbol3 = RuleCheckResult.satisfied(currentBarForSymbol3)
 
     private entryRule = Mock(EntryRule)
-    private strategyExecution = Mock(StrategyExecution)
+    private strategyExecution = Mock(MarketScanningStrategyExecution)
 
     private MarketScanningTask marketScanningTask
 

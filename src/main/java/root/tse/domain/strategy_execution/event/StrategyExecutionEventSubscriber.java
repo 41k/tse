@@ -10,5 +10,5 @@ public interface StrategyExecutionEventSubscriber {
 
     void acceptTradeWasClosedEvent(Trade closedTrade);
 
-    void acceptTradeWasNotClosedEvent(Trade tradeToClose, String reason);
+    void acceptTradeWasNotClosedEvent(Trade openedTrade, String reason);
 }

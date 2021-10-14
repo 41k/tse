@@ -4,17 +4,20 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import root.tse.domain.strategy_execution.ExchangeGateway;
-import root.tse.domain.strategy_execution.StrategyExecutionFactory;
+import root.tse.domain.strategy_execution.MarketScanningStrategyExecutionFactory;
+import root.tse.domain.strategy_execution.SimpleStrategyExecutionFactory;
 import root.tse.domain.strategy_execution.clock.ClockSignalDispatcher;
 import root.tse.domain.strategy_execution.event.StrategyExecutionEventBus;
 import root.tse.domain.strategy_execution.trade.OrderExecutor;
 import root.tse.domain.strategy_execution.trade.TradeExecutionFactory;
 import root.tse.domain.strategy_execution.trade.TradeRepository;
+import root.tse.domain.strategy_execution.trade.TradeService;
 import root.tse.infrastructure.clock.ClockSignalPropagator;
 import root.tse.infrastructure.persistence.trade.TradeDbEntryJpaRepository;
 import root.tse.infrastructure.persistence.trade.TradeRepositoryImpl;
 import root.tse.infrastructure.persistence.trade.TradeToDbEntryMapper;
 
+import java.time.Clock;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -24,20 +27,25 @@ import java.util.concurrent.Executors;
 public class StrategyExecutionConfiguration {
 
     @Bean
-    public StrategyExecutionFactory strategyExecutionFactory(ExecutorService marketScanningTaskExecutor,
-                                                             ClockSignalDispatcher clockSignalDispatcher,
-                                                             OrderExecutor orderExecutor,
-                                                             TradeExecutionFactory tradeExecutionFactory,
-                                                             TradeRepository tradeRepository,
-                                                             StrategyExecutionEventBus eventBus) {
-        return new StrategyExecutionFactory(
-            marketScanningTaskExecutor, clockSignalDispatcher,
-            orderExecutor, tradeExecutionFactory, tradeRepository, eventBus);
+    public SimpleStrategyExecutionFactory simpleStrategyExecutionFactory(ClockSignalDispatcher clockSignalDispatcher,
+                                                                         TradeService tradeService,
+                                                                         StrategyExecutionEventBus eventBus) {
+        return new SimpleStrategyExecutionFactory(clockSignalDispatcher, tradeService, eventBus);
+    }
+
+    @Bean
+    public MarketScanningStrategyExecutionFactory marketScanningStrategyExecutionFactory(
+        ExecutorService marketScanningTaskExecutor, ClockSignalDispatcher clockSignalDispatcher,
+        TradeService tradeService, TradeExecutionFactory tradeExecutionFactory, StrategyExecutionEventBus eventBus,
+        Clock clock) {
+        return new MarketScanningStrategyExecutionFactory(
+            marketScanningTaskExecutor, clockSignalDispatcher, tradeService, tradeExecutionFactory, eventBus, clock);
     }
 
     @Bean
     public ExecutorService marketScanningTaskExecutor() {
-        return Executors.newSingleThreadExecutor();
+        // todo: replace by appropriate ExecutorService implementation based on load analysis
+        return Executors.newCachedThreadPool();
     }
 
     @Bean
@@ -49,6 +57,11 @@ public class StrategyExecutionConfiguration {
     public ExecutorService clockSignalDispatchTaskExecutor() {
         // todo: replace by appropriate ExecutorService implementation based on load analysis
         return Executors.newCachedThreadPool();
+    }
+
+    @Bean
+    public TradeService tradeService(OrderExecutor orderExecutor, TradeRepository tradeRepository) {
+        return new TradeService(orderExecutor, tradeRepository);
     }
 
     @Bean
@@ -73,7 +86,12 @@ public class StrategyExecutionConfiguration {
     }
 
     @Bean
-    public ClockSignalPropagator clockSignalPropagator(ClockSignalDispatcher clockSignalDispatcher) {
-        return new ClockSignalPropagator(clockSignalDispatcher);
+    public ClockSignalPropagator clockSignalPropagator(Clock clock, ClockSignalDispatcher clockSignalDispatcher) {
+        return new ClockSignalPropagator(clock, clockSignalDispatcher);
+    }
+
+    @Bean
+    public Clock clock() {
+        return Clock.systemUTC();
     }
 }

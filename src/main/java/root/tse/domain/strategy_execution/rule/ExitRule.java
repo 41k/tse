@@ -1,11 +1,16 @@
 package root.tse.domain.strategy_execution.rule;
 
-import root.tse.domain.strategy_execution.Interval;
+import root.tse.domain.strategy_execution.clock.ClockSignal;
 import root.tse.domain.strategy_execution.trade.Order;
 
-public interface ExitRule {
+public abstract class ExitRule extends Rule {
 
-    RuleCheckResult check(Order entryOrder);
+    public RuleCheckResult check(ClockSignal clockSignal, Order entryOrder) {
+        if (notValid(clockSignal)) {
+            return RuleCheckResult.notSatisfied();
+        }
+        return check(entryOrder);
+    }
 
-    Interval getLowestInterval();
+    protected abstract RuleCheckResult check(Order entryOrder);
 }

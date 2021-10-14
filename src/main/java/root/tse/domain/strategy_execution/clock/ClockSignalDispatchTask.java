@@ -5,10 +5,11 @@ import lombok.Value;
 @Value
 public class ClockSignalDispatchTask implements Runnable {
 
-    ClockSignalConsumer consumer;
+    ClockSignalConsumer clockSignalConsumer;
+    ClockSignal clockSignal;
 
     @Override
     public void run() {
-        consumer.acceptClockSignal();
+        clockSignalConsumer.accept(clockSignal);
     }
 }

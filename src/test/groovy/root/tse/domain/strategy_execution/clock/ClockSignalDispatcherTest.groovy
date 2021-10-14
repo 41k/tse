@@ -5,6 +5,8 @@ import spock.lang.Specification
 
 import java.util.concurrent.ExecutorService
 
+import static root.tse.util.TestUtils.createClockSignal
+
 class ClockSignalDispatcherTest extends Specification {
 
     private static final INTERVAL_1 = Interval.ONE_MINUTE
@@ -31,24 +33,26 @@ class ClockSignalDispatcherTest extends Specification {
         assert clockSignalDispatcher.intervalToConsumersMap.size() == 0
 
         when:
-        clockSignalDispatcher.subscribe(INTERVAL_1, consumer1)
+        clockSignalDispatcher.subscribe([INTERVAL_1, INTERVAL_2] as Set, consumer1)
 
         and:
-        clockSignalDispatcher.subscribe(INTERVAL_2, consumer2)
-        clockSignalDispatcher.subscribe(INTERVAL_2, consumer3)
+        clockSignalDispatcher.subscribe([INTERVAL_2] as Set, consumer2)
+        clockSignalDispatcher.subscribe([INTERVAL_1, INTERVAL_2] as Set, consumer3)
 
         then:
-        1 * consumer1.getId() >> CONSUMER_ID_1
+        2 * consumer1.getId() >> CONSUMER_ID_1
         1 * consumer2.getId() >> CONSUMER_ID_2
-        1 * consumer3.getId() >> CONSUMER_ID_3
+        2 * consumer3.getId() >> CONSUMER_ID_3
         0 * _
 
         and:
         clockSignalDispatcher.intervalToConsumersMap == [
             (INTERVAL_1) : [
-                (CONSUMER_ID_1) : consumer1
+                (CONSUMER_ID_1) : consumer1,
+                (CONSUMER_ID_3) : consumer3
             ],
             (INTERVAL_2) : [
+                (CONSUMER_ID_1) : consumer1,
                 (CONSUMER_ID_2) : consumer2,
                 (CONSUMER_ID_3) : consumer3
             ]
@@ -61,21 +65,25 @@ class ClockSignalDispatcherTest extends Specification {
             (INTERVAL_1) : [
                 (CONSUMER_ID_1) : consumer1,
                 (CONSUMER_ID_3) : consumer3
+            ],
+            (INTERVAL_2) : [
+                (CONSUMER_ID_3) : consumer3
             ]
         ]
 
         when:
-        clockSignalDispatcher.unsubscribe(INTERVAL_1, consumer3)
+        clockSignalDispatcher.unsubscribe([INTERVAL_1, INTERVAL_2] as Set, consumer3)
 
         then:
-        1 * consumer3.getId() >> CONSUMER_ID_3
+        2 * consumer3.getId() >> CONSUMER_ID_3
         0 * _
 
         and:
         clockSignalDispatcher.intervalToConsumersMap == [
             (INTERVAL_1) : [
                 (CONSUMER_ID_1) : consumer1
-            ]
+            ],
+            (INTERVAL_2) : [:]
         ]
     }
 
@@ -91,16 +99,19 @@ class ClockSignalDispatcherTest extends Specification {
             ]
         ]
 
+        and:
+        def clockSignal = createClockSignal(INTERVAL_1)
+
         when:
-        clockSignalDispatcher.dispatch(INTERVAL_1)
+        clockSignalDispatcher.dispatch(clockSignal)
 
         then:
-        1 * taskExecutor.submit(new ClockSignalDispatchTask(consumer1))
-        1 * taskExecutor.submit(new ClockSignalDispatchTask(consumer3))
+        1 * taskExecutor.submit(new ClockSignalDispatchTask(consumer1, clockSignal))
+        1 * taskExecutor.submit(new ClockSignalDispatchTask(consumer3, clockSignal))
         0 * _
     }
 
-    def 'should not dispatch clock signal if there is no consumer provided interval'() {
+    def 'should not dispatch clock signal if there is no consumer for clock signal interval'() {
         given: 'dispatcher with consumers'
         clockSignalDispatcher.intervalToConsumersMap << [
             (INTERVAL_2) : [
@@ -108,8 +119,11 @@ class ClockSignalDispatcherTest extends Specification {
             ]
         ]
 
+        and:
+        def clockSignal = createClockSignal(INTERVAL_1)
+
         when:
-        clockSignalDispatcher.dispatch(INTERVAL_1)
+        clockSignalDispatcher.dispatch(clockSignal)
 
         then:
         0 * _

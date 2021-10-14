@@ -2,7 +2,7 @@ package root.tse.infrastructure.persistence.trade
 
 import spock.lang.Specification
 
-import static root.tse.util.TestData.*
+import static root.tse.util.TestUtils.*
 
 class TradeRepositoryImplTest extends Specification {
 

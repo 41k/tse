@@ -2,11 +2,11 @@ package root.tse.domain.strategy_execution.market_scanning;
 
 import lombok.Builder;
 import lombok.extern.slf4j.Slf4j;
-import root.tse.domain.strategy_execution.StrategyExecution;
+import root.tse.domain.strategy_execution.MarketScanningStrategyExecution;
 import root.tse.domain.strategy_execution.rule.EntryRule;
 
 import java.util.ArrayList;
-import java.util.Set;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 @Slf4j
@@ -14,8 +14,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public class MarketScanningTask implements Runnable {
 
     private final EntryRule entryRule;
-    private final Set<String> symbols;
-    private final StrategyExecution strategyExecution;
+    private final List<String> symbols;
+    private final MarketScanningStrategyExecution strategyExecution;
     @Builder.Default
     private final AtomicBoolean shouldScan = new AtomicBoolean(true);
 

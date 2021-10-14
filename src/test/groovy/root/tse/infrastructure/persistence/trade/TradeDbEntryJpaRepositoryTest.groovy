@@ -5,7 +5,7 @@ import org.springframework.boot.test.context.SpringBootTest
 import root.TseApp
 import spock.lang.Specification
 
-import static root.tse.util.TestData.*
+import static root.tse.util.TestUtils.*
 
 @SpringBootTest(classes = TseApp)
 class TradeDbEntryJpaRepositoryTest extends Specification {

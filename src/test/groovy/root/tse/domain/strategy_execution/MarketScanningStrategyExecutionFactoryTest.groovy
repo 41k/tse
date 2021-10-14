@@ -2,25 +2,25 @@ package root.tse.domain.strategy_execution
 
 import root.tse.domain.strategy_execution.clock.ClockSignalDispatcher
 import root.tse.domain.strategy_execution.event.StrategyExecutionEventBus
-import root.tse.domain.strategy_execution.trade.OrderExecutor
 import root.tse.domain.strategy_execution.trade.TradeExecutionFactory
-import root.tse.domain.strategy_execution.trade.TradeRepository
+import root.tse.domain.strategy_execution.trade.TradeService
 import spock.lang.Specification
 
+import java.time.Clock
 import java.util.concurrent.ScheduledExecutorService
 
-class StrategyExecutionFactoryTest extends Specification {
+class MarketScanningStrategyExecutionFactoryTest extends Specification {
 
     private strategyExecutionContext = Mock(StrategyExecutionContext)
     private marketScanningTaskExecutor = Mock(ScheduledExecutorService)
     private clockSignalDispatcher = Mock(ClockSignalDispatcher)
-    private orderExecutor = Mock(OrderExecutor)
+    private tradeService = Mock(TradeService)
     private tradeExecutionFactory = Mock(TradeExecutionFactory)
-    private tradeRepository = Mock(TradeRepository)
     private eventBus = Mock(StrategyExecutionEventBus)
+    private clock = Mock(Clock)
 
-    private strategyExecutionFactory = new StrategyExecutionFactory(
-        marketScanningTaskExecutor, clockSignalDispatcher, orderExecutor, tradeExecutionFactory, tradeRepository, eventBus)
+    private strategyExecutionFactory = new MarketScanningStrategyExecutionFactory(
+        marketScanningTaskExecutor, clockSignalDispatcher, tradeService, tradeExecutionFactory, eventBus, clock)
 
     def 'should create strategy execution correctly'() {
         when:
@@ -31,10 +31,10 @@ class StrategyExecutionFactoryTest extends Specification {
         strategyExecution.context == strategyExecutionContext
         strategyExecution.marketScanningTaskExecutor == marketScanningTaskExecutor
         strategyExecution.clockSignalDispatcher == clockSignalDispatcher
-        strategyExecution.orderExecutor == orderExecutor
+        strategyExecution.tradeService == tradeService
         strategyExecution.tradeExecutionFactory == tradeExecutionFactory
-        strategyExecution.tradeRepository == tradeRepository
         strategyExecution.eventBus == eventBus
+        strategyExecution.clock == clock
         strategyExecution.tradeExecutions.isEmpty()
     }
 }

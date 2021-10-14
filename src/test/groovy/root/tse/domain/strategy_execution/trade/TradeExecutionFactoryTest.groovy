@@ -1,11 +1,11 @@
 package root.tse.domain.strategy_execution.trade
 
-import root.tse.domain.strategy_execution.StrategyExecution
+import root.tse.domain.strategy_execution.MarketScanningStrategyExecution
 import root.tse.domain.strategy_execution.clock.ClockSignalDispatcher
 import root.tse.domain.strategy_execution.rule.ExitRule
 import spock.lang.Specification
 
-import static root.tse.util.TestData.OPENED_TRADE
+import static root.tse.util.TestUtils.OPENED_TRADE
 
 class TradeExecutionFactoryTest extends Specification {
 
@@ -15,7 +15,7 @@ class TradeExecutionFactoryTest extends Specification {
     def 'should create trade execution correctly'() {
         given:
         def exitRule = Mock(ExitRule)
-        def strategyExecution = Mock(StrategyExecution)
+        def strategyExecution = Mock(MarketScanningStrategyExecution)
 
         when:
         def tradeExecution = tradeExecutionFactory.create(OPENED_TRADE, strategyExecution)

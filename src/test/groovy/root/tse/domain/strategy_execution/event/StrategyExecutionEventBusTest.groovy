@@ -2,7 +2,7 @@ package root.tse.domain.strategy_execution.event
 
 import spock.lang.Specification
 
-import static root.tse.util.TestData.*
+import static root.tse.util.TestUtils.*
 
 class StrategyExecutionEventBusTest extends Specification {
 
@@ -36,11 +36,11 @@ class StrategyExecutionEventBusTest extends Specification {
         0 * _
 
         when:
-        eventBus.publishTradeWasNotClosedEvent(TRADE_TO_CLOSE, REASON)
+        eventBus.publishTradeWasNotClosedEvent(OPENED_TRADE, REASON)
 
         then:
-        1 * eventSubscriber1.acceptTradeWasNotClosedEvent(TRADE_TO_CLOSE, REASON)
-        1 * eventSubscriber2.acceptTradeWasNotClosedEvent(TRADE_TO_CLOSE, REASON)
+        1 * eventSubscriber1.acceptTradeWasNotClosedEvent(OPENED_TRADE, REASON)
+        1 * eventSubscriber2.acceptTradeWasNotClosedEvent(OPENED_TRADE, REASON)
         0 * _
     }
 }
