@@ -64,6 +64,7 @@ class MarketScanningStrategyExecutionFunctionalTest extends BaseStrategyExecutio
         and:
         trades.get(0).strategyExecutionId == strategyExecution.id
         trades.get(0).type == LONG
+        trades.get(0).transactionFeePercent == TRANSACTION_FEE_PERCENT
         trades.get(0).symbol == SYMBOL_1
         trades.get(0).entryOrderType == BUY
         trades.get(0).entryOrderAmount == AMOUNT_1
@@ -79,6 +80,7 @@ class MarketScanningStrategyExecutionFunctionalTest extends BaseStrategyExecutio
         and:
         trades.get(1).strategyExecutionId == strategyExecution.id
         trades.get(1).type == LONG
+        trades.get(0).transactionFeePercent == TRANSACTION_FEE_PERCENT
         trades.get(1).symbol == SYMBOL_2
         trades.get(1).entryOrderType == BUY
         trades.get(1).entryOrderAmount == AMOUNT_2
@@ -179,6 +181,7 @@ class MarketScanningStrategyExecutionFunctionalTest extends BaseStrategyExecutio
         and:
         trades.get(0).strategyExecutionId == strategyExecution.id
         trades.get(0).type == LONG
+        trades.get(0).transactionFeePercent == TRANSACTION_FEE_PERCENT
         trades.get(0).symbol == SYMBOL_1
         trades.get(0).entryOrderType == BUY
         trades.get(0).entryOrderAmount == AMOUNT_1
@@ -194,6 +197,7 @@ class MarketScanningStrategyExecutionFunctionalTest extends BaseStrategyExecutio
         and:
         trades.get(1).strategyExecutionId == strategyExecution.id
         trades.get(1).type == LONG
+        trades.get(0).transactionFeePercent == TRANSACTION_FEE_PERCENT
         trades.get(1).symbol == SYMBOL_2
         trades.get(1).entryOrderType == BUY
         trades.get(1).entryOrderAmount == AMOUNT_2
@@ -238,6 +242,7 @@ class MarketScanningStrategyExecutionFunctionalTest extends BaseStrategyExecutio
         and:
         trades.get(0).strategyExecutionId == strategyExecution.id
         trades.get(0).type == LONG
+        trades.get(0).transactionFeePercent == TRANSACTION_FEE_PERCENT
         trades.get(0).symbol == SYMBOL_1
         trades.get(0).entryOrderType == BUY
         trades.get(0).entryOrderAmount == AMOUNT_1
@@ -253,6 +258,7 @@ class MarketScanningStrategyExecutionFunctionalTest extends BaseStrategyExecutio
         and:
         trades.get(1).strategyExecutionId == strategyExecution.id
         trades.get(1).type == LONG
+        trades.get(0).transactionFeePercent == TRANSACTION_FEE_PERCENT
         trades.get(1).symbol == SYMBOL_2
         trades.get(1).entryOrderType == BUY
         trades.get(1).entryOrderAmount == AMOUNT_2
@@ -299,6 +305,7 @@ class MarketScanningStrategyExecutionFunctionalTest extends BaseStrategyExecutio
         and: 'but 1st trade was not closed'
         trades.get(0).strategyExecutionId == strategyExecution.id
         trades.get(0).type == LONG
+        trades.get(0).transactionFeePercent == TRANSACTION_FEE_PERCENT
         trades.get(0).symbol == SYMBOL_1
         trades.get(0).entryOrderType == BUY
         trades.get(0).entryOrderAmount == AMOUNT_1
@@ -314,6 +321,7 @@ class MarketScanningStrategyExecutionFunctionalTest extends BaseStrategyExecutio
         and: 'and 2nd was not closed too'
         trades.get(1).strategyExecutionId == strategyExecution.id
         trades.get(1).type == LONG
+        trades.get(0).transactionFeePercent == TRANSACTION_FEE_PERCENT
         trades.get(1).symbol == SYMBOL_2
         trades.get(1).entryOrderType == BUY
         trades.get(1).entryOrderAmount == AMOUNT_2
@@ -362,6 +370,7 @@ class MarketScanningStrategyExecutionFunctionalTest extends BaseStrategyExecutio
         and: 'but 1st trade was not closed'
         trades.get(0).strategyExecutionId == strategyExecution.id
         trades.get(0).type == LONG
+        trades.get(0).transactionFeePercent == TRANSACTION_FEE_PERCENT
         trades.get(0).symbol == SYMBOL_1
         trades.get(0).entryOrderType == BUY
         trades.get(0).entryOrderAmount == AMOUNT_1
@@ -377,6 +386,7 @@ class MarketScanningStrategyExecutionFunctionalTest extends BaseStrategyExecutio
         and: 'and 2nd was not closed too'
         trades.get(1).strategyExecutionId == strategyExecution.id
         trades.get(1).type == LONG
+        trades.get(0).transactionFeePercent == TRANSACTION_FEE_PERCENT
         trades.get(1).symbol == SYMBOL_2
         trades.get(1).entryOrderType == BUY
         trades.get(1).entryOrderAmount == AMOUNT_2
@@ -406,6 +416,7 @@ class MarketScanningStrategyExecutionFunctionalTest extends BaseStrategyExecutio
                 .strategyExecutionMode(TRADING)
                 .symbols(SYMBOLS)
                 .fundsPerTrade(FUNDS_PER_TRADE)
+                .transactionFeePercent(TRANSACTION_FEE_PERCENT)
                 .allowedNumberOfSimultaneouslyOpenedTrades(NUMBER_OF_SIMULTANEOUSLY_OPENED_TRADES)
                 .build()
             strategyExecutionFactory.create(strategyExecutionContext)

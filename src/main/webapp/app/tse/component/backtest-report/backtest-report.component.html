@@ -1,0 +1,63 @@
+<h1 *ngIf="!report">Failed to load report</h1>
+
+<div class="row" *ngIf="report">
+    <div class="col-sm-12">
+        <h2>Equity curve</h2>
+        <apx-chart
+            [series]="chartOptions.series"
+            [chart]="chartOptions.chart"
+            [xaxis]="chartOptions.xaxis"
+            [stroke]="chartOptions.stroke"
+            [dataLabels]="chartOptions.dataLabels"
+            [yaxis]="chartOptions.yaxis"
+            [labels]="chartOptions.labels"
+            [legend]="chartOptions.legend"
+        ></apx-chart>
+    </div>
+    <div class="col-sm-12 mt-3">
+        <h2>Performance metrics</h2>
+        <table class="table">
+            <tbody>
+                <tr>
+                    <th scope="row">N trades:</th>
+                    <td>{{report.ntrades}}</td>
+                </tr>
+                <tr>
+                    <th scope="row">N closed trades:</th>
+                    <td>{{report.nclosedTrades}}</td>
+                </tr>
+                <tr>
+                    <th scope="row">N profitable trades:</th>
+                    <td>{{report.nprofitableTrades}}</td>
+                </tr>
+                <tr>
+                    <th scope="row">Total profit:</th>
+                    <td>{{report.totalProfit}}</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    <div class="col-sm-12 mt-3">
+        <h2>General information</h2>
+        <table class="table">
+            <tbody>
+                <tr>
+                    <th scope="row">Strategy execution id:</th>
+                    <td>{{report.strategyExecutionId}}</td>
+                </tr>
+                <tr>
+                    <th scope="row">Symbols:</th>
+                    <td>{{report.symbols}}</td>
+                </tr>
+                <tr>
+                    <th scope="row">Funds per trade:</th>
+                    <td>{{report.fundsPerTrade}}</td>
+                </tr>
+                <tr>
+                    <th scope="row">Transaction fee:</th>
+                    <td>{{report.transactionFeePercent}}%</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>

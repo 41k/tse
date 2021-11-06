@@ -1,21 +1,17 @@
 package root.tse.domain.strategy_execution.clock;
 
-import lombok.RequiredArgsConstructor;
 import root.tse.domain.strategy_execution.Interval;
 
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ExecutorService;
 
 import static java.util.Objects.isNull;
 
-@RequiredArgsConstructor
-public class ClockSignalDispatcher {
+public abstract class ClockSignalDispatcher {
 
-    private final Map<Interval, Map<String, ClockSignalConsumer>> intervalToConsumersMap = new ConcurrentHashMap<>();
-    private final ExecutorService taskExecutor;
+    protected final Map<Interval, Map<String, ClockSignalConsumer>> intervalToConsumersMap = new ConcurrentHashMap<>();
 
     public void subscribe(Set<Interval> clockSignalIntervals, ClockSignalConsumer consumer) {
         clockSignalIntervals.forEach(clockSignalInterval -> {
@@ -34,8 +30,5 @@ public class ClockSignalDispatcher {
                 .ifPresent(consumers -> consumers.remove(consumer.getId())));
     }
 
-    public void dispatch(ClockSignal clockSignal) {
-        Optional.ofNullable(intervalToConsumersMap.get(clockSignal.getInterval())).ifPresent(consumers ->
-            consumers.values().forEach(consumer -> taskExecutor.submit(new ClockSignalDispatchTask(consumer, clockSignal))));
-    }
+    public abstract void dispatch(ClockSignal clockSignal);
 }

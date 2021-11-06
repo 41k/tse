@@ -1,5 +1,6 @@
 package root.tse.util
 
+import org.apache.commons.math3.util.Precision
 import org.ta4j.core.Bar
 import root.tse.domain.strategy_execution.Interval
 import root.tse.domain.strategy_execution.Strategy
@@ -26,6 +27,8 @@ import static root.tse.domain.strategy_execution.trade.TradeType.LONG
 class TestUtils {
 
     public static final TRADE_ID = 'trade-1'
+    public static final STRATEGY_ID = 'strategy-1'
+    public static final STRATEGY_NAME = 'strategy-name-1'
     public static final STRATEGY_EXECUTION_ID = 'strategy-execution-1'
     public static final STRATEGY_EXECUTION_MODE = StrategyExecutionMode.TRADING
     public static final SYMBOL_1 = 'symbol-1'
@@ -45,6 +48,8 @@ class TestUtils {
     public static final CLOCK_SIGNAL_2 = createClockSignal(Interval.ONE_MINUTE, TIMESTAMP_2)
     public static final CLOCK_SIGNAL_2_WITH_TIMESTAMP_OF_CLOCK_SIGNAL_1 = createClockSignal(Interval.ONE_MINUTE, TIMESTAMP_1)
     public static final REASON = 'reason-1'
+    public static final DATA_SET_NAME = 'data-set-1'
+    public static final TRANSACTION_FEE_PERCENT = 0.2d
 
     public static final ENTRY_ORDER = Order.builder()
         .status(FILLED).type(BUY).symbol(SYMBOL_1).amount(AMOUNT_1).price(PRICE_1).timestamp(TIMESTAMP_1).build()
@@ -54,15 +59,16 @@ class TestUtils {
 
     public static final OPENED_TRADE = Trade.builder()
         .id(TRADE_ID).strategyExecutionId(STRATEGY_EXECUTION_ID).type(LONG)
-        .entryOrderClockSignal(CLOCK_SIGNAL_1).entryOrder(ENTRY_ORDER).build()
+        .transactionFeePercent(TRANSACTION_FEE_PERCENT).entryOrderClockSignal(CLOCK_SIGNAL_1)
+        .entryOrder(ENTRY_ORDER).build()
 
     public static final CLOSED_TRADE = OPENED_TRADE.toBuilder()
         .exitOrder(EXIT_ORDER.toBuilder().status(FILLED).build()).build()
 
     public static final OPENED_TRADE_DB_ENTRY = TradeDbEntry.builder()
         .id(TRADE_ID).strategyExecutionId(STRATEGY_EXECUTION_ID).type(LONG).symbol(SYMBOL_1)
-        .entryOrderStatus(FILLED).entryOrderType(BUY).entryOrderAmount(AMOUNT_1)
-        .entryOrderPrice(PRICE_1).entryOrderTimestamp(Instant.ofEpochMilli(TIMESTAMP_1))
+        .transactionFeePercent(TRANSACTION_FEE_PERCENT).entryOrderStatus(FILLED).entryOrderType(BUY)
+        .entryOrderAmount(AMOUNT_1).entryOrderPrice(PRICE_1).entryOrderTimestamp(Instant.ofEpochMilli(TIMESTAMP_1))
         .build()
 
     public static final CLOSED_TRADE_DB_ENTRY = OPENED_TRADE_DB_ENTRY.toBuilder()
@@ -79,6 +85,7 @@ class TestUtils {
             .strategyExecutionId(STRATEGY_EXECUTION_ID)
             .strategyExecutionMode(STRATEGY_EXECUTION_MODE)
             .tradeType(LONG)
+            .transactionFeePercent(TRANSACTION_FEE_PERCENT)
             .entryOrderClockSignal(CLOCK_SIGNAL_1)
             .symbol(SYMBOL_1)
             .bar(bar)
@@ -98,11 +105,11 @@ class TestUtils {
         new Strategy() {
             @Override
             String getId() {
-                return '1'
+                return STRATEGY_ID
             }
             @Override
             String getName() {
-                return 'strategy-1'
+                return STRATEGY_NAME
             }
             @Override
             TradeType getTradeType() {
@@ -117,5 +124,10 @@ class TestUtils {
                 return exitRule
             }
         }
+    }
+
+    static boolean equalsWithPrecision(Number actualValue, double expectedValue, int precision) {
+        def actualValueWithPrecision = Precision.round(actualValue as double, precision)
+        actualValueWithPrecision == expectedValue
     }
 }

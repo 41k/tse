@@ -41,6 +41,7 @@ abstract class BaseStrategyExecutionFunctionalTest extends Specification {
     protected static final TIMESTAMP_1 = 1634025720000L
     protected static final TIMESTAMP_2 = 1634025780000L
     protected static final FUNDS_PER_TRADE = 200d
+    protected static final TRANSACTION_FEE_PERCENT = 0.2d
     protected static final NUMBER_OF_SIMULTANEOUSLY_OPENED_TRADES = 2
     protected static final ENTRY_RULE_CLOCK_SIGNAL_INTERVAL = Interval.FIVE_MINUTES
     protected static final ENTRY_RULE_CLOCK_SIGNAL = createClockSignal(ENTRY_RULE_CLOCK_SIGNAL_INTERVAL, TIMESTAMP_1)

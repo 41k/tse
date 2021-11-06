@@ -18,7 +18,6 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 
-import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 import static org.apache.commons.lang3.StringUtils.EMPTY;
 import static root.tse.domain.strategy_execution.Interval.ONE_MINUTE;
@@ -32,6 +31,7 @@ public class MarketScanningStrategyExecution implements StrategyExecution {
 
     @Getter
     private final String id;
+    @Getter
     private final StrategyExecutionContext context;
     private final ExecutorService marketScanningTaskExecutor;
     private final ClockSignalDispatcher clockSignalDispatcher;
@@ -84,6 +84,7 @@ public class MarketScanningStrategyExecution implements StrategyExecution {
             .symbol(symbol)
             .bar(bar)
             .fundsPerTrade(context.getFundsPerTrade())
+            .transactionFeePercent(context.getTransactionFeePercent())
             .build();
         tradeService.tryToOpenTrade(tradeOpeningContext)
             .ifPresentOrElse(
@@ -138,7 +139,7 @@ public class MarketScanningStrategyExecution implements StrategyExecution {
 
     private boolean allowedNumberOfSimultaneouslyOpenedTradesHasBeenReached() {
         var numberOfOpenedTrades = tradeService.getAllTradesByStrategyExecutionId(id).stream()
-            .filter(trade -> isNull(trade.getExitOrder()))
+            .filter(trade -> !trade.isClosed())
             .count();
         var allowedNumberOfSimultaneouslyOpenedTrades = context.getAllowedNumberOfSimultaneouslyOpenedTrades();
         return numberOfOpenedTrades >= allowedNumberOfSimultaneouslyOpenedTrades;

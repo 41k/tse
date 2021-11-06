@@ -33,7 +33,7 @@ public class ExchangeGatewayConfigurationProperties {
     @NotBlank
     private String orderUri;
     @NotNull
-    private Double transactionFee;
+    private Double transactionFeePercent;
     @NotEmpty
     private Map<Interval, String> intervalToRepresentationMap;
 

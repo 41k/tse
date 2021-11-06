@@ -17,6 +17,7 @@ public class TradeOpeningContext {
     String symbol;
     Bar bar;
     Double fundsPerTrade;
+    Double transactionFeePercent;
 
     public Order getEntryOrder() {
         var price = bar.getClosePrice().doubleValue();

@@ -53,6 +53,7 @@ class SimpleStrategyExecutionFunctionalTest extends BaseStrategyExecutionFunctio
         and:
         trades.get(0).strategyExecutionId == strategyExecution.id
         trades.get(0).type == LONG
+        trades.get(0).transactionFeePercent == TRANSACTION_FEE_PERCENT
         trades.get(0).symbol == SYMBOL_1
         trades.get(0).entryOrderType == BUY
         trades.get(0).entryOrderAmount == AMOUNT_1
@@ -142,6 +143,7 @@ class SimpleStrategyExecutionFunctionalTest extends BaseStrategyExecutionFunctio
         and: 'but was not closed'
         trades.get(0).strategyExecutionId == strategyExecution.id
         trades.get(0).type == LONG
+        trades.get(0).transactionFeePercent == TRANSACTION_FEE_PERCENT
         trades.get(0).symbol == SYMBOL_1
         trades.get(0).entryOrderType == BUY
         trades.get(0).entryOrderAmount == AMOUNT_1
@@ -182,6 +184,7 @@ class SimpleStrategyExecutionFunctionalTest extends BaseStrategyExecutionFunctio
         and: 'but was not closed'
         trades.get(0).strategyExecutionId == strategyExecution.id
         trades.get(0).type == LONG
+        trades.get(0).transactionFeePercent == TRANSACTION_FEE_PERCENT
         trades.get(0).symbol == SYMBOL_1
         trades.get(0).entryOrderType == BUY
         trades.get(0).entryOrderAmount == AMOUNT_1
@@ -223,6 +226,7 @@ class SimpleStrategyExecutionFunctionalTest extends BaseStrategyExecutionFunctio
         and: 'but was not closed'
         trades.get(0).strategyExecutionId == strategyExecution.id
         trades.get(0).type == LONG
+        trades.get(0).transactionFeePercent == TRANSACTION_FEE_PERCENT
         trades.get(0).symbol == SYMBOL_1
         trades.get(0).entryOrderType == BUY
         trades.get(0).entryOrderAmount == AMOUNT_1
@@ -265,6 +269,7 @@ class SimpleStrategyExecutionFunctionalTest extends BaseStrategyExecutionFunctio
         and: 'but was not closed'
         trades.get(0).strategyExecutionId == strategyExecution.id
         trades.get(0).type == LONG
+        trades.get(0).transactionFeePercent == TRANSACTION_FEE_PERCENT
         trades.get(0).symbol == SYMBOL_1
         trades.get(0).entryOrderType == BUY
         trades.get(0).entryOrderAmount == AMOUNT_1
@@ -289,6 +294,7 @@ class SimpleStrategyExecutionFunctionalTest extends BaseStrategyExecutionFunctio
                 .strategyExecutionMode(TRADING)
                 .symbols(SYMBOLS)
                 .fundsPerTrade(FUNDS_PER_TRADE)
+                .transactionFeePercent(TRANSACTION_FEE_PERCENT)
                 .build()
             def strategyExecution = strategyExecutionFactory.create(strategyExecutionContext)
             strategyExecution.start()

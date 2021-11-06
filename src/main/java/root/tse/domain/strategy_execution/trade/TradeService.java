@@ -23,6 +23,7 @@ public class TradeService {
             .id(UUID.randomUUID().toString())
             .strategyExecutionId(context.getStrategyExecutionId())
             .type(context.getTradeType())
+            .transactionFeePercent(context.getTransactionFeePercent())
             .entryOrderClockSignal(context.getEntryOrderClockSignal())
             .entryOrder(executedEntryOrder)
             .build();

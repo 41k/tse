@@ -7,7 +7,7 @@ import java.util.concurrent.ExecutorService
 
 import static root.tse.util.TestUtils.createClockSignal
 
-class ClockSignalDispatcherTest extends Specification {
+class DefaultClockSignalDispatcherTest extends Specification {
 
     private static final INTERVAL_1 = Interval.ONE_MINUTE
     private static final INTERVAL_2 = Interval.ONE_HOUR
@@ -25,7 +25,7 @@ class ClockSignalDispatcherTest extends Specification {
     private ClockSignalDispatcher clockSignalDispatcher
 
     def setup() {
-        clockSignalDispatcher = new ClockSignalDispatcher(taskExecutor)
+        clockSignalDispatcher = new DefaultClockSignalDispatcher(taskExecutor)
     }
 
     def 'should subscribe consumers correctly'() {

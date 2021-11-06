@@ -20,6 +20,9 @@
             <column name="type" type="varchar(5)">
                 <constraints nullable="false"/>
             </column>
+            <column name="transaction_fee_percent" type="double">
+                <constraints nullable="false"/>
+            </column>
             <column name="symbol" type="varchar(30)">
                 <constraints nullable="false"/>
             </column>

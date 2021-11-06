@@ -5,6 +5,8 @@ import lombok.Getter;
 import lombok.ToString;
 import root.tse.domain.strategy_execution.Interval;
 
+import static root.tse.domain.strategy_execution.Interval.ONE_MINUTE;
+
 @Getter
 @EqualsAndHashCode
 @ToString
@@ -23,6 +25,6 @@ public class ClockSignal {
     }
 
     private Long roundToMinutes(Long timestamp) {
-        return timestamp - (timestamp % 60_000); // todo: refactor
+        return timestamp - (timestamp % ONE_MINUTE.inMillis());
     }
 }

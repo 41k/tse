@@ -21,4 +21,8 @@ public class Order {
     public boolean wasNotFilled() {
         return !status.equals(FILLED);
     }
+
+    public Double getTotal() {
+        return amount * price;
+    }
 }

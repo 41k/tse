@@ -7,7 +7,9 @@ import root.tse.domain.strategy_execution.ExchangeGateway;
 import root.tse.domain.strategy_execution.MarketScanningStrategyExecutionFactory;
 import root.tse.domain.strategy_execution.SimpleStrategyExecutionFactory;
 import root.tse.domain.strategy_execution.clock.ClockSignalDispatcher;
+import root.tse.domain.strategy_execution.clock.DefaultClockSignalDispatcher;
 import root.tse.domain.strategy_execution.event.StrategyExecutionEventBus;
+import root.tse.domain.strategy_execution.report.ReportBuilder;
 import root.tse.domain.strategy_execution.trade.OrderExecutor;
 import root.tse.domain.strategy_execution.trade.TradeExecutionFactory;
 import root.tse.domain.strategy_execution.trade.TradeRepository;
@@ -50,7 +52,7 @@ public class StrategyExecutionConfiguration {
 
     @Bean
     public ClockSignalDispatcher clockSignalDispatcher(ExecutorService clockSignalDispatchTaskExecutor) {
-        return new ClockSignalDispatcher(clockSignalDispatchTaskExecutor);
+        return new DefaultClockSignalDispatcher(clockSignalDispatchTaskExecutor);
     }
 
     @Bean
@@ -93,5 +95,10 @@ public class StrategyExecutionConfiguration {
     @Bean
     public Clock clock() {
         return Clock.systemUTC();
+    }
+
+    @Bean
+    public ReportBuilder reportBuilder(TradeRepository tradeRepository) {
+        return new ReportBuilder(tradeRepository);
     }
 }

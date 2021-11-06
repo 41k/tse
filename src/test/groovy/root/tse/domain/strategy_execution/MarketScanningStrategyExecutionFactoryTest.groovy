@@ -11,7 +11,7 @@ import java.util.concurrent.ScheduledExecutorService
 
 class MarketScanningStrategyExecutionFactoryTest extends Specification {
 
-    private strategyExecutionContext = Mock(StrategyExecutionContext)
+    private strategyExecutionContext = StrategyExecutionContext.builder().build()
     private marketScanningTaskExecutor = Mock(ScheduledExecutorService)
     private clockSignalDispatcher = Mock(ClockSignalDispatcher)
     private tradeService = Mock(TradeService)

@@ -25,6 +25,8 @@ public class TradeDbEntry {
     @Enumerated(EnumType.STRING)
     private TradeType type;
     @NotNull
+    private Double transactionFeePercent;
+    @NotNull
     private String symbol;
 
     @NotNull

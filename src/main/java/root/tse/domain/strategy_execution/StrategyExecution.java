@@ -7,4 +7,6 @@ public interface StrategyExecution extends ClockSignalConsumer {
     void start();
 
     void stop();
+
+    StrategyExecutionContext getContext();
 }

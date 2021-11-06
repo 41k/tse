@@ -16,6 +16,7 @@ public class TradeToDbEntryMapper {
             .id(trade.getId())
             .strategyExecutionId(trade.getStrategyExecutionId())
             .type(trade.getType())
+            .transactionFeePercent(trade.getTransactionFeePercent())
             .symbol(trade.getSymbol())
             .entryOrderType(entryOrder.getType())
             .entryOrderAmount(entryOrder.getAmount())
@@ -56,6 +57,7 @@ public class TradeToDbEntryMapper {
             .id(dbEntry.getId())
             .strategyExecutionId(dbEntry.getStrategyExecutionId())
             .type(dbEntry.getType())
+            .transactionFeePercent(dbEntry.getTransactionFeePercent())
             .entryOrder(entryOrder)
             .exitOrder(exitOrder)
             .build();

@@ -171,7 +171,7 @@ exchange-gateway:
   base-rest-api-url: https://api-adapter.backend.currency.com/api/v1
   series-uri: ${exchange-gateway.base-rest-api-url}/klines
   order-uri: ${exchange-gateway.base-rest-api-url}/order
-  transaction-fee: 0.002
+  transaction-fee-percent: 0.2 # 0.2% (note: 1% should be set as 1, not as 0.01)
   interval-to-representation-map:
     ONE_MINUTE: 1m
     FIVE_MINUTES: 5m

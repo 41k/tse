@@ -11,6 +11,8 @@ import root.tse.domain.strategy_execution.trade.TradeClosingContext;
 import root.tse.domain.strategy_execution.trade.TradeOpeningContext;
 import root.tse.domain.strategy_execution.trade.TradeService;
 
+import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import static java.util.Objects.isNull;
@@ -23,6 +25,7 @@ public class SimpleStrategyExecution implements StrategyExecution {
 
     @Getter
     private final String id;
+    @Getter
     private final StrategyExecutionContext context;
     private final ClockSignalDispatcher clockSignalDispatcher;
     private final TradeService tradeService;
@@ -64,6 +67,7 @@ public class SimpleStrategyExecution implements StrategyExecution {
                 .symbol(symbol)
                 .bar(ruleCheckResult.getBarOnWhichRuleWasSatisfied())
                 .fundsPerTrade(context.getFundsPerTrade())
+                .transactionFeePercent(context.getTransactionFeePercent())
                 .build();
             tradeService.tryToOpenTrade(tradeOpeningContext)
                 .ifPresentOrElse(
@@ -104,9 +108,9 @@ public class SimpleStrategyExecution implements StrategyExecution {
     }
 
     private Set<Interval> getClockSignalIntervals() {
-        return Set.of(
+        return new HashSet<>(List.of(
             context.getEntryRule().getLowestInterval(),
             context.getExitRule().getLowestInterval()
-        );
+        ));
     }
 }

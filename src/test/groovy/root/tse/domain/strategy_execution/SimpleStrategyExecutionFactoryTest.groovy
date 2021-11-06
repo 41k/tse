@@ -7,7 +7,7 @@ import spock.lang.Specification
 
 class SimpleStrategyExecutionFactoryTest extends Specification {
 
-    private strategyExecutionContext = Mock(StrategyExecutionContext)
+    private strategyExecutionContext = StrategyExecutionContext.builder().symbols(['SYMBOL-000']).build()
     private clockSignalDispatcher = Mock(ClockSignalDispatcher)
     private tradeService = Mock(TradeService)
     private eventBus = Mock(StrategyExecutionEventBus)
