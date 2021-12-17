@@ -141,3 +141,9 @@ exchange-gateway:
   rate-limit-per-second: 9
   retry-attempts-number: 4
   retry-backoff-in-milliseconds: 500
+
+telegram:
+  url-format: https://api.telegram.org/bot%s/sendMessage?chat_id=%s&parse_mode=html&text=%s
+  token: token
+  chat-id: chat-id
+  enabled: false

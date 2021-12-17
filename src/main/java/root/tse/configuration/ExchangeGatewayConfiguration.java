@@ -18,10 +18,10 @@ import root.tse.infrastructure.exchange_gateway.CurrencyComExchangeGateway;
 public class ExchangeGatewayConfiguration {
 
     @Bean
-    public ExchangeGateway exchangeGateway(ExchangeGatewayConfigurationProperties configurationProperties) {
+    public ExchangeGateway exchangeGateway(
+        ExchangeGatewayConfigurationProperties configurationProperties, RestTemplate restTemplate) {
         var retryTemplate = buildRetryTemplate(configurationProperties);
         var rateLimiter = RateLimiter.create(configurationProperties.getRateLimitPerSecond());
-        var restTemplate = new RestTemplate();
         var objectMapper = new ObjectMapper();
         return new CurrencyComExchangeGateway(
             configurationProperties, retryTemplate, rateLimiter, restTemplate, objectMapper);

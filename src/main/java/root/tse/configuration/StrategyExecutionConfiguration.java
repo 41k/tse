@@ -9,6 +9,7 @@ import root.tse.domain.strategy_execution.SimpleStrategyExecutionFactory;
 import root.tse.domain.strategy_execution.clock.ClockSignalDispatcher;
 import root.tse.domain.strategy_execution.clock.DefaultClockSignalDispatcher;
 import root.tse.domain.strategy_execution.event.StrategyExecutionEventBus;
+import root.tse.domain.strategy_execution.event.StrategyExecutionEventSubscriber;
 import root.tse.domain.strategy_execution.report.ReportBuilder;
 import root.tse.domain.strategy_execution.trade.OrderExecutor;
 import root.tse.domain.strategy_execution.trade.TradeExecutionFactory;
@@ -83,8 +84,8 @@ public class StrategyExecutionConfiguration {
     }
 
     @Bean
-    public StrategyExecutionEventBus eventBus() {
-        return new StrategyExecutionEventBus(List.of());
+    public StrategyExecutionEventBus eventBus(List<StrategyExecutionEventSubscriber> subscribers) {
+        return new StrategyExecutionEventBus(subscribers);
     }
 
     @Bean

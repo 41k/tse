@@ -8,11 +8,7 @@ import root.tse.domain.strategy_execution.StrategyExecutionMode
 import root.tse.domain.strategy_execution.clock.ClockSignal
 import root.tse.domain.strategy_execution.rule.EntryRule
 import root.tse.domain.strategy_execution.rule.ExitRule
-import root.tse.domain.strategy_execution.trade.Order
-import root.tse.domain.strategy_execution.trade.Trade
-import root.tse.domain.strategy_execution.trade.TradeClosingContext
-import root.tse.domain.strategy_execution.trade.TradeOpeningContext
-import root.tse.domain.strategy_execution.trade.TradeType
+import root.tse.domain.strategy_execution.trade.*
 import root.tse.infrastructure.persistence.trade.TradeDbEntry
 
 import java.time.Clock
@@ -26,10 +22,10 @@ import static root.tse.domain.strategy_execution.trade.TradeType.LONG
 
 class TestUtils {
 
-    public static final TRADE_ID = 'trade-1'
-    public static final STRATEGY_ID = 'strategy-1'
+    public static final TRADE_ID = '34598437-e8ee-44b3-8bc2-9a76bd53947c'
+    public static final STRATEGY_ID = '5def5d38-b1d0-4383-8429-d27ff6e77310'
     public static final STRATEGY_NAME = 'strategy-name-1'
-    public static final STRATEGY_EXECUTION_ID = 'strategy-execution-1'
+    public static final STRATEGY_EXECUTION_ID = '3545de05-45e5-40fd-836c-0596006dbf9f'
     public static final STRATEGY_EXECUTION_MODE = StrategyExecutionMode.TRADING
     public static final SYMBOL_1 = 'symbol-1'
     public static final SYMBOL_2 = 'symbol-2'
