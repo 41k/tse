@@ -1,7 +1,20 @@
+CREATE TABLE `normalized_data_set` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `symbol` varchar(150) NOT NULL,
+  `time_interval` varchar(150) NOT NULL,
+  `open` double NOT NULL,
+  `high` double NOT NULL,
+  `low` double NOT NULL,
+  `close` double NOT NULL,
+  `volume` double NOT NULL,
+  `timestamp` bigint(20) NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 AUTO_INCREMENT=1;
+
 -- If initial_data_set contains timestamp of bar opening then we should convert open timestamp to close timestamp
 -- for each row which represents particular bar using the next script:
-INSERT INTO normalized_data_set (id, exchange_gateway, symbol, time_interval, duration, `timestamp`, `open`, high, low, `close`, volume)
-SELECT id, exchange_gateway, symbol, time_interval, duration,
+INSERT INTO normalized_data_set (id, symbol, time_interval, `open`, high, low, `close`, volume, `timestamp`)
+SELECT id, symbol, time_interval, `open`, high, low, `close`, volume,
 CASE
     WHEN time_interval = 'ONE_MINUTE' THEN `timestamp` + 60000
     WHEN time_interval = 'THREE_MINUTES' THEN `timestamp` + 180000
@@ -17,8 +30,7 @@ CASE
     WHEN time_interval = 'ONE_DAY' THEN `timestamp` + 86400000
     WHEN time_interval = 'THREE_DAYS' THEN `timestamp` + 259200000
     ELSE `timestamp`
-END AS close_timestamp,
-`open`, high, low, `close`, volume
+END AS close_timestamp
 FROM initial_data_set;
 
 -- Check normalized_data_set: values of close price (e.g. close) should be equal:

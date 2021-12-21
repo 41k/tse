@@ -8,13 +8,14 @@ import root.tse.domain.backtest.BacktestContext;
 import root.tse.domain.backtest.BacktestExchangeGateway;
 import root.tse.domain.backtest.BacktestService;
 import root.tse.domain.backtest.DataSetService;
-import root.tse.domain.strategy.S_f106ca1fecef;
+import root.tse.domain.strategy.SimpleBreakoutStrategy;
+import root.tse.domain.strategy_execution.Interval;
 
 //@Component
 @RequiredArgsConstructor
 public class BacktestRunner implements CommandLineRunner {
 
-    // Important: data set should contain close timestamp for each bar.
+    // Important: data set should contain bar close timestamp for each bar.
     // Bar close timestamp is necessary in order to perform correct backtest of strategies
     // which use rules with multiple time-frames.
     // If data set has only open timestamp (as e.g. currency.com data set)
@@ -32,7 +33,7 @@ public class BacktestRunner implements CommandLineRunner {
     @SneakyThrows
     public void run(String... args) {
         var backtestExchangeGateway = new BacktestExchangeGateway(dataSetService, DATA_SET_NAME);
-        var strategy = new S_f106ca1fecef(backtestExchangeGateway);
+        var strategy = new SimpleBreakoutStrategy(Interval.ONE_MINUTE, 3, 0.65, 1.3, backtestExchangeGateway);
         var backtestContext = BacktestContext.builder()
             .backtestExchangeGateway(backtestExchangeGateway)
             .strategy(strategy)

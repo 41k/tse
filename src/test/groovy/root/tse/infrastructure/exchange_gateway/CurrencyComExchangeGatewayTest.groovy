@@ -51,13 +51,22 @@ class CurrencyComExchangeGatewayTest extends Specification {
     private static final C2 = 3310.91d
     private static final V2 = 448463d
 
+    private static final T3 = 1633136400000L
+    private static final O3 = 3310.91d
+    private static final H3 = 3573.06d
+    private static final L3 = 3245.17d
+    private static final C3 = 3470.95d
+    private static final V3 = 475461d
+
     private static final SYMBOL = 'symbol-1'
     private static final SERIES_LENGTH = 2
+    private static final LIMIT = SERIES_LENGTH + 1
     private static final SERIES_DATA = "[" +
         "[$T1, \"$O1\", \"$H1\", \"$L1\", \"$C1\", \"$V1\"]," +
-        "[$T2, \"$O2\", \"$H2\", \"$L2\", \"$C2\", \"$V2\"]" +
+        "[$T2, \"$O2\", \"$H2\", \"$L2\", \"$C2\", \"$V2\"]," +
+        "[$T3, \"$O3\", \"$H3\", \"$L3\", \"$C3\", \"$V3\"]" +
     "]"
-    private static final ENRICHED_SERIES_URI = "$SERIES_URI?symbol=$SYMBOL&interval=$INTERVAL_REPRESENTATION&limit=$SERIES_LENGTH"
+    private static final ENRICHED_SERIES_URI = "$SERIES_URI?symbol=$SYMBOL&interval=$INTERVAL_REPRESENTATION&limit=$LIMIT"
 
     private static final ORDER_TYPE = OrderType.BUY
     private static final PRICE = 2000.0d

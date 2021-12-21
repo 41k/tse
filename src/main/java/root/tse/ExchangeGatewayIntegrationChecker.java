@@ -42,8 +42,9 @@ public class ExchangeGatewayIntegrationChecker implements CommandLineRunner {
         var order = Order.builder()
             .type(OrderType.SELL)
             .symbol("ETH/USD")
-            .amount(0.01d)
+            .amount(0.0126605365650173d)
             .price(3000d)
+            .timestamp(System.currentTimeMillis())
             .build();
         var executedOrder = exchangeGateway.execute(order);
         System.out.println("---------------------------");

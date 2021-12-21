@@ -69,6 +69,12 @@ public class CurrencyComExchangeGateway implements ExchangeGateway {
     private final RestTemplate restTemplate;
     private final ObjectMapper objectMapper;
 
+    // Note: the last bar which is returned by the API is incomplete so it is skipped.
+    // More details:
+    // If call for e.g. bars with ONE_DAY interval is made at 2021-10-11 05:00
+    // then API returns bars with the last bar which has open time 2021-10-11 00:00
+    // and such bar has intermediate HIGH, LOW, CLOSE prices since final prices will
+    // be assigned by the end of the interval, in such case at 2021-10-12 00:00.
     @Override
     public Optional<BarSeries> getSeries(String symbol, Interval interval, Integer seriesLength) {
         try {
@@ -97,10 +103,11 @@ public class CurrencyComExchangeGateway implements ExchangeGateway {
     private List<List<Object>> performSeriesDataRetrieval(String symbol, Interval interval, Integer seriesLength) {
         var seriesApiUri = configurationProperties.getSeriesUri();
         var intervalRepresentation = configurationProperties.getIntervalRepresentation(interval);
+        var limit = seriesLength + 1; // take one more bar since the last bar is incomplete
         var uri = UriComponentsBuilder.fromHttpUrl(seriesApiUri)
             .queryParam("symbol", symbol)
             .queryParam("interval", intervalRepresentation)
-            .queryParam("limit", seriesLength)
+            .queryParam("limit", limit)
             .toUriString();
         var responseEntity = retryTemplate.execute(retryContext -> {
             rateLimiter.acquire();
@@ -148,6 +155,7 @@ public class CurrencyComExchangeGateway implements ExchangeGateway {
                 var volume = String.valueOf(barData.get(VOLUME_INDEX));
                 return new BaseBar(duration, zonedBarTime, open, high, low, close, volume);
             })
+            .limit(seriesData.size() - 1) // skip the last bar since it is incomplete
             .collect(toList());
         return Optional.of(new BaseBarSeries(bars));
     }

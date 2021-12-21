@@ -1,6 +1,7 @@
 package root.tse.domain.strategy_execution;
 
-import lombok.*;
+import lombok.Builder;
+import lombok.Value;
 import root.tse.domain.strategy_execution.rule.EntryRule;
 import root.tse.domain.strategy_execution.rule.ExitRule;
 import root.tse.domain.strategy_execution.trade.TradeType;
@@ -16,7 +17,8 @@ public class StrategyExecutionContext {
     List<String> symbols;
     Double fundsPerTrade;
     Double transactionFeePercent;
-    Integer allowedNumberOfSimultaneouslyOpenedTrades;
+    @Builder.Default
+    int allowedNumberOfSimultaneouslyOpenedTrades = 1;
 
     public EntryRule getEntryRule() {
         return strategy.getEntryRule();

@@ -31,6 +31,7 @@ import static root.tse.util.TestUtils.createClockSignal
 abstract class BaseStrategyExecutionFunctionalTest extends Specification {
 
     protected static final SERIES_LENGTH = 3
+    protected static final LIMIT = SERIES_LENGTH + 1
     protected static final SYMBOL_1 = 'symbol-1'
     protected static final SYMBOL_2 = 'symbol-2'
     protected static final SYMBOLS = [SYMBOL_1, SYMBOL_2]
@@ -191,7 +192,7 @@ abstract class BaseStrategyExecutionFunctionalTest extends Specification {
 
     String seriesRetrievalUrl(String symbol, Interval interval) {
         def intervalRepresentation = exchangeGatewayConfigurationProperties.getIntervalRepresentation(interval)
-        "/klines?symbol=$symbol&interval=$intervalRepresentation&limit=$SERIES_LENGTH"
+        "/klines?symbol=$symbol&interval=$intervalRepresentation&limit=$LIMIT"
     }
 
     void mockSuccessfulOrderExecutionCall(String requestBody, String responseBody) {

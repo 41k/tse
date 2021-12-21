@@ -10,7 +10,7 @@ import { ChartComponent } from 'ng-apexcharts';
   templateUrl: './backtest-report.component.html',
 })
 export class BacktestReportComponent {
-  private chartTimeFormat = 'HH:mm';
+  private chartTimeFormat = 'yyyy-MM-dd HH:mm';
   private fractionDigitsCount = 5;
 
   report?: Report | null;
@@ -51,6 +51,9 @@ export class BacktestReportComponent {
       labels: [],
       xaxis: {
         type: 'category',
+        labels: {
+          show: false,
+        },
       },
       yaxis: {
         opposite: true,

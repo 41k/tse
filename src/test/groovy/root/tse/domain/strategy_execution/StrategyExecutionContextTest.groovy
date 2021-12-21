@@ -25,4 +25,9 @@ class StrategyExecutionContextTest extends Specification {
         strategyExecutionContext.getExitRule() == exitRule
         strategyExecutionContext.getTradeType() == LONG
     }
+
+    def 'should init allowedNumberOfSimultaneouslyOpenedTrades = 1 by default'() {
+        expect:
+        StrategyExecutionContext.builder().build().allowedNumberOfSimultaneouslyOpenedTrades == 1
+    }
 }
