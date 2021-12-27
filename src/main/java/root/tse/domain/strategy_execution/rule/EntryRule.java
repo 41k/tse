@@ -1,7 +1,7 @@
 package root.tse.domain.strategy_execution.rule;
 
-import root.tse.domain.strategy_execution.Interval;
-import root.tse.domain.strategy_execution.clock.ClockSignal;
+import root.tse.domain.clock.Interval;
+import root.tse.domain.clock.ClockSignal;
 
 public abstract class EntryRule extends Rule {
 

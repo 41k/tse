@@ -1,8 +1,9 @@
 package root.tse.domain.strategy_execution
 
 import org.ta4j.core.Bar
-import root.tse.domain.strategy_execution.clock.ClockSignalDispatcher
-import root.tse.domain.strategy_execution.event.StrategyExecutionEventBus
+import root.tse.domain.clock.ClockSignalDispatcher
+import root.tse.domain.clock.Interval
+import root.tse.domain.event.EventBus
 import root.tse.domain.strategy_execution.rule.EntryRule
 import root.tse.domain.strategy_execution.rule.ExitRule
 import root.tse.domain.strategy_execution.rule.RuleCheckResult
@@ -19,11 +20,11 @@ class SimpleStrategyExecutionTest extends Specification {
     private exitRule = Mock(ExitRule)
     private strategy = createStrategy(entryRule, exitRule)
     private strategyExecutionContext = StrategyExecutionContext.builder()
-        .strategy(strategy).symbols([SYMBOL_1]).strategyExecutionMode(STRATEGY_EXECUTION_MODE)
-        .transactionFeePercent(TRANSACTION_FEE_PERCENT).fundsPerTrade(FUNDS_PER_TRADE).build()
+        .strategy(strategy).symbols([SYMBOL_1]).orderExecutionMode(ORDER_EXECUTION_MODE)
+        .orderFeePercent(ORDER_FEE_PERCENT).fundsPerTrade(FUNDS_PER_TRADE).build()
     private clockSignalDispatcher = Mock(ClockSignalDispatcher)
     private tradeService = Mock(TradeService)
-    private eventBus = Mock(StrategyExecutionEventBus)
+    private eventBus = Mock(EventBus)
     private tradeOpeningContext = createTradeOpeningContext(bar)
     private tradeClosingContext = createTradeClosingContext(bar)
 

@@ -1,15 +1,15 @@
 package root.tse.domain.backtest
 
+import root.tse.domain.clock.ClockSignal
+import root.tse.domain.clock.ClockSignalDispatcher
 import root.tse.domain.strategy_execution.SimpleStrategyExecution
 import root.tse.domain.strategy_execution.SimpleStrategyExecutionFactory
 import root.tse.domain.strategy_execution.StrategyExecutionContext
-import root.tse.domain.strategy_execution.clock.ClockSignal
-import root.tse.domain.strategy_execution.clock.ClockSignalDispatcher
 import root.tse.domain.strategy_execution.report.Report
 import root.tse.domain.strategy_execution.report.ReportBuilder
 import spock.lang.Specification
 
-import static root.tse.domain.strategy_execution.Interval.*
+import static root.tse.domain.clock.Interval.*
 
 class BacktestServiceTest extends Specification {
 

@@ -1,7 +1,7 @@
 package root.tse.domain.strategy_execution.trade
 
+import root.tse.domain.clock.ClockSignalDispatcher
 import root.tse.domain.strategy_execution.MarketScanningStrategyExecution
-import root.tse.domain.strategy_execution.clock.ClockSignalDispatcher
 import root.tse.domain.strategy_execution.rule.ExitRule
 import spock.lang.Specification
 

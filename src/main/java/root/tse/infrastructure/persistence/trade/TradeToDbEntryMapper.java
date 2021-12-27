@@ -1,6 +1,6 @@
 package root.tse.infrastructure.persistence.trade;
 
-import root.tse.domain.strategy_execution.trade.Order;
+import root.tse.domain.order.Order;
 import root.tse.domain.strategy_execution.trade.Trade;
 
 import java.time.Instant;
@@ -16,7 +16,7 @@ public class TradeToDbEntryMapper {
             .id(trade.getId())
             .strategyExecutionId(trade.getStrategyExecutionId())
             .type(trade.getType())
-            .transactionFeePercent(trade.getTransactionFeePercent())
+            .orderFeePercent(trade.getOrderFeePercent())
             .symbol(trade.getSymbol())
             .entryOrderType(entryOrder.getType())
             .entryOrderAmount(entryOrder.getAmount())
@@ -57,7 +57,7 @@ public class TradeToDbEntryMapper {
             .id(dbEntry.getId())
             .strategyExecutionId(dbEntry.getStrategyExecutionId())
             .type(dbEntry.getType())
-            .transactionFeePercent(dbEntry.getTransactionFeePercent())
+            .orderFeePercent(dbEntry.getOrderFeePercent())
             .entryOrder(entryOrder)
             .exitOrder(exitOrder)
             .build();

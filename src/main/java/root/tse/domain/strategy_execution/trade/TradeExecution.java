@@ -3,9 +3,9 @@ package root.tse.domain.strategy_execution.trade;
 import lombok.Builder;
 import lombok.extern.slf4j.Slf4j;
 import root.tse.domain.strategy_execution.MarketScanningStrategyExecution;
-import root.tse.domain.strategy_execution.clock.ClockSignal;
-import root.tse.domain.strategy_execution.clock.ClockSignalConsumer;
-import root.tse.domain.strategy_execution.clock.ClockSignalDispatcher;
+import root.tse.domain.clock.ClockSignal;
+import root.tse.domain.clock.ClockSignalConsumer;
+import root.tse.domain.clock.ClockSignalDispatcher;
 import root.tse.domain.strategy_execution.rule.ExitRule;
 
 import java.util.Set;

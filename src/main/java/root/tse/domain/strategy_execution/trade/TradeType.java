@@ -2,8 +2,9 @@ package root.tse.domain.strategy_execution.trade;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import root.tse.domain.order.OrderType;
 
-import static root.tse.domain.strategy_execution.trade.OrderType.*;
+import static root.tse.domain.order.OrderType.*;
 
 @RequiredArgsConstructor
 public enum TradeType {

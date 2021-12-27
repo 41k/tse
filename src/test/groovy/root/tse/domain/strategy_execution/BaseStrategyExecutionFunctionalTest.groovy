@@ -1,37 +1,28 @@
 package root.tse.domain.strategy_execution
 
-import com.github.tomakehurst.wiremock.WireMockServer
-import org.spockframework.spring.SpringBean
-import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.context.TestConfiguration
 import org.springframework.context.annotation.Bean
 import org.springframework.test.context.ContextConfiguration
-import root.TseApp
-import root.tse.configuration.properties.ExchangeGatewayConfigurationProperties
-import root.tse.domain.strategy_execution.clock.ClockSignalDispatcher
+import root.tse.BaseFunctionalTest
+import root.tse.domain.ExchangeGateway
+import root.tse.domain.clock.Interval
+import root.tse.domain.order.Order
 import root.tse.domain.strategy_execution.rule.EntryRule
 import root.tse.domain.strategy_execution.rule.ExitRule
 import root.tse.domain.strategy_execution.rule.RuleCheckResult
-import root.tse.domain.strategy_execution.trade.Order
 import root.tse.domain.strategy_execution.trade.TradeType
-import root.tse.infrastructure.clock.ClockSignalPropagator
-import root.tse.infrastructure.persistence.trade.TradeDbEntryJpaRepository
-import spock.lang.Specification
 
-import static com.github.tomakehurst.wiremock.client.WireMock.*
-import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig
+import java.time.Clock
+import java.time.Instant
+import java.time.ZoneId
+
 import static com.google.common.io.Resources.getResource
-import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT
 import static root.tse.domain.strategy_execution.trade.TradeType.LONG
 import static root.tse.util.TestUtils.createClockSignal
 
-@SpringBootTest(webEnvironment = RANDOM_PORT)
-@ContextConfiguration(classes = [TseApp, BaseTestContextConfiguration])
-abstract class BaseStrategyExecutionFunctionalTest extends Specification {
+@ContextConfiguration(classes = [TestContextConfiguration])
+abstract class BaseStrategyExecutionFunctionalTest extends BaseFunctionalTest {
 
-    protected static final SERIES_LENGTH = 3
-    protected static final LIMIT = SERIES_LENGTH + 1
     protected static final SYMBOL_1 = 'symbol-1'
     protected static final SYMBOL_2 = 'symbol-2'
     protected static final SYMBOLS = [SYMBOL_1, SYMBOL_2]
@@ -42,7 +33,7 @@ abstract class BaseStrategyExecutionFunctionalTest extends Specification {
     protected static final TIMESTAMP_1 = 1634025720000L
     protected static final TIMESTAMP_2 = 1634025780000L
     protected static final FUNDS_PER_TRADE = 200d
-    protected static final TRANSACTION_FEE_PERCENT = 0.2d
+    protected static final ORDER_FEE_PERCENT = 0.2d
     protected static final NUMBER_OF_SIMULTANEOUSLY_OPENED_TRADES = 2
     protected static final ENTRY_RULE_CLOCK_SIGNAL_INTERVAL = Interval.FIVE_MINUTES
     protected static final ENTRY_RULE_CLOCK_SIGNAL = createClockSignal(ENTRY_RULE_CLOCK_SIGNAL_INTERVAL, TIMESTAMP_1)
@@ -52,8 +43,6 @@ abstract class BaseStrategyExecutionFunctionalTest extends Specification {
     protected static final NOT_REQUIRED_CLOCK_SIGNAL = createClockSignal(Interval.FIFTEEN_MINUTES, TIMESTAMP_2)
 
     protected static final SERIES_RETRIEVAL_RESPONSE_TEMPLATE = getResource('json/series-retrieval-response.json').text
-    protected static final ORDER_EXECUTION_REQUEST_TEMPLATE = 'quantity=$AMOUNT&recvWindow=5000&side=$ORDER_TYPE&symbol=$SYMBOL&timeInForce=FOK&timestamp=$TIMESTAMP&type=MARKET&signature=$SIGNATURE'
-    protected static final ORDER_EXECUTION_RESPONSE_TEMPLATE = getResource('json/order-execution-response.json').text
 
     private static final ENTRY_RULE_SERIES_RETRIEVAL_RESPONSE = [
         (SYMBOL_1) : SERIES_RETRIEVAL_RESPONSE_TEMPLATE
@@ -98,14 +87,14 @@ abstract class BaseStrategyExecutionFunctionalTest extends Specification {
                         .replace('$AMOUNT', AMOUNT_1 as String)
                         .replace('$ORDER_TYPE', 'SELL')
                         .replace('$SYMBOL', SYMBOL_1)
-                        .replace('$TIMESTAMP', TIMESTAMP_2 as String)
-                        .replace('$SIGNATURE', 'cb87e0f4fa495b463271bba13473c616892600247dc2fa6ef6538c0db0a0421e'),
+                        .replace('$TIMESTAMP', TIMESTAMP_1 as String)
+                        .replace('$SIGNATURE', 'f024eb3af789a3f58442464b8d8bf7ffec49639c859e6e9899b2391917fd8ffb'),
         (SYMBOL_2) : ORDER_EXECUTION_REQUEST_TEMPLATE
                         .replace('$AMOUNT', AMOUNT_2 as String)
                         .replace('$ORDER_TYPE', 'SELL')
                         .replace('$SYMBOL', SYMBOL_2)
-                        .replace('$TIMESTAMP', TIMESTAMP_2 as String)
-                        .replace('$SIGNATURE', 'a8a21af990b05a19aad0a219d5de648a7fb3651dca4c5550453391c16953b417')
+                        .replace('$TIMESTAMP', TIMESTAMP_1 as String)
+                        .replace('$SIGNATURE', '54bfb3a7cefda9294e3e0f224367dd98f6a334956eba6d5d0a307b3db9929521')
     ]
     private static final EXIT_ORDER_EXECUTION_RESPONSE = [
         (SYMBOL_1) : ORDER_EXECUTION_RESPONSE_TEMPLATE
@@ -115,25 +104,6 @@ abstract class BaseStrategyExecutionFunctionalTest extends Specification {
                         .replace('$AMOUNT', AMOUNT_2 as String)
                         .replace('$PRICE', PRICE_1 as String)
     ]
-
-    @SpringBean // necessary since we should propagate clock signal manually during test
-    ClockSignalPropagator clockSignalPropagator = Mock()
-
-    @Autowired
-    protected TradeDbEntryJpaRepository tradeDbEntryJpaRepository
-
-    @Autowired
-    protected ClockSignalDispatcher clockSignalDispatcher
-
-    @Autowired
-    protected ExchangeGatewayConfigurationProperties exchangeGatewayConfigurationProperties
-
-    @Autowired
-    private WireMockServer wireMockServer
-
-    def setup() {
-        tradeDbEntryJpaRepository.deleteAll()
-    }
 
     void mockSuccessfulSeriesRetrievalForEntryRule(String symbol) {
         def responseBody = ENTRY_RULE_SERIES_RETRIEVAL_RESPONSE.get(symbol)
@@ -173,57 +143,6 @@ abstract class BaseStrategyExecutionFunctionalTest extends Specification {
     void mockFailedExitOrderExecution(String symbol) {
         def requestBody = EXIT_ORDER_EXECUTION_REQUEST.get(symbol)
         mockFailedOrderExecutionCall(requestBody)
-    }
-
-    void mockSuccessfulSeriesRetrievalCall(String symbol, Interval interval, String responseBody) {
-        wireMockServer.stubFor(get(urlEqualTo(seriesRetrievalUrl(symbol, interval)))
-            .willReturn(aResponse()
-                .withStatus(200)
-                .withBody(responseBody)
-                .withHeader('Connection', 'close')))
-    }
-
-    void mockFailedSeriesRetrievalCall(String symbol, Interval interval) {
-        wireMockServer.stubFor(get(urlEqualTo(seriesRetrievalUrl(symbol, interval)))
-            .willReturn(aResponse()
-                .withStatus(500)
-                .withHeader('Connection', 'close')))
-    }
-
-    String seriesRetrievalUrl(String symbol, Interval interval) {
-        def intervalRepresentation = exchangeGatewayConfigurationProperties.getIntervalRepresentation(interval)
-        "/klines?symbol=$symbol&interval=$intervalRepresentation&limit=$LIMIT"
-    }
-
-    void mockSuccessfulOrderExecutionCall(String requestBody, String responseBody) {
-        wireMockServer.stubFor(post(urlPathEqualTo('/order'))
-            .withHeader('Content-Type', equalTo('application/x-www-form-urlencoded'))
-            .withHeader('X-MBX-APIKEY', equalTo(exchangeGatewayConfigurationProperties.getApiKey()))
-            .withRequestBody(equalTo(requestBody))
-            .willReturn(aResponse()
-                .withStatus(200)
-                .withBody(responseBody)
-                .withHeader('Connection', 'close')))
-    }
-
-    void mockFailedOrderExecutionCall(String requestBody) {
-        wireMockServer.stubFor(post(urlPathEqualTo('/order'))
-            .withHeader('Content-Type', equalTo('application/x-www-form-urlencoded'))
-            .withHeader('X-MBX-APIKEY', equalTo(exchangeGatewayConfigurationProperties.getApiKey()))
-            .withRequestBody(equalTo(requestBody))
-            .willReturn(aResponse()
-                .withStatus(500)
-                .withHeader('Connection', 'close')))
-    }
-
-    @TestConfiguration
-    static class BaseTestContextConfiguration {
-        @Bean
-        WireMockServer wireMockServer() {
-            def wireMockServer = new WireMockServer(wireMockConfig().port(7777))
-            wireMockServer.start()
-            wireMockServer
-        }
     }
 
     static class SampleStrategy implements Strategy {
@@ -278,6 +197,14 @@ abstract class BaseStrategyExecutionFunctionalTest extends Specification {
                 @Override
                 Interval getLowestInterval() { EXIT_RULE_CLOCK_SIGNAL_INTERVAL }
             }
+        }
+    }
+
+    @TestConfiguration
+    static class TestContextConfiguration {
+        @Bean
+        Clock clock() {
+            Clock.fixed(Instant.ofEpochMilli(TIMESTAMP_1), ZoneId.systemDefault())
         }
     }
 }

@@ -3,13 +3,16 @@ package root.tse.domain.backtest;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import org.ta4j.core.BarSeries;
-import root.tse.domain.strategy_execution.ExchangeGateway;
-import root.tse.domain.strategy_execution.Interval;
-import root.tse.domain.strategy_execution.trade.Order;
+import root.tse.domain.ExchangeGateway;
+import root.tse.domain.clock.Interval;
+import root.tse.domain.order.Order;
+import root.tse.domain.order.OrderType;
 
+import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
-import static root.tse.domain.strategy_execution.trade.OrderStatus.FILLED;
+import static root.tse.domain.order.OrderStatus.FILLED;
 
 @RequiredArgsConstructor
 public class BacktestExchangeGateway implements ExchangeGateway {
@@ -23,6 +26,11 @@ public class BacktestExchangeGateway implements ExchangeGateway {
     public Optional<BarSeries> getSeries(String symbol, Interval interval, Integer seriesLength) {
         var series = dataSetService.getSeries(dataSetName, symbol, interval, currentTimestamp, seriesLength);
         return Optional.of(series);
+    }
+
+    @Override
+    public Optional<Map<String, Map<OrderType, Double>>> getCurrentPrices(List<String> symbols) {
+        return dataSetService.getCurrentPrices(dataSetName, symbols, currentTimestamp);
     }
 
     @Override

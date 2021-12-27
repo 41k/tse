@@ -1,32 +1,36 @@
 package root.tse.domain.strategy_execution
 
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.boot.test.context.TestConfiguration
-import org.springframework.context.annotation.Bean
-import org.springframework.test.annotation.DirtiesContext
-import org.springframework.test.context.ContextConfiguration
 
-import java.time.Clock
-import java.time.Instant
-import java.time.ZoneId
-
-import static root.tse.domain.strategy_execution.BaseStrategyExecutionFunctionalTest.SampleStrategy
-import static root.tse.domain.strategy_execution.StrategyExecutionMode.TRADING
-import static root.tse.domain.strategy_execution.trade.OrderStatus.FILLED
-import static root.tse.domain.strategy_execution.trade.OrderType.BUY
-import static root.tse.domain.strategy_execution.trade.OrderType.SELL
+import static root.tse.domain.order.OrderExecutionMode.EXCHANGE_GATEWAY
+import static root.tse.domain.order.OrderStatus.FILLED
+import static root.tse.domain.order.OrderType.BUY
+import static root.tse.domain.order.OrderType.SELL
 import static root.tse.domain.strategy_execution.trade.TradeType.LONG
 
-@DirtiesContext
-@ContextConfiguration(classes = [TestContextConfiguration])
 class MarketScanningStrategyExecutionFunctionalTest extends BaseStrategyExecutionFunctionalTest {
 
     @Autowired
-    MarketScanningStrategyExecution strategyExecution
+    private MarketScanningStrategyExecutionFactory strategyExecutionFactory
+
+    private MarketScanningStrategyExecution strategyExecution
 
     def setup() {
-        strategyExecution.stop()
+        def strategy = new SampleStrategy(exchangeGateway)
+        def strategyExecutionContext = StrategyExecutionContext.builder()
+            .strategy(strategy)
+            .orderExecutionMode(EXCHANGE_GATEWAY)
+            .symbols(SYMBOLS)
+            .fundsPerTrade(FUNDS_PER_TRADE)
+            .orderFeePercent(ORDER_FEE_PERCENT)
+            .allowedNumberOfSimultaneouslyOpenedTrades(NUMBER_OF_SIMULTANEOUSLY_OPENED_TRADES)
+            .build()
+        strategyExecution = strategyExecutionFactory.create(strategyExecutionContext)
         strategyExecution.start()
+    }
+
+    def cleanup() {
+        strategyExecution.stop()
     }
 
     def 'should trade for each scanned symbol'() {
@@ -64,7 +68,7 @@ class MarketScanningStrategyExecutionFunctionalTest extends BaseStrategyExecutio
         and:
         trades.get(0).strategyExecutionId == strategyExecution.id
         trades.get(0).type == LONG
-        trades.get(0).transactionFeePercent == TRANSACTION_FEE_PERCENT
+        trades.get(0).orderFeePercent == ORDER_FEE_PERCENT
         trades.get(0).symbol == SYMBOL_1
         trades.get(0).entryOrderType == BUY
         trades.get(0).entryOrderAmount == AMOUNT_1
@@ -80,7 +84,7 @@ class MarketScanningStrategyExecutionFunctionalTest extends BaseStrategyExecutio
         and:
         trades.get(1).strategyExecutionId == strategyExecution.id
         trades.get(1).type == LONG
-        trades.get(0).transactionFeePercent == TRANSACTION_FEE_PERCENT
+        trades.get(0).orderFeePercent == ORDER_FEE_PERCENT
         trades.get(1).symbol == SYMBOL_2
         trades.get(1).entryOrderType == BUY
         trades.get(1).entryOrderAmount == AMOUNT_2
@@ -181,7 +185,7 @@ class MarketScanningStrategyExecutionFunctionalTest extends BaseStrategyExecutio
         and:
         trades.get(0).strategyExecutionId == strategyExecution.id
         trades.get(0).type == LONG
-        trades.get(0).transactionFeePercent == TRANSACTION_FEE_PERCENT
+        trades.get(0).orderFeePercent == ORDER_FEE_PERCENT
         trades.get(0).symbol == SYMBOL_1
         trades.get(0).entryOrderType == BUY
         trades.get(0).entryOrderAmount == AMOUNT_1
@@ -197,7 +201,7 @@ class MarketScanningStrategyExecutionFunctionalTest extends BaseStrategyExecutio
         and:
         trades.get(1).strategyExecutionId == strategyExecution.id
         trades.get(1).type == LONG
-        trades.get(0).transactionFeePercent == TRANSACTION_FEE_PERCENT
+        trades.get(0).orderFeePercent == ORDER_FEE_PERCENT
         trades.get(1).symbol == SYMBOL_2
         trades.get(1).entryOrderType == BUY
         trades.get(1).entryOrderAmount == AMOUNT_2
@@ -242,7 +246,7 @@ class MarketScanningStrategyExecutionFunctionalTest extends BaseStrategyExecutio
         and:
         trades.get(0).strategyExecutionId == strategyExecution.id
         trades.get(0).type == LONG
-        trades.get(0).transactionFeePercent == TRANSACTION_FEE_PERCENT
+        trades.get(0).orderFeePercent == ORDER_FEE_PERCENT
         trades.get(0).symbol == SYMBOL_1
         trades.get(0).entryOrderType == BUY
         trades.get(0).entryOrderAmount == AMOUNT_1
@@ -258,7 +262,7 @@ class MarketScanningStrategyExecutionFunctionalTest extends BaseStrategyExecutio
         and:
         trades.get(1).strategyExecutionId == strategyExecution.id
         trades.get(1).type == LONG
-        trades.get(0).transactionFeePercent == TRANSACTION_FEE_PERCENT
+        trades.get(0).orderFeePercent == ORDER_FEE_PERCENT
         trades.get(1).symbol == SYMBOL_2
         trades.get(1).entryOrderType == BUY
         trades.get(1).entryOrderAmount == AMOUNT_2
@@ -305,7 +309,7 @@ class MarketScanningStrategyExecutionFunctionalTest extends BaseStrategyExecutio
         and: 'but 1st trade was not closed'
         trades.get(0).strategyExecutionId == strategyExecution.id
         trades.get(0).type == LONG
-        trades.get(0).transactionFeePercent == TRANSACTION_FEE_PERCENT
+        trades.get(0).orderFeePercent == ORDER_FEE_PERCENT
         trades.get(0).symbol == SYMBOL_1
         trades.get(0).entryOrderType == BUY
         trades.get(0).entryOrderAmount == AMOUNT_1
@@ -321,7 +325,7 @@ class MarketScanningStrategyExecutionFunctionalTest extends BaseStrategyExecutio
         and: 'and 2nd was not closed too'
         trades.get(1).strategyExecutionId == strategyExecution.id
         trades.get(1).type == LONG
-        trades.get(0).transactionFeePercent == TRANSACTION_FEE_PERCENT
+        trades.get(0).orderFeePercent == ORDER_FEE_PERCENT
         trades.get(1).symbol == SYMBOL_2
         trades.get(1).entryOrderType == BUY
         trades.get(1).entryOrderAmount == AMOUNT_2
@@ -370,7 +374,7 @@ class MarketScanningStrategyExecutionFunctionalTest extends BaseStrategyExecutio
         and: 'but 1st trade was not closed'
         trades.get(0).strategyExecutionId == strategyExecution.id
         trades.get(0).type == LONG
-        trades.get(0).transactionFeePercent == TRANSACTION_FEE_PERCENT
+        trades.get(0).orderFeePercent == ORDER_FEE_PERCENT
         trades.get(0).symbol == SYMBOL_1
         trades.get(0).entryOrderType == BUY
         trades.get(0).entryOrderAmount == AMOUNT_1
@@ -386,7 +390,7 @@ class MarketScanningStrategyExecutionFunctionalTest extends BaseStrategyExecutio
         and: 'and 2nd was not closed too'
         trades.get(1).strategyExecutionId == strategyExecution.id
         trades.get(1).type == LONG
-        trades.get(0).transactionFeePercent == TRANSACTION_FEE_PERCENT
+        trades.get(0).orderFeePercent == ORDER_FEE_PERCENT
         trades.get(1).symbol == SYMBOL_2
         trades.get(1).entryOrderType == BUY
         trades.get(1).entryOrderAmount == AMOUNT_2
@@ -398,28 +402,5 @@ class MarketScanningStrategyExecutionFunctionalTest extends BaseStrategyExecutio
         !trades.get(1).exitOrderPrice
         !trades.get(1).exitOrderTimestamp
         !trades.get(1).exitOrderStatus
-    }
-
-    @TestConfiguration
-    static class TestContextConfiguration {
-        @Bean
-        Clock clock() {
-            Clock.fixed(Instant.ofEpochMilli(TIMESTAMP_1), ZoneId.systemDefault())
-        }
-
-        @Bean
-        MarketScanningStrategyExecution strategyExecution(ExchangeGateway exchangeGateway,
-                                                          MarketScanningStrategyExecutionFactory strategyExecutionFactory) {
-            def strategy = new SampleStrategy(exchangeGateway)
-            def strategyExecutionContext = StrategyExecutionContext.builder()
-                .strategy(strategy)
-                .strategyExecutionMode(TRADING)
-                .symbols(SYMBOLS)
-                .fundsPerTrade(FUNDS_PER_TRADE)
-                .transactionFeePercent(TRANSACTION_FEE_PERCENT)
-                .allowedNumberOfSimultaneouslyOpenedTrades(NUMBER_OF_SIMULTANEOUSLY_OPENED_TRADES)
-                .build()
-            strategyExecutionFactory.create(strategyExecutionContext)
-        }
     }
 }

@@ -3,13 +3,13 @@ package root.tse.infrastructure.clock;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
-import root.tse.domain.strategy_execution.Interval;
-import root.tse.domain.strategy_execution.clock.ClockSignal;
-import root.tse.domain.strategy_execution.clock.ClockSignalDispatcher;
+import root.tse.domain.clock.Interval;
+import root.tse.domain.clock.ClockSignal;
+import root.tse.domain.clock.ClockSignalDispatcher;
 
 import java.time.Clock;
 
-import static root.tse.domain.strategy_execution.Interval.*;
+import static root.tse.domain.clock.Interval.*;
 
 // Note: all signals are shifted on 15 seconds in order to avoid data update delays on exchange gateway's side
 @Slf4j

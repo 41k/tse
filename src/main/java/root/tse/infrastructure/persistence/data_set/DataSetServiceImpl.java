@@ -6,13 +6,16 @@ import org.ta4j.core.Bar;
 import org.ta4j.core.BarSeries;
 import org.ta4j.core.BaseBarSeries;
 import root.tse.domain.backtest.DataSetService;
-import root.tse.domain.strategy_execution.Interval;
+import root.tse.domain.clock.Interval;
+import root.tse.domain.order.OrderType;
 
 import java.util.*;
 import java.util.function.Function;
 
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toMap;
+import static root.tse.domain.order.OrderType.BUY;
+import static root.tse.domain.order.OrderType.SELL;
 
 @RequiredArgsConstructor
 public class DataSetServiceImpl implements DataSetService {
@@ -44,6 +47,25 @@ public class DataSetServiceImpl implements DataSetService {
             .sorted(Comparator.comparing(Bar::getEndTime))
             .collect(toList());
         return new BaseBarSeries(bars);
+    }
+
+    @Override
+    public Optional<Map<String, Map<OrderType, Double>>> getCurrentPrices(String dataSetName,
+                                                                          List<String> symbols,
+                                                                          Long currentTimestamp) {
+        var prices = new HashMap<String, Map<OrderType, Double>>();
+        for (var symbol : symbols) {
+            var bar = getDataSet(dataSetName, symbol, Interval.ONE_MINUTE).get(currentTimestamp);
+            if (bar == null) {
+                return Optional.empty();
+            }
+            var price = bar.getClosePrice().doubleValue();
+            prices.put(symbol, Map.of(
+                BUY, price,
+                SELL, price
+            ));
+        }
+        return Optional.of(prices);
     }
 
     private Map<Long, Bar> getDataSet(String dataSetName, String symbol, Interval interval) {

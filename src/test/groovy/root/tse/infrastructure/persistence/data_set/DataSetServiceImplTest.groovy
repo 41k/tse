@@ -3,13 +3,15 @@ package root.tse.infrastructure.persistence.data_set
 import org.springframework.jdbc.core.JdbcTemplate
 import org.ta4j.core.Bar
 import org.ta4j.core.num.PrecisionNum
-import root.tse.domain.strategy_execution.Interval
+import root.tse.domain.clock.Interval
 import spock.lang.Specification
 
 import java.time.Instant
 import java.time.ZoneId
 import java.time.ZonedDateTime
 
+import static root.tse.domain.order.OrderType.BUY
+import static root.tse.domain.order.OrderType.SELL
 import static root.tse.util.TestUtils.*
 
 class DataSetServiceImplTest extends Specification {
@@ -17,7 +19,11 @@ class DataSetServiceImplTest extends Specification {
     private jdbcTemplate = Mock(JdbcTemplate)
     private barRowMapper = Mock(BarRowMapper)
 
-    private dataSetService = new DataSetServiceImpl(jdbcTemplate, barRowMapper)
+    private DataSetServiceImpl dataSetService
+
+    def setup() {
+        dataSetService = new DataSetServiceImpl(jdbcTemplate, barRowMapper)
+    }
 
     def 'should provide start timestamp'() {
         given:
@@ -81,5 +87,44 @@ class DataSetServiceImplTest extends Specification {
 
         and:
         series.getBarData() == [bar2, bar3, bar4]
+    }
+
+    def 'should provide current prices'() {
+        given:
+        assert dataSetService.dataSetStore.isEmpty()
+
+        and:
+        def bar1 = Mock(Bar)
+        def bar2 = Mock(Bar)
+        dataSetService.dataSetStore.put(DATA_SET_NAME, [
+            (SYMBOL_1) : [(Interval.ONE_MINUTE) : [(TIMESTAMP_1) : bar1]],
+            (SYMBOL_2) : [(Interval.ONE_MINUTE) : [(TIMESTAMP_1) : bar2]]
+        ])
+
+        and:
+        1 * bar1.getClosePrice() >> PrecisionNum.valueOf(PRICE_1)
+        1 * bar2.getClosePrice() >> PrecisionNum.valueOf(PRICE_2)
+        0 * _
+
+        expect: 'current prices are provided'
+        dataSetService.getCurrentPrices(DATA_SET_NAME, [SYMBOL_1, SYMBOL_2], TIMESTAMP_1) == Optional.of([
+            (SYMBOL_1) : [(BUY) : PRICE_1, (SELL) : PRICE_1],
+            (SYMBOL_2) : [(BUY) : PRICE_2, (SELL) : PRICE_2]
+        ])
+    }
+
+    def 'should not return current prices if there are no prices for at least one symbol'() {
+        given:
+        assert dataSetService.dataSetStore.isEmpty()
+
+        and:
+        def expectedQuery = "SELECT * FROM $DATA_SET_NAME WHERE symbol = '$SYMBOL_1' AND time_interval = 'ONE_MINUTE' ORDER BY id DESC"
+
+        and:
+        1 * jdbcTemplate.query(expectedQuery, barRowMapper) >> []
+        0 * _
+
+        expect:
+        dataSetService.getCurrentPrices(DATA_SET_NAME, [SYMBOL_1, SYMBOL_2], TIMESTAMP_1) == Optional.empty()
     }
 }

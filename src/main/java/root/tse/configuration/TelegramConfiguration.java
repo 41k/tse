@@ -6,7 +6,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.client.RestTemplate;
 import root.tse.configuration.properties.TelegramConfigurationProperties;
-import root.tse.domain.strategy_execution.event.StrategyExecutionEventSubscriber;
+import root.tse.domain.event.EventSubscriber;
 import root.tse.infrastructure.telegram.TelegramApiClient;
 import root.tse.infrastructure.telegram.TelegramEventPublisher;
 
@@ -16,7 +16,7 @@ import root.tse.infrastructure.telegram.TelegramEventPublisher;
 public class TelegramConfiguration {
 
     @Bean
-    public StrategyExecutionEventSubscriber telegramEventPublisher(TelegramApiClient telegramApiClient) {
+    public EventSubscriber telegramEventPublisher(TelegramApiClient telegramApiClient) {
         return new TelegramEventPublisher(telegramApiClient);
     }
 

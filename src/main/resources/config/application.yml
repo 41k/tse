@@ -168,10 +168,13 @@ jhipster:
 exchange-gateway:
   api-key: api-key-1
   secret-key: secret-key-1
-  base-rest-api-url: https://api-adapter.backend.currency.com/api/v1
+  api-host: api-adapter.backend.currency.com
+  base-rest-api-url: https://${exchange-gateway.api-host}/api/v1
   series-uri: ${exchange-gateway.base-rest-api-url}/klines
   order-uri: ${exchange-gateway.base-rest-api-url}/order
-  transaction-fee-percent: 0.2 # 0.2% (note: 1% should be set as 1, not as 0.01)
+  wss-connection-uri: wss://${exchange-gateway.api-host}/connect
+  current-price-wss-endpoint: marketData.subscribe
+  order-fee-percent: 0.2 # 0.2% (note: 1% should be set as 1, not as 0.01)
   interval-to-representation-map:
     ONE_MINUTE: 1m
     FIVE_MINUTES: 5m
@@ -180,6 +183,70 @@ exchange-gateway:
     ONE_HOUR: 1h
     FOUR_HOURS: 4h
     ONE_DAY: 1d
+  asset-code-delimiter: '/'
+  number-of-amount-selection-steps: 20
+  symbol-settings:
+    BTC_USD:
+      name: BTC/USD
+      precision: 4
+    BCH_USD:
+      name: BCH/USD
+      precision: 3
+    BCH_BTC:
+      name: BCH/BTC
+      precision: 5
+    ETH_USD:
+      name: ETH/USD
+      precision: 3
+    ETH_BTC:
+      name: ETH/BTC
+      precision: 5
+    LTC_USD:
+      name: LTC/USD
+      precision: 3
+    LTC_BTC:
+      name: LTC/BTC
+      precision: 5
+    XRP_USD:
+      name: XRP/USD
+      precision: 5
+    XRP_BTC:
+      name: XRP/BTC
+      precision: 8
+    BAL_USD:
+      name: BAL/USD
+      precision: 4
+    BAL_BTC:
+      name: BAL/BTC
+      precision: 6
+    CAKE_USD:
+      name: CAKE/USD
+      precision: 4
+    CAKE_BTC:
+      name: CAKE/BTC
+      precision: 7
+    CRV_USD:
+      name: CRV/USD
+      precision: 4
+    CRV_BTC:
+      name: CRV/BTC
+      precision: 8
+    MKR_USD:
+      name: MKR/USD
+      precision: 4
+    MKR_BTC:
+      name: MKR/BTC
+      precision: 5
+  asset-chains:
+    1: USD,ETH,BTC,USD
+    2: USD,BCH,BTC,USD
+    3: USD,LTC,BTC,USD
+    4: USD,XRP,BTC,USD
+    5: USD,BAL,BTC,USD
+    6: USD,CAKE,BTC,USD
+    7: USD,CRV,BTC,USD
+    8: USD,MKR,BTC,USD
+  chain-exchange-run-interval-in-millis: 10000
   rate-limit-per-second: 9
   retry-attempts-number: 4
   retry-backoff-in-milliseconds: 500
@@ -189,3 +256,5 @@ telegram:
   token: token
   chat-id: chat-id
   enabled: false
+
+logs.dir: logs

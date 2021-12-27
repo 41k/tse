@@ -20,7 +20,7 @@
             <column name="type" type="varchar(5)">
                 <constraints nullable="false"/>
             </column>
-            <column name="transaction_fee_percent" type="double">
+            <column name="order_fee_percent" type="double">
                 <constraints nullable="false"/>
             </column>
             <column name="symbol" type="varchar(30)">
@@ -46,6 +46,60 @@
             <column name="exit_order_price" type="double"/>
             <column name="exit_order_timestamp" type="timestamp"/>
             <column name="exit_order_status" type="varchar(10)"/>
+        </createTable>
+
+        <createTable tableName="chain_exchange">
+            <column name="id" type="varchar(36)">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="asset_chain" type="varchar(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="order_fee_percent" type="double">
+                <constraints nullable="false"/>
+            </column>
+            <column name="execution_timestamp" type="timestamp">
+                <constraints nullable="false"/>
+            </column>
+            <column name="order1type" type="varchar(4)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="order1symbol" type="varchar(30)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="order1amount" type="double">
+                <constraints nullable="false"/>
+            </column>
+            <column name="order1price" type="double">
+                <constraints nullable="false"/>
+            </column>
+            <column name="order2type" type="varchar(4)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="order2symbol" type="varchar(30)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="order2amount" type="double">
+                <constraints nullable="false"/>
+            </column>
+            <column name="order2price" type="double">
+                <constraints nullable="false"/>
+            </column>
+            <column name="order3type" type="varchar(4)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="order3symbol" type="varchar(30)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="order3amount" type="double">
+                <constraints nullable="false"/>
+            </column>
+            <column name="order3price" type="double">
+                <constraints nullable="false"/>
+            </column>
+            <column name="profit" type="double">
+                <constraints nullable="false"/>
+            </column>
         </createTable>
 
     </changeSet>

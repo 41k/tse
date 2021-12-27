@@ -1,27 +1,35 @@
 package root.tse.domain.strategy_execution
 
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.boot.test.context.TestConfiguration
-import org.springframework.context.annotation.Bean
-import org.springframework.test.annotation.DirtiesContext
-import org.springframework.test.context.ContextConfiguration
 
-import static root.tse.domain.strategy_execution.BaseStrategyExecutionFunctionalTest.SampleStrategy
-import static root.tse.domain.strategy_execution.StrategyExecutionMode.TRADING
-import static root.tse.domain.strategy_execution.trade.OrderStatus.FILLED
-import static root.tse.domain.strategy_execution.trade.OrderType.BUY
-import static root.tse.domain.strategy_execution.trade.OrderType.SELL
+import static root.tse.domain.order.OrderExecutionMode.EXCHANGE_GATEWAY
+import static root.tse.domain.order.OrderStatus.FILLED
+import static root.tse.domain.order.OrderType.BUY
+import static root.tse.domain.order.OrderType.SELL
 import static root.tse.domain.strategy_execution.trade.TradeType.LONG
 
-@DirtiesContext
-@ContextConfiguration(classes = [TestContextConfiguration])
 class SimpleStrategyExecutionFunctionalTest extends BaseStrategyExecutionFunctionalTest {
 
     @Autowired
-    SimpleStrategyExecution strategyExecution
+    private SimpleStrategyExecutionFactory strategyExecutionFactory
+
+    private SimpleStrategyExecution strategyExecution
 
     def setup() {
-        strategyExecution.openedTrade = null
+        def strategy = new SampleStrategy(exchangeGateway)
+        def strategyExecutionContext = StrategyExecutionContext.builder()
+            .strategy(strategy)
+            .orderExecutionMode(EXCHANGE_GATEWAY)
+            .symbols(SYMBOLS)
+            .fundsPerTrade(FUNDS_PER_TRADE)
+            .orderFeePercent(ORDER_FEE_PERCENT)
+            .build()
+        strategyExecution = strategyExecutionFactory.create(strategyExecutionContext)
+        strategyExecution.start()
+    }
+
+    def cleanup() {
+        strategyExecution.stop()
     }
 
     def 'should perform trade successfully'() {
@@ -53,7 +61,7 @@ class SimpleStrategyExecutionFunctionalTest extends BaseStrategyExecutionFunctio
         and:
         trades.get(0).strategyExecutionId == strategyExecution.id
         trades.get(0).type == LONG
-        trades.get(0).transactionFeePercent == TRANSACTION_FEE_PERCENT
+        trades.get(0).orderFeePercent == ORDER_FEE_PERCENT
         trades.get(0).symbol == SYMBOL_1
         trades.get(0).entryOrderType == BUY
         trades.get(0).entryOrderAmount == AMOUNT_1
@@ -143,7 +151,7 @@ class SimpleStrategyExecutionFunctionalTest extends BaseStrategyExecutionFunctio
         and: 'but was not closed'
         trades.get(0).strategyExecutionId == strategyExecution.id
         trades.get(0).type == LONG
-        trades.get(0).transactionFeePercent == TRANSACTION_FEE_PERCENT
+        trades.get(0).orderFeePercent == ORDER_FEE_PERCENT
         trades.get(0).symbol == SYMBOL_1
         trades.get(0).entryOrderType == BUY
         trades.get(0).entryOrderAmount == AMOUNT_1
@@ -184,7 +192,7 @@ class SimpleStrategyExecutionFunctionalTest extends BaseStrategyExecutionFunctio
         and: 'but was not closed'
         trades.get(0).strategyExecutionId == strategyExecution.id
         trades.get(0).type == LONG
-        trades.get(0).transactionFeePercent == TRANSACTION_FEE_PERCENT
+        trades.get(0).orderFeePercent == ORDER_FEE_PERCENT
         trades.get(0).symbol == SYMBOL_1
         trades.get(0).entryOrderType == BUY
         trades.get(0).entryOrderAmount == AMOUNT_1
@@ -226,7 +234,7 @@ class SimpleStrategyExecutionFunctionalTest extends BaseStrategyExecutionFunctio
         and: 'but was not closed'
         trades.get(0).strategyExecutionId == strategyExecution.id
         trades.get(0).type == LONG
-        trades.get(0).transactionFeePercent == TRANSACTION_FEE_PERCENT
+        trades.get(0).orderFeePercent == ORDER_FEE_PERCENT
         trades.get(0).symbol == SYMBOL_1
         trades.get(0).entryOrderType == BUY
         trades.get(0).entryOrderAmount == AMOUNT_1
@@ -269,7 +277,7 @@ class SimpleStrategyExecutionFunctionalTest extends BaseStrategyExecutionFunctio
         and: 'but was not closed'
         trades.get(0).strategyExecutionId == strategyExecution.id
         trades.get(0).type == LONG
-        trades.get(0).transactionFeePercent == TRANSACTION_FEE_PERCENT
+        trades.get(0).orderFeePercent == ORDER_FEE_PERCENT
         trades.get(0).symbol == SYMBOL_1
         trades.get(0).entryOrderType == BUY
         trades.get(0).entryOrderAmount == AMOUNT_1
@@ -281,24 +289,5 @@ class SimpleStrategyExecutionFunctionalTest extends BaseStrategyExecutionFunctio
         !trades.get(0).exitOrderPrice
         !trades.get(0).exitOrderTimestamp
         !trades.get(0).exitOrderStatus
-    }
-
-    @TestConfiguration
-    static class TestContextConfiguration {
-        @Bean
-        SimpleStrategyExecution strategyExecution(ExchangeGateway exchangeGateway,
-                                                  SimpleStrategyExecutionFactory strategyExecutionFactory) {
-            def strategy = new SampleStrategy(exchangeGateway)
-            def strategyExecutionContext = StrategyExecutionContext.builder()
-                .strategy(strategy)
-                .strategyExecutionMode(TRADING)
-                .symbols(SYMBOLS)
-                .fundsPerTrade(FUNDS_PER_TRADE)
-                .transactionFeePercent(TRANSACTION_FEE_PERCENT)
-                .build()
-            def strategyExecution = strategyExecutionFactory.create(strategyExecutionContext)
-            strategyExecution.start()
-            strategyExecution
-        }
     }
 }

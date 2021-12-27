@@ -4,6 +4,8 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import root.tse.domain.order.OrderStatus;
+import root.tse.domain.order.OrderType;
 import root.tse.domain.strategy_execution.trade.*;
 
 import javax.persistence.*;
@@ -25,7 +27,7 @@ public class TradeDbEntry {
     @Enumerated(EnumType.STRING)
     private TradeType type;
     @NotNull
-    private Double transactionFeePercent;
+    private Double orderFeePercent;
     @NotNull
     private String symbol;
 

@@ -23,9 +23,10 @@
         <ta4j.version>0.13</ta4j.version>
         <commons-codec.version>1.13</commons-codec.version>
         <commons-math3.version>3.5</commons-math3.version>
+        <opencsv.version>3.9</opencsv.version>
+        <java-websocket.version>1.5.2</java-websocket.version>
         <lombok.version>1.18.8</lombok.version>
         <spock.version>2.0-groovy-2.5</spock.version>
-        <wiremock.version>2.26.3</wiremock.version>
         <gmavenplus.version>1.6</gmavenplus.version>
         <!-- Build properties -->
         <maven.version>3.3.9</maven.version>
@@ -128,6 +129,16 @@
             <version>${commons-math3.version}</version>
         </dependency>
         <dependency>
+            <groupId>com.opencsv</groupId>
+            <artifactId>opencsv</artifactId>
+            <version>${opencsv.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.java-websocket</groupId>
+            <artifactId>Java-WebSocket</artifactId>
+            <version>${java-websocket.version}</version>
+        </dependency>
+        <dependency>
             <groupId>org.springframework.retry</groupId>
             <artifactId>spring-retry</artifactId>
         </dependency>
@@ -150,9 +161,8 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>com.github.tomakehurst</groupId>
-            <artifactId>wiremock-standalone</artifactId>
-            <version>${wiremock.version}</version>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-contract-wiremock</artifactId>
             <scope>test</scope>
         </dependency>
 

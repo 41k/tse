@@ -26,7 +26,7 @@ public class ReportBuilder {
             .strategyExecutionId(strategyExecutionId)
             .symbols(strategyExecutionContext.getSymbols())
             .fundsPerTrade(strategyExecutionContext.getFundsPerTrade())
-            .transactionFeePercent(strategyExecutionContext.getTransactionFeePercent())
+            .orderFeePercent(strategyExecutionContext.getOrderFeePercent())
             // Performance metrics
             .equityCurve(buildEquityCurve(trades))
             .nTrades(trades.size())

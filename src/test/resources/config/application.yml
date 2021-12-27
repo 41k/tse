@@ -126,10 +126,12 @@ jhipster:
 exchange-gateway:
   api-key: api-key-1
   secret-key: secret-key-1
-  base-rest-api-url: http://localhost:7777
+  base-rest-api-url: http://localhost:${wiremock.server.port}
   series-uri: ${exchange-gateway.base-rest-api-url}/klines
   order-uri: ${exchange-gateway.base-rest-api-url}/order
-  transaction-fee: 0.002
+  wss-connection-uri: wss://connect
+  current-price-wss-endpoint: marketData.subscribe
+  order-fee-percent: 0.2 # 0.2% (note: 1% should be set as 1, not as 0.01)
   interval-to-representation-map:
     ONE_MINUTE: 1m
     FIVE_MINUTES: 5m
@@ -138,6 +140,21 @@ exchange-gateway:
     ONE_HOUR: 1h
     FOUR_HOURS: 4h
     ONE_DAY: 1d
+  asset-code-delimiter: '/'
+  number-of-amount-selection-steps: 20
+  symbol-settings:
+    ASSET2_ASSET1:
+      name: ASSET2/ASSET1
+      precision: 3
+    ASSET2_ASSET3:
+      name: ASSET2/ASSET3
+      precision: 5
+    ASSET3_ASSET1:
+      name: ASSET3/ASSET1
+      precision: 4
+  asset-chains:
+    1: ASSET1,ASSET2,ASSET3,ASSET1
+  chain-exchange-run-interval-in-millis: 30000
   rate-limit-per-second: 9
   retry-attempts-number: 4
   retry-backoff-in-milliseconds: 500

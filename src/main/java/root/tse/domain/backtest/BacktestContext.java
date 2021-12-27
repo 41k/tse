@@ -7,7 +7,7 @@ import root.tse.domain.strategy_execution.StrategyExecutionContext;
 
 import java.util.List;
 
-import static root.tse.domain.strategy_execution.StrategyExecutionMode.INCUBATION;
+import static root.tse.domain.order.OrderExecutionMode.STUB;
 
 @Builder
 @Getter
@@ -18,15 +18,15 @@ public class BacktestContext {
     private final String dataSetName;
     private final String symbol;
     private final Double fundsPerTrade;
-    private final Double transactionFeePercent;
+    private final Double orderFeePercent;
 
     public StrategyExecutionContext getStrategyExecutionContext() {
         return StrategyExecutionContext.builder()
             .strategy(strategy)
-            .strategyExecutionMode(INCUBATION)
+            .orderExecutionMode(STUB)
             .symbols(List.of(symbol))
             .fundsPerTrade(fundsPerTrade)
-            .transactionFeePercent(transactionFeePercent)
+            .orderFeePercent(orderFeePercent)
             .build();
     }
 

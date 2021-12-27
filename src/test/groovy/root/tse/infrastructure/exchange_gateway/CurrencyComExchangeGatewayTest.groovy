@@ -2,23 +2,22 @@ package root.tse.infrastructure.exchange_gateway
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.google.common.util.concurrent.RateLimiter
-import org.springframework.http.HttpEntity
-import org.springframework.http.HttpHeaders
-import org.springframework.http.HttpMethod
-import org.springframework.http.HttpStatus
-import org.springframework.http.ResponseEntity
+import org.springframework.http.*
 import org.springframework.web.client.RestTemplate
 import root.tse.configuration.properties.ExchangeGatewayConfigurationProperties
-import root.tse.domain.strategy_execution.Interval
-import root.tse.domain.strategy_execution.trade.Order
-import root.tse.domain.strategy_execution.trade.OrderType
+import root.tse.domain.clock.Interval
+import root.tse.domain.order.Order
 import spock.lang.Specification
 import spock.lang.Unroll
 
+import java.time.Clock
+
 import static org.springframework.http.MediaType.APPLICATION_FORM_URLENCODED
 import static root.tse.configuration.ExchangeGatewayConfiguration.buildRetryTemplate
-import static root.tse.domain.strategy_execution.trade.OrderStatus.FILLED
-import static root.tse.domain.strategy_execution.trade.OrderStatus.NOT_FILLED
+import static root.tse.domain.order.OrderStatus.FILLED
+import static root.tse.domain.order.OrderStatus.NOT_FILLED
+import static root.tse.domain.order.OrderType.BUY
+import static root.tse.domain.order.OrderType.SELL
 
 class CurrencyComExchangeGatewayTest extends Specification {
 
@@ -68,14 +67,14 @@ class CurrencyComExchangeGatewayTest extends Specification {
     "]"
     private static final ENRICHED_SERIES_URI = "$SERIES_URI?symbol=$SYMBOL&interval=$INTERVAL_REPRESENTATION&limit=$LIMIT"
 
-    private static final ORDER_TYPE = OrderType.BUY
+    private static final ORDER_TYPE = BUY
     private static final PRICE = 2000.0d
     private static final PRICE_AT_ORDER_EXECUTION_TIME = 2100.0d
     private static final AMOUNT = 2.0d
     private static final AMOUNT_AT_ORDER_EXECUTION_TIME = 1.0d
     private static final TIMESTAMP = 100000L
     private static final ORDER_TO_EXECUTE = Order.builder()
-        .type(ORDER_TYPE).symbol(SYMBOL).amount(AMOUNT).price(PRICE).timestamp(TIMESTAMP).build()
+        .type(ORDER_TYPE).symbol(SYMBOL).amount(AMOUNT).price(PRICE).build()
     private static final ORDER_EXECUTION_REQUEST_BODY =
         "quantity=$AMOUNT&recvWindow=5000&side=$ORDER_TYPE" +
         "&symbol=$SYMBOL&timeInForce=FOK&timestamp=$TIMESTAMP&type=MARKET" +
@@ -97,13 +96,20 @@ class CurrencyComExchangeGatewayTest extends Specification {
     private static final VALID_ORDER_EXECUTION_RESPONSE_BODY = ORDER_EXECUTION_RESPONSE_BODY('FILLED')
     private static final INVALID_ORDER_EXECUTION_RESPONSE_BODY = ORDER_EXECUTION_RESPONSE_BODY('REJECTED')
 
+    private currentPriceProviderFactory = Mock(CurrentPriceProviderFactory)
     private retryTemplate = buildRetryTemplate(CONFIGURATION_PROPERTIES)
     private rateLimiter = Mock(RateLimiter)
     private restTemplate = Mock(RestTemplate)
     private objectMapper = new ObjectMapper()
+    private clock = Mock(Clock)
 
-    private exchangeGateway = new CurrencyComExchangeGateway(
-        CONFIGURATION_PROPERTIES, retryTemplate, rateLimiter, restTemplate, objectMapper)
+    private CurrencyComExchangeGateway exchangeGateway
+
+    def setup() {
+        exchangeGateway = new CurrencyComExchangeGateway(
+            CONFIGURATION_PROPERTIES, currentPriceProviderFactory,
+            retryTemplate, rateLimiter, restTemplate, objectMapper, clock)
+    }
 
 
     // ---
@@ -202,7 +208,90 @@ class CurrencyComExchangeGatewayTest extends Specification {
 
 
     // ---
-    // order execution tests set //
+    // current price retrieval tests set
+    // ---
+
+    def 'should initialize exchange gateway correctly'() {
+        given:
+        def currentPriceProvider = Mock(CurrentPriceProvider)
+
+        when:
+        def gateway = new CurrencyComExchangeGateway(
+            CONFIGURATION_PROPERTIES, currentPriceProviderFactory,
+            retryTemplate, rateLimiter, restTemplate, objectMapper, clock)
+
+        then:
+        1 * currentPriceProviderFactory.create(_) >> currentPriceProvider
+        0 * _
+
+        and:
+        gateway.currentPrices.isEmpty()
+        gateway.currentPriceProvider == currentPriceProvider
+    }
+
+    def 'should accept current prices'() {
+        given:
+        def symbol1 = 'symbol-1'
+        def symbol2 = 'symbol-2'
+
+        and:
+        assert exchangeGateway.currentPrices.isEmpty()
+
+        and:
+        exchangeGateway.currentPrices.put((symbol1), [(BUY) : 5d, (SELL) : 4d])
+
+        when:
+        exchangeGateway.acceptCurrentPrices([(symbol2) : [(BUY) : 12d, (SELL) : 11d]])
+
+        then:
+        exchangeGateway.currentPrices == [
+            (symbol1) : [(BUY) : 5d, (SELL) : 4d],
+            (symbol2) : [(BUY) : 12d, (SELL) : 11d]
+        ]
+
+        when:
+        exchangeGateway.acceptCurrentPrices([(symbol2) : [(BUY) : 10d, (SELL) : 9d]])
+
+        then:
+        exchangeGateway.currentPrices == [
+            (symbol1) : [(BUY) : 5d, (SELL) : 4d],
+            (symbol2) : [(BUY) : 10d, (SELL) : 9d]
+        ]
+    }
+
+    def 'should provide current prices successfully'() {
+        given:
+        def symbol1 = 'symbol-1'
+        def symbol2 = 'symbol-2'
+        def symbol3 = 'symbol-3'
+        exchangeGateway.currentPrices.putAll([
+            (symbol1): [(BUY): 102d, (SELL): 101d],
+            (symbol2): [(BUY): 7d, (SELL): 6d],
+            (symbol3): [(BUY): 1003d, (SELL): 1000d]
+        ])
+
+        expect:
+        exchangeGateway.getCurrentPrices([symbol1, symbol3]) == Optional.of([
+            (symbol1): [(BUY): 102d, (SELL): 101d],
+            (symbol3): [(BUY): 1003d, (SELL): 1000d]
+        ])
+    }
+
+    def 'should return empty optional if there are no prices for at least one symbol'() {
+        given:
+        def symbol1 = 'symbol-1'
+        def symbol2 = 'symbol-2'
+        exchangeGateway.currentPrices.putAll([
+            (symbol1): [(BUY): 102d, (SELL): 101d]
+        ])
+
+        expect:
+        exchangeGateway.getCurrentPrices([symbol1, symbol2]) == Optional.empty()
+    }
+
+
+    // ---
+    // order execution tests set
     // ---
 
     def 'should execute order successfully with retries'() {
@@ -210,6 +299,7 @@ class CurrencyComExchangeGatewayTest extends Specification {
         def executedOrder = exchangeGateway.execute(ORDER_TO_EXECUTE)
 
         then:
+        1 * clock.millis() >> TIMESTAMP
         3 * rateLimiter.acquire()
         3 * restTemplate.exchange(ORDER_URI, HttpMethod.POST, ORDER_EXECUTION_REQUEST, String) >>
             { throw new RuntimeException() } >>
@@ -223,7 +313,6 @@ class CurrencyComExchangeGatewayTest extends Specification {
         executedOrder.symbol == SYMBOL
         executedOrder.amount == AMOUNT_AT_ORDER_EXECUTION_TIME
         executedOrder.price == PRICE_AT_ORDER_EXECUTION_TIME
-        executedOrder.timestamp == TIMESTAMP
 
         and:
         noExceptionThrown()
@@ -234,6 +323,7 @@ class CurrencyComExchangeGatewayTest extends Specification {
         def executedOrder = exchangeGateway.execute(ORDER_TO_EXECUTE)
 
         then:
+        1 * clock.millis() >> TIMESTAMP
         3 * rateLimiter.acquire()
         3 * restTemplate.exchange(ORDER_URI, HttpMethod.POST, ORDER_EXECUTION_REQUEST, String) >>
             { throw new RuntimeException() } >>
@@ -247,7 +337,6 @@ class CurrencyComExchangeGatewayTest extends Specification {
         executedOrder.symbol == SYMBOL
         executedOrder.amount == AMOUNT
         executedOrder.price == PRICE
-        executedOrder.timestamp == TIMESTAMP
 
         and:
         noExceptionThrown()
@@ -259,6 +348,7 @@ class CurrencyComExchangeGatewayTest extends Specification {
         def executedOrder = exchangeGateway.execute(ORDER_TO_EXECUTE)
 
         then:
+        1 * clock.millis() >> TIMESTAMP
         1 * rateLimiter.acquire()
         1 * restTemplate.exchange(ORDER_URI, HttpMethod.POST, ORDER_EXECUTION_REQUEST, String) >> {
             return new ResponseEntity(invalidOrderExecutionResponseBoby, HttpStatus.OK)
@@ -271,7 +361,6 @@ class CurrencyComExchangeGatewayTest extends Specification {
         executedOrder.symbol == SYMBOL
         executedOrder.amount == AMOUNT
         executedOrder.price == PRICE
-        executedOrder.timestamp == TIMESTAMP
 
         and:
         noExceptionThrown()

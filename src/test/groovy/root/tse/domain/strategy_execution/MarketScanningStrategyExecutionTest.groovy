@@ -1,8 +1,9 @@
 package root.tse.domain.strategy_execution
 
 import org.ta4j.core.Bar
-import root.tse.domain.strategy_execution.clock.ClockSignalDispatcher
-import root.tse.domain.strategy_execution.event.StrategyExecutionEventBus
+import root.tse.domain.clock.ClockSignalDispatcher
+import root.tse.domain.clock.Interval
+import root.tse.domain.event.EventBus
 import root.tse.domain.strategy_execution.market_scanning.MarketScanningTask
 import root.tse.domain.strategy_execution.rule.EntryRule
 import root.tse.domain.strategy_execution.rule.ExitRule
@@ -26,14 +27,14 @@ class MarketScanningStrategyExecutionTest extends Specification {
     private exitRule = Mock(ExitRule)
     private strategy = createStrategy(entryRule, exitRule)
     private strategyExecutionContext = StrategyExecutionContext.builder()
-        .strategy(strategy).symbols(SYMBOLS).strategyExecutionMode(STRATEGY_EXECUTION_MODE)
-        .fundsPerTrade(FUNDS_PER_TRADE).transactionFeePercent(TRANSACTION_FEE_PERCENT)
+        .strategy(strategy).symbols(SYMBOLS).orderExecutionMode(ORDER_EXECUTION_MODE)
+        .fundsPerTrade(FUNDS_PER_TRADE).orderFeePercent(ORDER_FEE_PERCENT)
         .allowedNumberOfSimultaneouslyOpenedTrades(NUMBER_OF_SIMULTANEOUSLY_OPENED_TRADES).build()
     private marketScanningTaskExecutor = Mock(ScheduledExecutorService)
     private clockSignalDispatcher = Mock(ClockSignalDispatcher)
     private tradeService = Mock(TradeService)
     private tradeExecutionFactory = Mock(TradeExecutionFactory)
-    private eventBus = Mock(StrategyExecutionEventBus)
+    private eventBus = Mock(EventBus)
     private marketScanningTask = Mock(MarketScanningTask)
     private tradeExecution = Mock(TradeExecution)
     private tradeOpeningContext = createTradeOpeningContext(bar)

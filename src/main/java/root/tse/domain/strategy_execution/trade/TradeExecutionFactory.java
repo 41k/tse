@@ -2,7 +2,7 @@ package root.tse.domain.strategy_execution.trade;
 
 import lombok.RequiredArgsConstructor;
 import root.tse.domain.strategy_execution.MarketScanningStrategyExecution;
-import root.tse.domain.strategy_execution.clock.ClockSignalDispatcher;
+import root.tse.domain.clock.ClockSignalDispatcher;
 
 @RequiredArgsConstructor
 public class TradeExecutionFactory {

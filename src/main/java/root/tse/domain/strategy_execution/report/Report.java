@@ -12,7 +12,7 @@ public class Report {
     String strategyExecutionId;
     List<String> symbols;
     Double fundsPerTrade;
-    Double transactionFeePercent;
+    Double orderFeePercent;
 
     List<EquityCurvePoint> equityCurve;
     Number nTrades;

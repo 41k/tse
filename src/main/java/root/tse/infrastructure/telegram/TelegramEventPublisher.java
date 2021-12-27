@@ -1,20 +1,19 @@
 package root.tse.infrastructure.telegram;
 
 import lombok.RequiredArgsConstructor;
-import root.tse.domain.strategy_execution.event.StrategyExecutionEventSubscriber;
+import root.tse.domain.chain_exchange_execution.ChainExchange;
+import root.tse.domain.event.EventSubscriber;
 import root.tse.domain.strategy_execution.trade.Trade;
 
 import java.text.Format;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-import static org.apache.commons.lang3.StringUtils.substring;
 import static root.tse.infrastructure.telegram.TelegramApiClient.LINE_BREAK;
 
 @RequiredArgsConstructor
-public class TelegramEventPublisher implements StrategyExecutionEventSubscriber {
+public class TelegramEventPublisher implements EventSubscriber {
 
-    private static final int TRUNCATED_ID_LENGTH = 8;
     private static final Format DATE_FORMATTER = new SimpleDateFormat("yyyy-MM-dd HH:mm");
 
     private static final String TRADE_WAS_OPENED_EVENT_FORMAT = "" +
@@ -51,13 +50,24 @@ public class TelegramEventPublisher implements StrategyExecutionEventSubscriber 
         "<b>Amount:</b> %s" + LINE_BREAK +
         "<b>Reason:</b> %s";
 
+    private static final String CHAIN_EXCHANGE_WAS_EXECUTED_EVENT_FORMAT = "" +
+        "<b>Chain Exchange was <u>EXECUTED</u></b>" + LINE_BREAK + LINE_BREAK +
+        "<b>Chain Exchange Id:</b> %s" + LINE_BREAK +
+        "<b>Asset Chain:</b> %s" + LINE_BREAK +
+        "<b>Profit:</b> %s";
+
+    private static final String CHAIN_EXCHANGE_EXECUTION_FAILED_EVENT_FORMAT = "" +
+        "<b>Chain Exchange execution <u>FAILED</u></b>" + LINE_BREAK + LINE_BREAK +
+        "<b>Chain Exchange Id:</b> %s" + LINE_BREAK +
+        "<b>Asset Chain:</b> %s";
+
     private final TelegramApiClient telegramApiClient;
 
     @Override
     public void acceptTradeWasOpenedEvent(Trade openedTrade) {
         var message = String.format(TRADE_WAS_OPENED_EVENT_FORMAT,
-            truncateId(openedTrade.getId()),
-            truncateId(openedTrade.getStrategyExecutionId()),
+            openedTrade.getId(),
+            openedTrade.getStrategyExecutionId(),
             openedTrade.getSymbol(),
             openedTrade.getAmount(),
             openedTrade.getEntryOrder().getPrice(),
@@ -68,15 +78,15 @@ public class TelegramEventPublisher implements StrategyExecutionEventSubscriber 
 
     @Override
     public void acceptTradeWasNotOpenedEvent(String strategyExecutionId, String symbol, String reason) {
-        var message = String.format(TRADE_WAS_NOT_OPENED_EVENT_FORMAT, truncateId(strategyExecutionId), symbol, reason);
+        var message = String.format(TRADE_WAS_NOT_OPENED_EVENT_FORMAT, strategyExecutionId, symbol, reason);
         telegramApiClient.sendMessage(message);
     }
 
     @Override
     public void acceptTradeWasClosedEvent(Trade closedTrade) {
         var message = String.format(TRADE_WAS_CLOSED_EVENT_FORMAT,
-            truncateId(closedTrade.getId()),
-            truncateId(closedTrade.getStrategyExecutionId()),
+            closedTrade.getId(),
+            closedTrade.getStrategyExecutionId(),
             closedTrade.getSymbol(),
             closedTrade.getAmount(),
             closedTrade.getProfit(),
@@ -88,16 +98,27 @@ public class TelegramEventPublisher implements StrategyExecutionEventSubscriber 
     @Override
     public void acceptTradeWasNotClosedEvent(Trade openedTrade, String reason) {
         var message = String.format(TRADE_WAS_NOT_CLOSED_EVENT_FORMAT,
-            truncateId(openedTrade.getId()),
-            truncateId(openedTrade.getStrategyExecutionId()),
+            openedTrade.getId(),
+            openedTrade.getStrategyExecutionId(),
             openedTrade.getSymbol(),
             openedTrade.getAmount(),
             reason);
         telegramApiClient.sendMessage(message);
     }
 
-    private String truncateId(String id) {
-        return substring(id, 0, TRUNCATED_ID_LENGTH);
+    @Override
+    public void acceptChainExchangeWasExecutedEvent(ChainExchange chainExchange) {
+        var message = String.format(CHAIN_EXCHANGE_WAS_EXECUTED_EVENT_FORMAT,
+            chainExchange.getId(),
+            chainExchange.getAssetChain(),
+            chainExchange.getProfit());
+        telegramApiClient.sendMessage(message);
+    }
+
+    @Override
+    public void acceptChainExchangeExecutionFailedEvent(String chainExchangeId, String assetChain) {
+        var message = String.format(CHAIN_EXCHANGE_EXECUTION_FAILED_EVENT_FORMAT, chainExchangeId, assetChain);
+        telegramApiClient.sendMessage(message);
     }
 
     private String formTimeString(Long timestamp) {

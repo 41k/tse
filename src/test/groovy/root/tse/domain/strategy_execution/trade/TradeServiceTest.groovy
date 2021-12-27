@@ -2,15 +2,18 @@ package root.tse.domain.strategy_execution.trade
 
 import org.ta4j.core.Bar
 import org.ta4j.core.num.PrecisionNum
+import root.tse.domain.IdGenerator
+import root.tse.domain.order.Order
+import root.tse.domain.order.OrderExecutor
 import spock.lang.Specification
 
 import java.time.Instant
 import java.time.ZoneId
 import java.time.ZonedDateTime
 
-import static root.tse.domain.strategy_execution.trade.OrderStatus.*
-import static root.tse.domain.strategy_execution.trade.OrderType.BUY
-import static root.tse.domain.strategy_execution.trade.OrderType.SELL
+import static root.tse.domain.order.OrderStatus.*
+import static root.tse.domain.order.OrderType.BUY
+import static root.tse.domain.order.OrderType.SELL
 import static root.tse.domain.strategy_execution.trade.TradeType.LONG
 import static root.tse.util.TestUtils.*
 
@@ -19,10 +22,11 @@ class TradeServiceTest extends Specification {
     private bar = Mock(Bar)
     private tradeOpeningContext = createTradeOpeningContext(bar)
     private tradeClosingContext = createTradeClosingContext(bar)
+    private idGenerator = Mock(IdGenerator)
     private orderExecutor = Mock(OrderExecutor)
     private tradeRepository = Mock(TradeRepository)
 
-    private tradeService = new TradeService(orderExecutor, tradeRepository)
+    private tradeService = new TradeService(idGenerator, orderExecutor, tradeRepository)
 
     def 'should open trade successfully'() {
         when:
@@ -31,13 +35,14 @@ class TradeServiceTest extends Specification {
         then: 'execute entry order'
         1 * bar.getClosePrice() >> PrecisionNum.valueOf(PRICE_1)
         1 * bar.getEndTime() >> ZonedDateTime.ofInstant(Instant.ofEpochMilli(TIMESTAMP_1), ZoneId.systemDefault())
-        1 * orderExecutor.execute(_, STRATEGY_EXECUTION_MODE) >> {
+        1 * orderExecutor.execute(_, ORDER_EXECUTION_MODE) >> {
             def entryOrder = it[0] as Order
             assertEntryOrderBeforeExecution(entryOrder)
             return entryOrder.toBuilder().status(FILLED).build()
         }
 
         and: 'create and save opened trade'
+        1 * idGenerator.generateId() >> TRADE_ID
         1 * tradeRepository.save(_) >> { assertOpenedTrade(it[0] as Trade) }
 
         and: 'no other actions'
@@ -55,7 +60,7 @@ class TradeServiceTest extends Specification {
         then: 'failed entry order execution'
         1 * bar.getClosePrice() >> PrecisionNum.valueOf(PRICE_1)
         1 * bar.getEndTime() >> ZonedDateTime.ofInstant(Instant.ofEpochMilli(TIMESTAMP_1), ZoneId.systemDefault())
-        1 * orderExecutor.execute(_, STRATEGY_EXECUTION_MODE) >> {
+        1 * orderExecutor.execute(_, ORDER_EXECUTION_MODE) >> {
             def entryOrder = it[0] as Order
             assertEntryOrderBeforeExecution(entryOrder)
             return entryOrder.toBuilder().status(NOT_FILLED).build()
@@ -75,7 +80,7 @@ class TradeServiceTest extends Specification {
         then: 'execute exit order'
         1 * bar.getClosePrice() >> PrecisionNum.valueOf(PRICE_2)
         1 * bar.getEndTime() >> ZonedDateTime.ofInstant(Instant.ofEpochMilli(TIMESTAMP_2), ZoneId.systemDefault())
-        1 * orderExecutor.execute(_, STRATEGY_EXECUTION_MODE) >> {
+        1 * orderExecutor.execute(_, ORDER_EXECUTION_MODE) >> {
             def exitOrder = it[0] as Order
             assertExitOrderBeforeExecution(exitOrder)
             return exitOrder.toBuilder().status(FILLED).build()
@@ -99,7 +104,7 @@ class TradeServiceTest extends Specification {
         then: 'failed exit order execution'
         1 * bar.getClosePrice() >> PrecisionNum.valueOf(PRICE_2)
         1 * bar.getEndTime() >> ZonedDateTime.ofInstant(Instant.ofEpochMilli(TIMESTAMP_2), ZoneId.systemDefault())
-        1 * orderExecutor.execute(_, STRATEGY_EXECUTION_MODE) >> {
+        1 * orderExecutor.execute(_, ORDER_EXECUTION_MODE) >> {
             def exitOrder = it[0] as Order
             assertExitOrderBeforeExecution(exitOrder)
             return exitOrder.toBuilder().status(NOT_FILLED).build()
@@ -137,7 +142,7 @@ class TradeServiceTest extends Specification {
     }
 
     private boolean assertOpenedTrade(Trade openedTrade) {
-        assert UUID.fromString(openedTrade.id)
+        assert openedTrade.id == TRADE_ID
         assert openedTrade.strategyExecutionId == STRATEGY_EXECUTION_ID
         assert openedTrade.type == LONG
         assert openedTrade.entryOrder.status == FILLED
@@ -160,7 +165,7 @@ class TradeServiceTest extends Specification {
     }
 
     private boolean assertClosedTrade(Trade closedTrade) {
-        assert closedTrade.id
+        assert closedTrade.id == TRADE_ID
         assert closedTrade.strategyExecutionId == STRATEGY_EXECUTION_ID
         assert closedTrade.type == LONG
         assert closedTrade.entryOrder == ENTRY_ORDER

@@ -4,7 +4,7 @@ import root.tse.domain.strategy_execution.rule.EntryRule
 import root.tse.domain.strategy_execution.rule.ExitRule
 import spock.lang.Specification
 
-import static StrategyExecutionMode.TRADING
+import static root.tse.domain.order.OrderExecutionMode.EXCHANGE_GATEWAY
 import static root.tse.domain.strategy_execution.trade.TradeType.LONG
 import static root.tse.util.TestUtils.*
 
@@ -16,8 +16,8 @@ class StrategyExecutionContextTest extends Specification {
         def exitRule = Mock(ExitRule)
         def strategy = createStrategy(entryRule, exitRule)
         def strategyExecutionContext = StrategyExecutionContext.builder()
-            .strategy(strategy).strategyExecutionMode(TRADING).fundsPerTrade(FUNDS_PER_TRADE)
-            .transactionFeePercent(TRANSACTION_FEE_PERCENT).symbols(SYMBOLS)
+            .strategy(strategy).orderExecutionMode(EXCHANGE_GATEWAY).fundsPerTrade(FUNDS_PER_TRADE)
+            .orderFeePercent(ORDER_FEE_PERCENT).symbols(SYMBOLS)
             .allowedNumberOfSimultaneouslyOpenedTrades(NUMBER_OF_SIMULTANEOUSLY_OPENED_TRADES).build()
 
         expect:

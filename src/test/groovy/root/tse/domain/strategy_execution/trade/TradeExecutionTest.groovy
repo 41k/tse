@@ -1,13 +1,13 @@
 package root.tse.domain.strategy_execution.trade
 
 import org.ta4j.core.Bar
+import root.tse.domain.clock.ClockSignalDispatcher
 import root.tse.domain.strategy_execution.MarketScanningStrategyExecution
-import root.tse.domain.strategy_execution.clock.ClockSignalDispatcher
 import root.tse.domain.strategy_execution.rule.ExitRule
 import root.tse.domain.strategy_execution.rule.RuleCheckResult
 import spock.lang.Specification
 
-import static root.tse.domain.strategy_execution.Interval.ONE_MINUTE
+import static root.tse.domain.clock.Interval.ONE_MINUTE
 import static root.tse.util.TestUtils.*
 
 class TradeExecutionTest extends Specification {

@@ -1,10 +1,10 @@
 package root.tse.domain.strategy_execution.rule
 
 import org.ta4j.core.Bar
-import root.tse.domain.strategy_execution.Interval
+import root.tse.domain.clock.Interval
 import spock.lang.Specification
 
-import static root.tse.domain.strategy_execution.Interval.*
+import static root.tse.domain.clock.Interval.*
 import static root.tse.util.TestUtils.SYMBOL_1
 import static root.tse.util.TestUtils.createClockSignal
 

@@ -4,7 +4,9 @@ import lombok.Builder;
 import lombok.EqualsAndHashCode;
 import lombok.NonNull;
 import lombok.Value;
-import root.tse.domain.strategy_execution.clock.ClockSignal;
+import root.tse.domain.order.Order;
+import root.tse.domain.order.OrderType;
+import root.tse.domain.clock.ClockSignal;
 
 import java.util.Map;
 import java.util.function.Supplier;
@@ -28,7 +30,7 @@ public class Trade {
     @NonNull
     TradeType type;
     @NonNull
-    Double transactionFeePercent;
+    Double orderFeePercent;
     ClockSignal entryOrderClockSignal;
     @NonNull
     Order entryOrder;
@@ -55,21 +57,13 @@ public class Trade {
     }
 
     private Double calculateLongTradeProfit() {
-        var entryOrderTotal = entryOrder.getTotal();
-        var entryOrderFee = calculateOrderFee(entryOrder);
         if (isClosed()) {
-            var exitOrderTotal = exitOrder.getTotal();
-            var exitOrderFee = calculateOrderFee(exitOrder);
-            return exitOrderTotal - entryOrderTotal - entryOrderFee - exitOrderFee;
+            return exitOrder.getNetTotal(orderFeePercent) - entryOrder.getNetTotal(orderFeePercent);
         }
-        return -(entryOrderTotal + entryOrderFee);
+        return -entryOrder.getNetTotal(orderFeePercent);
     }
 
     private Double calculateShortTradeProfit() {
         throw new UnsupportedOperationException("Profit calculation for SHORT trade has not been implemented yet.");
-    }
-
-    private Double calculateOrderFee(Order order) {
-        return order.getTotal() * transactionFeePercent / 100;
     }
 }

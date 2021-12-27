@@ -1,60 +1,49 @@
 package root.tse.infrastructure.persistence.trade
 
-import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.boot.test.context.SpringBootTest
-import root.TseApp
-import spock.lang.Specification
+import root.tse.BaseFunctionalTest
 
 import static root.tse.util.TestUtils.*
 
-@SpringBootTest(classes = TseApp)
-class TradeDbEntryJpaRepositoryTest extends Specification {
-
-    @Autowired
-    private TradeDbEntryJpaRepository repository
-
-    def setup() {
-        repository.deleteAll()
-    }
+class TradeDbEntryJpaRepositoryTest extends BaseFunctionalTest {
 
     def 'should save, find and delete opened trade'() {
         given:
-        assert repository.count() == 0
+        assert tradeDbEntryJpaRepository.count() == 0
 
         when:
-        repository.save(OPENED_TRADE_DB_ENTRY)
+        tradeDbEntryJpaRepository.save(OPENED_TRADE_DB_ENTRY)
 
         then:
-        repository.count() == 1
+        tradeDbEntryJpaRepository.count() == 1
 
         and:
-        repository.findById(TRADE_ID).get() == OPENED_TRADE_DB_ENTRY
+        tradeDbEntryJpaRepository.findById(TRADE_ID).get() == OPENED_TRADE_DB_ENTRY
 
         when:
-        repository.deleteById(TRADE_ID)
+        tradeDbEntryJpaRepository.deleteById(TRADE_ID)
 
         then:
-        repository.count() == 0
+        tradeDbEntryJpaRepository.count() == 0
     }
 
     def 'should save, find and delete closed trade'() {
         given:
-        assert repository.count() == 0
+        assert tradeDbEntryJpaRepository.count() == 0
 
         when:
-        repository.save(CLOSED_TRADE_DB_ENTRY)
+        tradeDbEntryJpaRepository.save(CLOSED_TRADE_DB_ENTRY)
 
         then:
-        repository.count() == 1
+        tradeDbEntryJpaRepository.count() == 1
 
         and:
-        repository.findById(TRADE_ID).get() == CLOSED_TRADE_DB_ENTRY
+        tradeDbEntryJpaRepository.findById(TRADE_ID).get() == CLOSED_TRADE_DB_ENTRY
 
         when:
-        repository.deleteById(TRADE_ID)
+        tradeDbEntryJpaRepository.deleteById(TRADE_ID)
 
         then:
-        repository.count() == 0
+        tradeDbEntryJpaRepository.count() == 0
     }
 
     def 'should find all trades by strategy execution id'() {
@@ -73,19 +62,19 @@ class TradeDbEntryJpaRepositoryTest extends Specification {
         ]
 
         and:
-        assert repository.count() == 0
+        assert tradeDbEntryJpaRepository.count() == 0
 
         when:
-        repository.saveAll(tradesOfStrategyExecution1)
-        repository.saveAll(tradesOfStrategyExecution2)
+        tradeDbEntryJpaRepository.saveAll(tradesOfStrategyExecution1)
+        tradeDbEntryJpaRepository.saveAll(tradesOfStrategyExecution2)
 
         then:
-        repository.count() == 6
+        tradeDbEntryJpaRepository.count() == 6
 
         expect:
-        repository.findAllByStrategyExecutionId(strategyExecution1Id) == tradesOfStrategyExecution1
+        tradeDbEntryJpaRepository.findAllByStrategyExecutionId(strategyExecution1Id) == tradesOfStrategyExecution1
 
         and:
-        repository.findAllByStrategyExecutionId(strategyExecution2Id) == tradesOfStrategyExecution2
+        tradeDbEntryJpaRepository.findAllByStrategyExecutionId(strategyExecution2Id) == tradesOfStrategyExecution2
     }
 }

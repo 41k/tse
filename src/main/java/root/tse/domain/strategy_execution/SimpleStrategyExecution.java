@@ -3,9 +3,10 @@ package root.tse.domain.strategy_execution;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import root.tse.domain.strategy_execution.clock.ClockSignal;
-import root.tse.domain.strategy_execution.clock.ClockSignalDispatcher;
-import root.tse.domain.strategy_execution.event.StrategyExecutionEventBus;
+import root.tse.domain.clock.ClockSignal;
+import root.tse.domain.clock.ClockSignalDispatcher;
+import root.tse.domain.clock.Interval;
+import root.tse.domain.event.EventBus;
 import root.tse.domain.strategy_execution.trade.Trade;
 import root.tse.domain.strategy_execution.trade.TradeClosingContext;
 import root.tse.domain.strategy_execution.trade.TradeOpeningContext;
@@ -29,7 +30,7 @@ public class SimpleStrategyExecution implements StrategyExecution {
     private final StrategyExecutionContext context;
     private final ClockSignalDispatcher clockSignalDispatcher;
     private final TradeService tradeService;
-    private final StrategyExecutionEventBus eventBus;
+    private final EventBus eventBus;
 
     private Trade openedTrade;
 
@@ -61,13 +62,13 @@ public class SimpleStrategyExecution implements StrategyExecution {
         if (ruleCheckResult.ruleWasSatisfied()) {
             var tradeOpeningContext = TradeOpeningContext.builder()
                 .strategyExecutionId(id)
-                .strategyExecutionMode(context.getStrategyExecutionMode())
+                .orderExecutionMode(context.getOrderExecutionMode())
                 .tradeType(context.getTradeType())
                 .entryOrderClockSignal(clockSignal)
                 .symbol(symbol)
                 .bar(ruleCheckResult.getBarOnWhichRuleWasSatisfied())
                 .fundsPerTrade(context.getFundsPerTrade())
-                .transactionFeePercent(context.getTransactionFeePercent())
+                .orderFeePercent(context.getOrderFeePercent())
                 .build();
             tradeService.tryToOpenTrade(tradeOpeningContext)
                 .ifPresentOrElse(
@@ -87,7 +88,7 @@ public class SimpleStrategyExecution implements StrategyExecution {
             var tradeClosingContext = TradeClosingContext.builder()
                 .openedTrade(openedTrade)
                 .bar(ruleCheckResult.getBarOnWhichRuleWasSatisfied())
-                .strategyExecutionMode(context.getStrategyExecutionMode())
+                .orderExecutionMode(context.getOrderExecutionMode())
                 .build();
             tradeService.tryToCloseTrade(tradeClosingContext)
                 .ifPresentOrElse(

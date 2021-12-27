@@ -3,15 +3,15 @@ package root.tse.domain.backtest;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import root.tse.domain.strategy_execution.Interval;
+import root.tse.domain.clock.Interval;
 import root.tse.domain.strategy_execution.SimpleStrategyExecutionFactory;
 import root.tse.domain.strategy_execution.StrategyExecution;
-import root.tse.domain.strategy_execution.clock.ClockSignal;
-import root.tse.domain.strategy_execution.clock.ClockSignalDispatcher;
+import root.tse.domain.clock.ClockSignal;
+import root.tse.domain.clock.ClockSignalDispatcher;
 import root.tse.domain.strategy_execution.report.Report;
 import root.tse.domain.strategy_execution.report.ReportBuilder;
 
-import static root.tse.domain.strategy_execution.Interval.ONE_MINUTE;
+import static root.tse.domain.clock.Interval.ONE_MINUTE;
 
 @Slf4j
 @RequiredArgsConstructor

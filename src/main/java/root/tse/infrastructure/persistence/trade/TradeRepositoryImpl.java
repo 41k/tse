@@ -17,7 +17,7 @@ public class TradeRepositoryImpl implements TradeRepository {
     @Override
     public void save(Trade trade) {
         var dbEntry = mapper.mapToDbEntry(trade);
-        dbEntryRepository.save(dbEntry);
+        dbEntryRepository.saveAndFlush(dbEntry);
     }
 
     @Override

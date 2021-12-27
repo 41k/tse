@@ -4,9 +4,10 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.ta4j.core.Bar;
-import root.tse.domain.strategy_execution.clock.ClockSignal;
-import root.tse.domain.strategy_execution.clock.ClockSignalDispatcher;
-import root.tse.domain.strategy_execution.event.StrategyExecutionEventBus;
+import root.tse.domain.clock.ClockSignal;
+import root.tse.domain.clock.ClockSignalDispatcher;
+import root.tse.domain.clock.Interval;
+import root.tse.domain.event.EventBus;
 import root.tse.domain.strategy_execution.market_scanning.MarketScanningTask;
 import root.tse.domain.strategy_execution.rule.ExitRule;
 import root.tse.domain.strategy_execution.trade.*;
@@ -20,7 +21,7 @@ import java.util.concurrent.ExecutorService;
 
 import static java.util.Objects.nonNull;
 import static org.apache.commons.lang3.StringUtils.EMPTY;
-import static root.tse.domain.strategy_execution.Interval.ONE_MINUTE;
+import static root.tse.domain.clock.Interval.ONE_MINUTE;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -37,7 +38,7 @@ public class MarketScanningStrategyExecution implements StrategyExecution {
     private final ClockSignalDispatcher clockSignalDispatcher;
     private final TradeService tradeService;
     private final TradeExecutionFactory tradeExecutionFactory;
-    private final StrategyExecutionEventBus eventBus;
+    private final EventBus eventBus;
     private final Clock clock;
     private final Map<String, TradeExecution> tradeExecutions = new ConcurrentHashMap<>();
 
@@ -78,13 +79,13 @@ public class MarketScanningStrategyExecution implements StrategyExecution {
         }
         var tradeOpeningContext = TradeOpeningContext.builder()
             .strategyExecutionId(id)
-            .strategyExecutionMode(context.getStrategyExecutionMode())
+            .orderExecutionMode(context.getOrderExecutionMode())
             .tradeType(context.getTradeType())
             .entryOrderClockSignal(entryOrderClockSignal())
             .symbol(symbol)
             .bar(bar)
             .fundsPerTrade(context.getFundsPerTrade())
-            .transactionFeePercent(context.getTransactionFeePercent())
+            .orderFeePercent(context.getOrderFeePercent())
             .build();
         tradeService.tryToOpenTrade(tradeOpeningContext)
             .ifPresentOrElse(
@@ -99,7 +100,7 @@ public class MarketScanningStrategyExecution implements StrategyExecution {
         var tradeClosingContext = TradeClosingContext.builder()
             .openedTrade(openedTrade)
             .bar(bar)
-            .strategyExecutionMode(context.getStrategyExecutionMode())
+            .orderExecutionMode(context.getOrderExecutionMode())
             .build();
         tradeService.tryToCloseTrade(tradeClosingContext)
             .ifPresentOrElse(

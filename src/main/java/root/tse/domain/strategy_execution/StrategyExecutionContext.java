@@ -2,6 +2,7 @@ package root.tse.domain.strategy_execution;
 
 import lombok.Builder;
 import lombok.Value;
+import root.tse.domain.order.OrderExecutionMode;
 import root.tse.domain.strategy_execution.rule.EntryRule;
 import root.tse.domain.strategy_execution.rule.ExitRule;
 import root.tse.domain.strategy_execution.trade.TradeType;
@@ -13,10 +14,10 @@ import java.util.List;
 public class StrategyExecutionContext {
 
     Strategy strategy;
-    StrategyExecutionMode strategyExecutionMode;
+    OrderExecutionMode orderExecutionMode;
     List<String> symbols;
     Double fundsPerTrade;
-    Double transactionFeePercent;
+    Double orderFeePercent;
     @Builder.Default
     int allowedNumberOfSimultaneouslyOpenedTrades = 1;
 

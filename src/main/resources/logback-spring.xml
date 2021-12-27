@@ -4,6 +4,8 @@
 <configuration scan="true">
     <include resource="org/springframework/boot/logging/logback/base.xml"/>
 
+    <property resource="config/application.yml"/>
+
 <!-- The FILE and ASYNC appenders are here as examples for a production configuration -->
 <!--
     <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
@@ -26,6 +28,29 @@
         <appender-ref ref="ASYNC"/>
     </root>
 -->
+
+    <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <FileNamePattern>${logs.dir}/PlainLog.%d{yyyy-MM-dd}.%i.log</FileNamePattern>
+            <MaxHistory>30</MaxHistory>
+            <timeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
+                <maxFileSize>10MB</maxFileSize>
+            </timeBasedFileNamingAndTriggeringPolicy>
+        </rollingPolicy>
+        <encoder>
+            <charset>utf-8</charset>
+            <Pattern>%d %-5level [%thread] %logger{0}: %msg%n</Pattern>
+        </encoder>
+    </appender>
+
+    <appender name="ASYNC" class="ch.qos.logback.classic.AsyncAppender">
+        <queueSize>512</queueSize>
+        <appender-ref ref="FILE"/>
+    </appender>
+
+    <root level="${logging.level.root}">
+        <appender-ref ref="ASYNC"/>
+    </root>
 
     <logger name="javax.activation" level="WARN"/>
     <logger name="javax.mail" level="WARN"/>

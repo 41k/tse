@@ -2,33 +2,34 @@ package root.tse.domain.backtest
 
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
+import org.springframework.cloud.contract.wiremock.AutoConfigureWireMock
 import org.springframework.test.context.ContextConfiguration
 import org.springframework.test.context.jdbc.Sql
 import root.TseApp
-import root.tse.domain.strategy_execution.ExchangeGateway
-import root.tse.domain.strategy_execution.Interval
+import root.tse.BaseFunctionalTest
+import root.tse.domain.ExchangeGateway
+import root.tse.domain.clock.Interval
 import root.tse.domain.strategy_execution.Strategy
 import root.tse.domain.strategy_execution.report.EquityCurvePoint
 import root.tse.domain.strategy_execution.rule.EntryRule
 import root.tse.domain.strategy_execution.rule.ExitRule
 import root.tse.domain.strategy_execution.rule.RuleCheckResult
-import root.tse.domain.strategy_execution.trade.Order
+import root.tse.domain.order.Order
 import root.tse.domain.strategy_execution.trade.TradeType
 import spock.lang.Specification
 
+import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT
 import static root.tse.domain.strategy_execution.trade.TradeType.LONG
 import static root.tse.util.TestUtils.equalsWithPrecision
 
-@SpringBootTest
-@ContextConfiguration(classes = [TseApp])
 @Sql('/sql/data-set-1.sql')
-class BacktestFunctionalTest extends Specification {
+class BacktestFunctionalTest extends BaseFunctionalTest {
 
     private static final STRATEGY_ID = '0cedd70a'
     private static final DATA_SET_NAME = 'data_set_1'
     private static final SYMBOL = 'ETH_USD'
     private static final FUNDS_PER_TRADE = 1000d
-    private static final TRANSACTION_FEE_PERCENT = 0.2d
+    private static final ORDER_FEE_PERCENT = 0.2d
     private static final ENTRY_PRICES = [2575.27d, 2457.19d, 2466.14d, 2430.83d, 2395.88d, 2486.89d, 2455.01d, 2450.79d, 2456.55d]
     private static final EXIT_PRICES = [2578.05d, 2481.09d, 2481.33d, 2414.13d, 2451.01d, 2493.58d, 2472.93d, 2473.91d]
     // Trade's profits:
@@ -43,14 +44,14 @@ class BacktestFunctionalTest extends Specification {
     // ------------
     // Total profit ~= +20.42383347
     private static final EQUITY_CURVE = [
-        new EquityCurvePoint(1621609800000L, -2.9226605365650173d),
-        new EquityCurvePoint(1621611780000L, 2.784443920151815d),
-        new EquityCurvePoint(1621612080000L, 4.931548301898264d),
-        new EquityCurvePoint(1621612500000L, -5.924792947798279d),
-        new EquityCurvePoint(1621613640000L, 13.039520790786378d),
+        new EquityCurvePoint(1621609800000L, -2.9226605365649903d),
+        new EquityCurvePoint(1621611780000L, 2.78444392015183d),
+        new EquityCurvePoint(1621612080000L, 4.93154830189826d),
+        new EquityCurvePoint(1621612500000L, -5.924792947798323d),
+        new EquityCurvePoint(1621613640000L, 13.039520790786355d),
         new EquityCurvePoint(1621614180000L, 11.724247497637066d),
-        new EquityCurvePoint(1621616520000L, 15.009008048510449d),
-        new EquityCurvePoint(1621617120000L, 20.42383347214924d)
+        new EquityCurvePoint(1621616520000L, 15.009008048510395d),
+        new EquityCurvePoint(1621617120000L, 20.423833472149227d)
     ]
 
     @Autowired
@@ -68,17 +69,17 @@ class BacktestFunctionalTest extends Specification {
             .dataSetName(DATA_SET_NAME)
             .symbol(SYMBOL)
             .fundsPerTrade(FUNDS_PER_TRADE)
-            .transactionFeePercent(TRANSACTION_FEE_PERCENT)
+            .orderFeePercent(ORDER_FEE_PERCENT)
             .build()
 
         when:
         def backtestReport = backtestService.runBacktest(backtestContext)
 
         then:
-        UUID.fromString(backtestReport.strategyExecutionId)
+        backtestReport.strategyExecutionId
         backtestReport.symbols == [SYMBOL]
         backtestReport.fundsPerTrade == FUNDS_PER_TRADE
-        backtestReport.transactionFeePercent == TRANSACTION_FEE_PERCENT
+        backtestReport.orderFeePercent == ORDER_FEE_PERCENT
 
         and:
         backtestReport.equityCurve == EQUITY_CURVE

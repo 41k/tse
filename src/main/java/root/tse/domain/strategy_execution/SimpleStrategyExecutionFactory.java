@@ -1,21 +1,21 @@
 package root.tse.domain.strategy_execution;
 
 import lombok.RequiredArgsConstructor;
-import root.tse.domain.strategy_execution.clock.ClockSignalDispatcher;
-import root.tse.domain.strategy_execution.event.StrategyExecutionEventBus;
+import root.tse.domain.IdGenerator;
+import root.tse.domain.clock.ClockSignalDispatcher;
+import root.tse.domain.event.EventBus;
 import root.tse.domain.strategy_execution.trade.TradeService;
-
-import java.util.UUID;
 
 @RequiredArgsConstructor
 public class SimpleStrategyExecutionFactory {
 
+    private final IdGenerator idGenerator;
     private final ClockSignalDispatcher clockSignalDispatcher;
     private final TradeService tradeService;
-    private final StrategyExecutionEventBus eventBus;
+    private final EventBus eventBus;
 
     public SimpleStrategyExecution create(StrategyExecutionContext context) {
-        var strategyExecutionId = UUID.randomUUID().toString();
-        return new SimpleStrategyExecution(strategyExecutionId, context, clockSignalDispatcher, tradeService, eventBus);
+        var id = idGenerator.generateId();
+        return new SimpleStrategyExecution(id, context, clockSignalDispatcher, tradeService, eventBus);
     }
 }

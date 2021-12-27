@@ -1,5 +1,7 @@
 package root.tse.domain.strategy_execution.trade
 
+import root.tse.domain.order.Order
+import root.tse.domain.order.OrderType
 import spock.lang.Specification
 import spock.lang.Unroll
 
@@ -40,20 +42,20 @@ class TradeTest extends Specification {
         given:
         def amount = 0.05d
         def trade = tradeBuilder().type(TradeType.LONG)
-            .transactionFeePercent(0.2d)
-            .entryOrder(Order.builder().amount(amount).price(3187.15d).build())
-            .exitOrder(Order.builder().amount(amount).price(3243.21d).build())
+            .orderFeePercent(0.2d)
+            .entryOrder(Order.builder().type(OrderType.BUY).amount(amount).price(3187.15d).build())
+            .exitOrder(Order.builder().type(OrderType.SELL).amount(amount).price(3243.21d).build())
             .build()
 
         expect:
-        trade.getProfit() == 2.159963999999997d
+        trade.getProfit() == 2.159964000000002d
     }
 
     def 'should calculate profit successfully for opened LONG trade'() {
         given:
         def trade = tradeBuilder().type(TradeType.LONG)
-            .transactionFeePercent(0.2d)
-            .entryOrder(Order.builder().amount(0.1d).price(3500.7d).build())
+            .orderFeePercent(0.2d)
+            .entryOrder(Order.builder().type(OrderType.BUY).amount(0.1d).price(3500.7d).build())
             .build()
 
         expect:
@@ -74,7 +76,7 @@ class TradeTest extends Specification {
 
     private Trade.TradeBuilder tradeBuilder() {
         Trade.builder().id(TRADE_ID).strategyExecutionId(STRATEGY_EXECUTION_ID)
-            .type(TradeType.LONG).transactionFeePercent(TRANSACTION_FEE_PERCENT)
+            .type(TradeType.LONG).orderFeePercent(ORDER_FEE_PERCENT)
             .entryOrder(Order.builder().symbol(SYMBOL_1).amount(AMOUNT_1).build())
     }
 }

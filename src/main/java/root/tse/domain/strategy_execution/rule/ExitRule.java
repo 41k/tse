@@ -1,7 +1,7 @@
 package root.tse.domain.strategy_execution.rule;
 
-import root.tse.domain.strategy_execution.clock.ClockSignal;
-import root.tse.domain.strategy_execution.trade.Order;
+import root.tse.domain.clock.ClockSignal;
+import root.tse.domain.order.Order;
 
 public abstract class ExitRule extends Rule {
 

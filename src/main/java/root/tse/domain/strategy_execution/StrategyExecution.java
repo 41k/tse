@@ -1,6 +1,6 @@
 package root.tse.domain.strategy_execution;
 
-import root.tse.domain.strategy_execution.clock.ClockSignalConsumer;
+import root.tse.domain.clock.ClockSignalConsumer;
 
 public interface StrategyExecution extends ClockSignalConsumer {
 

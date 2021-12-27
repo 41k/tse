@@ -3,7 +3,6 @@ package root.tse.infrastructure.exchange_gateway;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.util.concurrent.RateLimiter;
-import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.codec.binary.Hex;
@@ -19,22 +18,23 @@ import org.ta4j.core.BarSeries;
 import org.ta4j.core.BaseBar;
 import org.ta4j.core.BaseBarSeries;
 import root.tse.configuration.properties.ExchangeGatewayConfigurationProperties;
-import root.tse.domain.strategy_execution.ExchangeGateway;
-import root.tse.domain.strategy_execution.Interval;
-import root.tse.domain.strategy_execution.trade.Order;
+import root.tse.domain.ExchangeGateway;
+import root.tse.domain.clock.Interval;
+import root.tse.domain.order.Order;
+import root.tse.domain.order.OrderType;
 
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
 import java.net.URLEncoder;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
-import java.time.Duration;
-import java.time.Instant;
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
+import java.time.*;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.TimeUnit;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static java.lang.String.format;
@@ -42,11 +42,10 @@ import static java.util.Objects.isNull;
 import static java.util.stream.Collectors.toList;
 import static org.springframework.http.MediaType.APPLICATION_FORM_URLENCODED;
 import static org.springframework.util.CollectionUtils.isEmpty;
-import static root.tse.domain.strategy_execution.trade.OrderStatus.FILLED;
-import static root.tse.domain.strategy_execution.trade.OrderStatus.NOT_FILLED;
+import static root.tse.domain.order.OrderStatus.FILLED;
+import static root.tse.domain.order.OrderStatus.NOT_FILLED;
 
 @Slf4j
-@RequiredArgsConstructor
 public class CurrencyComExchangeGateway implements ExchangeGateway {
 
     private static final String SERIES = "series[{}, {}]";
@@ -61,13 +60,38 @@ public class CurrencyComExchangeGateway implements ExchangeGateway {
     private static final String REQUEST_PARAM_VALUE_FORMAT = "%s=%s";
     private static final String REQUEST_PARAMS_DELIMITER = "&";
     private static final Charset UTF_8 = StandardCharsets.UTF_8;
+
     private static final String SIGNATURE_HASHING_ALGORITHM = "HmacSHA256";
 
     private final ExchangeGatewayConfigurationProperties configurationProperties;
+    private final CurrentPriceProviderFactory currentPriceProviderFactory;
     private final RetryTemplate retryTemplate;
     private final RateLimiter rateLimiter;
     private final RestTemplate restTemplate;
     private final ObjectMapper objectMapper;
+    private final Clock clock;
+    private final Map<String, Map<OrderType, Double>> currentPrices = new ConcurrentHashMap<>();
+
+    private CurrentPriceProvider currentPriceProvider;
+
+    public CurrencyComExchangeGateway(
+        ExchangeGatewayConfigurationProperties configurationProperties,
+        CurrentPriceProviderFactory currentPriceProviderFactory,
+        RetryTemplate retryTemplate,
+        RateLimiter rateLimiter,
+        RestTemplate restTemplate,
+        ObjectMapper objectMapper,
+        Clock clock
+    ) {
+        this.configurationProperties = configurationProperties;
+        this.currentPriceProviderFactory = currentPriceProviderFactory;
+        this.retryTemplate = retryTemplate;
+        this.rateLimiter = rateLimiter;
+        this.restTemplate = restTemplate;
+        this.objectMapper = objectMapper;
+        this.clock = clock;
+        startNewCurrentPriceProvider();
+    }
 
     // Note: the last bar which is returned by the API is incomplete so it is skipped.
     // More details:
@@ -83,6 +107,19 @@ public class CurrencyComExchangeGateway implements ExchangeGateway {
             return createSeries(seriesData);
         } catch (Exception e) {
             log.error(">>> " + SERIES + " retrieval failed.", symbol, interval, e);
+            return Optional.empty();
+        }
+    }
+
+    @Override
+    public Optional<Map<String, Map<OrderType, Double>>> getCurrentPrices(List<String> symbols) {
+        try {
+            var prices = symbols.stream().collect(Collectors.toMap(
+                Function.identity(),
+                symbol -> Optional.ofNullable(currentPrices.get(symbol)).orElseThrow()
+            ));
+            return Optional.of(prices);
+        } catch (Exception e) {
             return Optional.empty();
         }
     }
@@ -167,7 +204,7 @@ public class CurrencyComExchangeGateway implements ExchangeGateway {
             "type", "MARKET",
             "symbol", order.getSymbol(),
             "quantity", order.getAmount().toString(),
-            "timestamp", order.getTimestamp().toString(),
+            "timestamp", String.valueOf(clock.millis()),
             "side", order.getType().name()
         ).entrySet().stream()
             .sorted(Map.Entry.comparingByKey())
@@ -242,5 +279,18 @@ public class CurrencyComExchangeGateway implements ExchangeGateway {
                 originalPrice, priceAtOrderExecutionTime);
         }
         return priceAtOrderExecutionTime;
+    }
+
+    @SneakyThrows
+    public void startNewCurrentPriceProvider() {
+        currentPrices.clear();
+        if (currentPriceProvider != null) {
+            TimeUnit.MINUTES.sleep(1);
+        }
+        currentPriceProvider = currentPriceProviderFactory.create(this);
+    }
+
+    public void acceptCurrentPrices(Map<String, Map<OrderType, Double>> prices) {
+        currentPrices.putAll(prices);
     }
 }

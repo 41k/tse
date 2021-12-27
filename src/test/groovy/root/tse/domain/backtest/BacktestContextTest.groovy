@@ -4,7 +4,7 @@ import root.tse.domain.strategy_execution.Strategy
 import root.tse.domain.strategy_execution.StrategyExecutionContext
 import spock.lang.Specification
 
-import static root.tse.domain.strategy_execution.StrategyExecutionMode.INCUBATION
+import static root.tse.domain.order.OrderExecutionMode.STUB
 import static root.tse.util.TestUtils.*
 
 class BacktestContextTest extends Specification {
@@ -17,7 +17,7 @@ class BacktestContextTest extends Specification {
         .dataSetName(DATA_SET_NAME)
         .symbol(SYMBOL_1)
         .fundsPerTrade(FUNDS_PER_TRADE)
-        .transactionFeePercent(TRANSACTION_FEE_PERCENT)
+        .orderFeePercent(ORDER_FEE_PERCENT)
         .build()
 
     def 'should provide data which was set'() {
@@ -27,17 +27,17 @@ class BacktestContextTest extends Specification {
         context.dataSetName == DATA_SET_NAME
         context.symbol == SYMBOL_1
         context.fundsPerTrade == FUNDS_PER_TRADE
-        context.transactionFeePercent == TRANSACTION_FEE_PERCENT
+        context.orderFeePercent == ORDER_FEE_PERCENT
     }
 
     def 'should provide proper strategy execution context'() {
         expect:
         context.getStrategyExecutionContext() == StrategyExecutionContext.builder()
             .strategy(strategy)
-            .strategyExecutionMode(INCUBATION)
+            .orderExecutionMode(STUB)
             .symbols([SYMBOL_1])
             .fundsPerTrade(FUNDS_PER_TRADE)
-            .transactionFeePercent(TRANSACTION_FEE_PERCENT)
+            .orderFeePercent(ORDER_FEE_PERCENT)
             .build()
     }
 

@@ -1,15 +1,15 @@
 package root.tse.infrastructure.clock
 
-import root.tse.domain.strategy_execution.Interval
-import root.tse.domain.strategy_execution.clock.ClockSignal
-import root.tse.domain.strategy_execution.clock.ClockSignalDispatcher
+import root.tse.domain.clock.ClockSignal
+import root.tse.domain.clock.ClockSignalDispatcher
+import root.tse.domain.clock.Interval
 import spock.lang.Specification
 
 import java.time.Clock
 import java.time.Instant
 import java.time.ZoneId
 
-import static root.tse.domain.strategy_execution.Interval.*
+import static root.tse.domain.clock.Interval.*
 
 class ClockSignalPropagatorTest extends Specification {
 

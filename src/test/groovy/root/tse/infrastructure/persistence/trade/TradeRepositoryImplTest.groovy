@@ -16,7 +16,7 @@ class TradeRepositoryImplTest extends Specification {
 
         then:
         1 * mapper.mapToDbEntry(CLOSED_TRADE) >> CLOSED_TRADE_DB_ENTRY
-        1 * dbEntryRepository.save(CLOSED_TRADE_DB_ENTRY)
+        1 * dbEntryRepository.saveAndFlush(CLOSED_TRADE_DB_ENTRY)
         0 * _
     }
 

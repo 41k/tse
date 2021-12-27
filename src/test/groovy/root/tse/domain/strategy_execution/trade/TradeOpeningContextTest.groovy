@@ -8,8 +8,8 @@ import java.time.Instant
 import java.time.ZoneId
 import java.time.ZonedDateTime
 
-import static root.tse.domain.strategy_execution.trade.OrderStatus.NEW
-import static root.tse.domain.strategy_execution.trade.OrderType.BUY
+import static root.tse.domain.order.OrderStatus.NEW
+import static root.tse.domain.order.OrderType.BUY
 import static root.tse.util.TestUtils.*
 
 class TradeOpeningContextTest extends Specification {

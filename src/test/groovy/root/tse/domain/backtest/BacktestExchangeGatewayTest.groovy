@@ -1,13 +1,15 @@
 package root.tse.domain.backtest
 
 import org.ta4j.core.BarSeries
-import root.tse.domain.strategy_execution.Interval
-import root.tse.domain.strategy_execution.trade.Order
+import root.tse.domain.clock.Interval
+import root.tse.domain.order.Order
 import spock.lang.Specification
 
 import static root.tse.util.TestUtils.*
-import static root.tse.domain.strategy_execution.trade.OrderStatus.FILLED
-import static root.tse.domain.strategy_execution.trade.OrderStatus.NEW
+import static root.tse.domain.order.OrderStatus.FILLED
+import static root.tse.domain.order.OrderStatus.NEW
+import static root.tse.domain.order.OrderType.BUY
+import static root.tse.domain.order.OrderType.SELL
 
 class BacktestExchangeGatewayTest extends Specification {
 
@@ -71,5 +73,25 @@ class BacktestExchangeGatewayTest extends Specification {
 
         and:
         endTimestamp == TIMESTAMP_2
+    }
+
+    def 'should provide current prices'() {
+        given:
+        def symbols = [SYMBOL_1, SYMBOL_2]
+        def prices = Optional.of([
+            (SYMBOL_1) : [(BUY) : PRICE_1, (SELL) : PRICE_1],
+            (SYMBOL_2) : [(BUY) : PRICE_2, (SELL) : PRICE_2]
+        ])
+        def currentTimestamp = TIMESTAMP_1
+
+        and:
+        backtestExchangeGateway.setCurrentTimestamp(currentTimestamp)
+
+        and:
+        1 * dataSetService.getCurrentPrices(DATA_SET_NAME, symbols, currentTimestamp) >> prices
+        0 * _
+
+        expect:
+        backtestExchangeGateway.getCurrentPrices(symbols) == prices
     }
 }
