@@ -1,10 +1,8 @@
 package root.tse.domain.strategy_execution.trade
 
-import org.ta4j.core.Bar
 import root.tse.domain.clock.ClockSignalDispatcher
 import root.tse.domain.strategy_execution.MarketScanningStrategyExecution
 import root.tse.domain.strategy_execution.rule.ExitRule
-import root.tse.domain.strategy_execution.rule.RuleCheckResult
 import spock.lang.Specification
 
 import static root.tse.domain.clock.Interval.ONE_MINUTE
@@ -12,7 +10,6 @@ import static root.tse.util.TestUtils.*
 
 class TradeExecutionTest extends Specification {
 
-    private bar = Mock(Bar)
     private exitRule = Mock(ExitRule)
     private clockSignalDispatcher = Mock(ClockSignalDispatcher)
     private strategyExecution = Mock(MarketScanningStrategyExecution)
@@ -29,7 +26,7 @@ class TradeExecutionTest extends Specification {
         tradeExecution.start()
 
         then: 'subscribe to clock signals with the lowest interval of exit rule'
-        1 * exitRule.getLowestInterval() >> ONE_MINUTE
+        1 * exitRule.getCheckInterval() >> ONE_MINUTE
         1 * clockSignalDispatcher.subscribe([ONE_MINUTE] as Set, tradeExecution)
         0 * _
     }
@@ -39,7 +36,7 @@ class TradeExecutionTest extends Specification {
         tradeExecution.stop()
 
         then: 'unsubscribe from clock signals with the lowest interval of exit rule'
-        1 * exitRule.getLowestInterval() >> ONE_MINUTE
+        1 * exitRule.getCheckInterval() >> ONE_MINUTE
         1 * clockSignalDispatcher.unsubscribe([ONE_MINUTE] as Set, tradeExecution)
         0 * _
     }
@@ -48,11 +45,11 @@ class TradeExecutionTest extends Specification {
         when:
         tradeExecution.accept(CLOCK_SIGNAL_2)
 
-        then: 'check if exit rule is satisfied'
-        1 * exitRule.check(CLOCK_SIGNAL_2, ENTRY_ORDER) >> RuleCheckResult.satisfied(bar)
+        then: 'check exit rule: satisfied'
+        1 * exitRule.isSatisfied(CLOCK_SIGNAL_2, ENTRY_ORDER) >> true
 
         and: 'close trade'
-        1 * strategyExecution.closeTrade(OPENED_TRADE, bar)
+        1 * strategyExecution.closeTrade(OPENED_TRADE, CLOCK_SIGNAL_2)
 
         and: 'no other actions'
         0 * _
@@ -62,18 +59,10 @@ class TradeExecutionTest extends Specification {
         when:
         tradeExecution.accept(CLOCK_SIGNAL_2)
 
-        then: 'check if exit rule is satisfied'
-        1 * exitRule.check(CLOCK_SIGNAL_2, ENTRY_ORDER) >> RuleCheckResult.notSatisfied()
+        then: 'check exit rule: not satisfied'
+        1 * exitRule.isSatisfied(CLOCK_SIGNAL_2, ENTRY_ORDER) >> false
 
         and: 'no other actions'
-        0 * _
-    }
-
-    def 'should not close trade if clock signal has timestamp which is similar to entry order clock signal timestamp'() {
-        when:
-        tradeExecution.accept(CLOCK_SIGNAL_2_WITH_TIMESTAMP_OF_CLOCK_SIGNAL_1)
-
-        then: 'no other actions'
         0 * _
     }
 }

@@ -26,6 +26,9 @@
             <column name="symbol" type="varchar(30)">
                 <constraints nullable="false"/>
             </column>
+            <column name="order_execution_type" type="varchar(6)">
+                <constraints nullable="false"/>
+            </column>
             <column name="entry_order_type" type="varchar(4)">
                 <constraints nullable="false"/>
             </column>
@@ -38,14 +41,10 @@
             <column name="entry_order_timestamp" type="timestamp">
                 <constraints nullable="false"/>
             </column>
-            <column name="entry_order_status" type="varchar(10)">
-                <constraints nullable="false"/>
-            </column>
             <column name="exit_order_type" type="varchar(4)"/>
             <column name="exit_order_amount" type="double"/>
             <column name="exit_order_price" type="double"/>
             <column name="exit_order_timestamp" type="timestamp"/>
-            <column name="exit_order_status" type="varchar(10)"/>
         </createTable>
 
         <createTable tableName="chain_exchange">
@@ -59,6 +58,9 @@
                 <constraints nullable="false"/>
             </column>
             <column name="execution_timestamp" type="timestamp">
+                <constraints nullable="false"/>
+            </column>
+            <column name="order_execution_type" type="varchar(6)">
                 <constraints nullable="false"/>
             </column>
             <column name="order1type" type="varchar(4)">

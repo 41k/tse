@@ -30,7 +30,7 @@ public class ChainExchangeExecutionService {
             .assetChain(assetChain)
             .amount(command.getAmount())
             .minProfitThreshold(command.getMinProfitThreshold())
-            .orderExecutionMode(command.getOrderExecutionMode())
+            .orderExecutionType(command.getOrderExecutionType())
             .assetCodeDelimiter(settings.getAssetCodeDelimiter())
             .symbolToPrecisionMap(settings.getSymbolToPrecisionMap())
             .orderFeePercent(settings.getOrderFeePercent())

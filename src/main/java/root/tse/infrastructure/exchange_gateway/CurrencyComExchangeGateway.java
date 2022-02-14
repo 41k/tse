@@ -21,6 +21,7 @@ import root.tse.configuration.properties.ExchangeGatewayConfigurationProperties;
 import root.tse.domain.ExchangeGateway;
 import root.tse.domain.clock.Interval;
 import root.tse.domain.order.Order;
+import root.tse.domain.order.OrderExecutionType;
 import root.tse.domain.order.OrderType;
 
 import javax.crypto.Mac;
@@ -42,8 +43,6 @@ import static java.util.Objects.isNull;
 import static java.util.stream.Collectors.toList;
 import static org.springframework.http.MediaType.APPLICATION_FORM_URLENCODED;
 import static org.springframework.util.CollectionUtils.isEmpty;
-import static root.tse.domain.order.OrderStatus.FILLED;
-import static root.tse.domain.order.OrderStatus.NOT_FILLED;
 
 @Slf4j
 public class CurrencyComExchangeGateway implements ExchangeGateway {
@@ -62,6 +61,11 @@ public class CurrencyComExchangeGateway implements ExchangeGateway {
     private static final Charset UTF_8 = StandardCharsets.UTF_8;
 
     private static final String SIGNATURE_HASHING_ALGORITHM = "HmacSHA256";
+
+    private final Map<OrderExecutionType, Function<Order, Order>> orderExecutors = Map.of(
+        OrderExecutionType.STUB, this::executeStubOrder,
+        OrderExecutionType.MARKET, this::executeMarketOrder
+    );
 
     private final ExchangeGatewayConfigurationProperties configurationProperties;
     private final CurrentPriceProviderFactory currentPriceProviderFactory;
@@ -104,7 +108,7 @@ public class CurrencyComExchangeGateway implements ExchangeGateway {
         try {
             var seriesData = performSeriesDataRetrieval(symbol, interval, seriesLength);
             log.debug(">>> retrieved " + SERIES + ": {}", symbol, interval, seriesData);
-            return createSeries(seriesData);
+            return createSeries(seriesData, interval);
         } catch (Exception e) {
             log.error(">>> " + SERIES + " retrieval failed.", symbol, interval, e);
             return Optional.empty();
@@ -120,20 +124,37 @@ public class CurrencyComExchangeGateway implements ExchangeGateway {
             ));
             return Optional.of(prices);
         } catch (Exception e) {
+            log.warn(">>> failed to retrieve current prices for symbols {}", symbols);
             return Optional.empty();
         }
     }
 
     @Override
-    public Order execute(Order order) {
+    public Optional<Order> tryToExecute(Order order) {
         try {
-            var orderExecutionResult = performOrderExecution(order);
-            log.debug(">>> order has been executed: {}", orderExecutionResult);
-            return formExecutedOrder(order, orderExecutionResult);
+            var executedOrder = orderExecutors.get(order.getExecutionType()).apply(order);
+            return Optional.of(executedOrder);
         } catch (Exception e) {
             log.error(">>> exception occurred during execution of order {}", order, e);
-            return order.toBuilder().status(NOT_FILLED).build();
+            return Optional.empty();
         }
+    }
+
+    private Order executeStubOrder(Order order) {
+        var symbol = order.getSymbol();
+        var orderType = order.getType();
+        return getCurrentPrices(List.of(symbol))
+            .map(currentPrices -> currentPrices.get(symbol))
+            .map(currentPrices -> currentPrices.get(orderType))
+            .map(price -> order.toBuilder().price(price).build())
+            .orElseThrow(() -> new RuntimeException(
+                String.format(">>> failed to retrieve current price for symbol [%s]", symbol)));
+    }
+
+    private Order executeMarketOrder(Order order) {
+        var orderExecutionResult = performOrderExecution(order);
+        log.debug(">>> market order has been executed: {}", orderExecutionResult);
+        return formExecutedOrder(order, orderExecutionResult);
     }
 
     @SneakyThrows
@@ -179,22 +200,27 @@ public class CurrencyComExchangeGateway implements ExchangeGateway {
         }
     }
 
-    private Optional<BarSeries> createSeries(List<List<Object>> seriesData) {
+    private Optional<BarSeries> createSeries(List<List<Object>> seriesData, Interval interval) {
         var bars = seriesData.stream()
             .<Bar>map(barData -> {
                 var duration = Duration.ZERO;
-                var barTime = Instant.ofEpochMilli(Long.parseLong(String.valueOf(barData.get(TIMESTAMP_INDEX))));
-                var zonedBarTime = ZonedDateTime.ofInstant(barTime, ZoneId.systemDefault());
+                var closeTime = getCloseTime(barData, interval);
                 var open = String.valueOf(barData.get(OPEN_PRICE_INDEX));
                 var high = String.valueOf(barData.get(HIGH_PRICE_INDEX));
                 var low = String.valueOf(barData.get(LOW_PRICE_INDEX));
                 var close = String.valueOf(barData.get(CLOSE_PRICE_INDEX));
                 var volume = String.valueOf(barData.get(VOLUME_INDEX));
-                return new BaseBar(duration, zonedBarTime, open, high, low, close, volume);
+                return new BaseBar(duration, closeTime, open, high, low, close, volume);
             })
             .limit(seriesData.size() - 1) // skip the last bar since it is incomplete
             .collect(toList());
         return Optional.of(new BaseBarSeries(bars));
+    }
+
+    private ZonedDateTime getCloseTime(List<Object> barData, Interval interval) {
+        var openTimestamp = Long.parseLong(String.valueOf(barData.get(TIMESTAMP_INDEX)));
+        var closeTimestamp = openTimestamp + interval.inMillis();
+        return ZonedDateTime.ofInstant(Instant.ofEpochMilli(closeTimestamp), ZoneId.systemDefault());
     }
 
     private String buildOrderRequestBody(Order order) {
@@ -241,9 +267,9 @@ public class CurrencyComExchangeGateway implements ExchangeGateway {
 
     private Order formExecutedOrder(Order order, OrderExecutionResult orderExecutionResult) {
         validate(orderExecutionResult);
-        var amount = getAmountAtOrderExecutionTime(order, orderExecutionResult);
-        var price = getPriceAtOrderExecutionTime(order, orderExecutionResult);
-        return order.toBuilder().status(FILLED).amount(amount).price(price).build();
+        var amount = getAmountAtOrderExecutionTime(orderExecutionResult, order);
+        var price = getPriceAtOrderExecutionTime(orderExecutionResult);
+        return order.toBuilder().amount(amount).price(price).build();
     }
 
     private void validate(OrderExecutionResult result) {
@@ -260,7 +286,7 @@ public class CurrencyComExchangeGateway implements ExchangeGateway {
         }
     }
 
-    private Double getAmountAtOrderExecutionTime(Order order, OrderExecutionResult orderExecutionResult) {
+    private Double getAmountAtOrderExecutionTime(OrderExecutionResult orderExecutionResult, Order order) {
         var originalAmount = order.getAmount();
         var amountAtOrderExecutionTime = Double.valueOf(orderExecutionResult.getExecutedQty());
         if (!originalAmount.equals(amountAtOrderExecutionTime)) {
@@ -270,15 +296,8 @@ public class CurrencyComExchangeGateway implements ExchangeGateway {
         return amountAtOrderExecutionTime;
     }
 
-    private Double getPriceAtOrderExecutionTime(Order order, OrderExecutionResult orderExecutionResult) {
-        var originalPrice = order.getPrice();
-        var fill = orderExecutionResult.getFills().get(0);
-        var priceAtOrderExecutionTime = Double.valueOf(fill.getPrice());
-        if (!originalPrice.equals(priceAtOrderExecutionTime)) {
-            log.warn(">>> original price [{}] is different from price at order execution time [{}].",
-                originalPrice, priceAtOrderExecutionTime);
-        }
-        return priceAtOrderExecutionTime;
+    private Double getPriceAtOrderExecutionTime(OrderExecutionResult orderExecutionResult) {
+        return Double.valueOf(orderExecutionResult.getFills().get(0).getPrice());
     }
 
     @SneakyThrows

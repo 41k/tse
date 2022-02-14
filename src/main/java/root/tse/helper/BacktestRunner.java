@@ -3,13 +3,17 @@ package root.tse.helper;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import org.springframework.boot.CommandLineRunner;
-import root.tse.domain.backtest.BacktestContext;
+import root.tse.configuration.properties.BacktestConfigurationProperties;
+import root.tse.domain.ExchangeGateway;
 import root.tse.domain.backtest.BacktestExchangeGateway;
 import root.tse.domain.backtest.BacktestService;
-import root.tse.domain.backtest.DataSetService;
-import root.tse.domain.strategy.SimpleBreakoutStrategy;
-import root.tse.domain.clock.Interval;
+import root.tse.domain.order.OrderExecutionType;
+import root.tse.domain.strategy_execution.StrategyExecutionContext;
+import root.tse.domain.strategy_execution.trade.TradeType;
 
+import java.util.List;
+
+// Note: backtest.enabled=true should be set in application.yml
 //@Component
 @RequiredArgsConstructor
 public class BacktestRunner implements CommandLineRunner {
@@ -20,28 +24,25 @@ public class BacktestRunner implements CommandLineRunner {
     // If data set has only open timestamp (as e.g. currency.com data set)
     // then it should be normalized by converting of open timestamp to close timestamp.
     // Script src/main/resources/sql/data-set-normalization.sql can be used as an example.
-    private static final String DATA_SET_NAME = "normalized_data_set_1";
-    private static final String SYMBOL = "ETH_USD";
-    private static final Double FUNDS_PER_TRADE = 1000d;
-    private static final Double ORDER_FEE_PERCENT = 0.2d;
 
-    private final DataSetService dataSetService;
+    private final ExchangeGateway exchangeGateway;
+    private final BacktestConfigurationProperties backtestProperties;
     private final BacktestService backtestService;
 
     @Override
     @SneakyThrows
     public void run(String... args) {
-        var backtestExchangeGateway = new BacktestExchangeGateway(dataSetService, DATA_SET_NAME);
-        var strategy = new SimpleBreakoutStrategy(Interval.ONE_MINUTE, 3, 0.65, 1.3, backtestExchangeGateway);
-        var backtestContext = BacktestContext.builder()
-            .backtestExchangeGateway(backtestExchangeGateway)
-            .strategy(strategy)
-            .dataSetName(DATA_SET_NAME)
-            .symbol(SYMBOL)
-            .fundsPerTrade(FUNDS_PER_TRADE)
-            .orderFeePercent(ORDER_FEE_PERCENT)
+        var backtestExchangeGateway = (BacktestExchangeGateway) exchangeGateway;
+        var strategyExecutionContext = StrategyExecutionContext.builder()
+            .entryRule(null) // set entry rule
+            .exitRule(null) // set exit rule
+            .tradeType(TradeType.LONG)
+            .orderExecutionType(OrderExecutionType.STUB)
+            .symbols(List.of(backtestProperties.getSymbol()))
+            .fundsPerTrade(backtestProperties.getFundsPerTrade())
+            .orderFeePercent(backtestProperties.getOrderFeePercent())
             .build();
-        backtestService.runBacktest(backtestContext);
+        backtestService.runBacktest(strategyExecutionContext);
         var backtestReport = backtestService.getReport();
 
         printReportDelimiter();

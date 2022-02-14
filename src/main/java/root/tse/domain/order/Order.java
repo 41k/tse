@@ -3,25 +3,18 @@ package root.tse.domain.order;
 import lombok.Builder;
 import lombok.Value;
 
-import static root.tse.domain.order.OrderStatus.FILLED;
-import static root.tse.domain.order.OrderStatus.NEW;
 import static root.tse.domain.order.OrderType.BUY;
 
 @Value
 @Builder(toBuilder = true)
 public class Order {
 
-    @Builder.Default
-    OrderStatus status = NEW;
     OrderType type;
+    OrderExecutionType executionType;
     String symbol;
     Double amount;
     Double price;
     Long timestamp;
-
-    public boolean wasNotFilled() {
-        return !status.equals(FILLED);
-    }
 
     public Double getNetTotal(Double orderFeePercent) {
         return BUY.equals(type) ?

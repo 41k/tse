@@ -19,6 +19,11 @@ public class ClockSignalPropagator {
     private final Clock clock;
     private final ClockSignalDispatcher clockSignalDispatcher;
 
+    @Scheduled(cron = "0/1 * * * * *")
+    public void propagateOneSecondSignal() {
+        propagateClockSignal(ONE_SECOND);
+    }
+
     @Scheduled(cron = "15 0/1 * * * *")
     public void propagateOneMinuteSignal() {
         propagateClockSignal(ONE_MINUTE);
@@ -87,7 +92,7 @@ public class ClockSignalPropagator {
     private void propagateClockSignal(Interval clockSignalInterval) {
         var timestamp = clock.millis();
         var clockSignal = new ClockSignal(clockSignalInterval, timestamp);
-        log.debug(">>> {} has been propagated", clockSignal);
+        log.trace(">>> {} has been propagated", clockSignal);
         clockSignalDispatcher.dispatch(clockSignal);
     }
 }

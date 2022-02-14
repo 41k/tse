@@ -7,6 +7,7 @@ import org.springframework.web.client.RestTemplate
 import root.tse.configuration.properties.ExchangeGatewayConfigurationProperties
 import root.tse.domain.clock.Interval
 import root.tse.domain.order.Order
+import root.tse.domain.order.OrderExecutionType
 import spock.lang.Specification
 import spock.lang.Unroll
 
@@ -14,8 +15,6 @@ import java.time.Clock
 
 import static org.springframework.http.MediaType.APPLICATION_FORM_URLENCODED
 import static root.tse.configuration.ExchangeGatewayConfiguration.buildRetryTemplate
-import static root.tse.domain.order.OrderStatus.FILLED
-import static root.tse.domain.order.OrderStatus.NOT_FILLED
 import static root.tse.domain.order.OrderType.BUY
 import static root.tse.domain.order.OrderType.SELL
 
@@ -36,21 +35,24 @@ class CurrencyComExchangeGatewayTest extends Specification {
         .intervalToRepresentationMap(INTERVAL_TO_REPRESENTATION_MAP).retryAttemptsNumber(RETRY_ATTEMPTS_NUMBER)
         .retryBackoffInMilliseconds(RETRY_BACKOFF_IN_MILLISECONDS).build()
 
-    private static final T1 = 1632963600000L
+    private static final OPEN_TIMESTAMP_1 = 1632963600000L
+    private static final CLOSE_TIMESTAMP_1 = OPEN_TIMESTAMP_1 + INTERVAL.inMillis()
     private static final O1 = 2849.87d
     private static final H1 = 3049.99d
     private static final L1 = 2836.74d
     private static final C1 = 3001.02d
     private static final V1 = 565295d
 
-    private static final T2 = 1633050000000L
+    private static final OPEN_TIMESTAMP_2 = 1633050000000L
+    private static final CLOSE_TIMESTAMP_2 = OPEN_TIMESTAMP_2 + INTERVAL.inMillis()
     private static final O2 = 3000.72d
     private static final H2 = 3326.81d
     private static final L2 = 2966.04d
     private static final C2 = 3310.91d
     private static final V2 = 448463d
 
-    private static final T3 = 1633136400000L
+    private static final OPEN_TIMESTAMP_3 = 1633136400000L
+    private static final CLOSE_TIMESTAMP_3 = OPEN_TIMESTAMP_3 + INTERVAL.inMillis()
     private static final O3 = 3310.91d
     private static final H3 = 3573.06d
     private static final L3 = 3245.17d
@@ -61,21 +63,21 @@ class CurrencyComExchangeGatewayTest extends Specification {
     private static final SERIES_LENGTH = 2
     private static final LIMIT = SERIES_LENGTH + 1
     private static final SERIES_DATA = "[" +
-        "[$T1, \"$O1\", \"$H1\", \"$L1\", \"$C1\", \"$V1\"]," +
-        "[$T2, \"$O2\", \"$H2\", \"$L2\", \"$C2\", \"$V2\"]," +
-        "[$T3, \"$O3\", \"$H3\", \"$L3\", \"$C3\", \"$V3\"]" +
+        "[$OPEN_TIMESTAMP_1, \"$O1\", \"$H1\", \"$L1\", \"$C1\", \"$V1\"]," +
+        "[$OPEN_TIMESTAMP_2, \"$O2\", \"$H2\", \"$L2\", \"$C2\", \"$V2\"]," +
+        "[$OPEN_TIMESTAMP_3, \"$O3\", \"$H3\", \"$L3\", \"$C3\", \"$V3\"]" +
     "]"
     private static final ENRICHED_SERIES_URI = "$SERIES_URI?symbol=$SYMBOL&interval=$INTERVAL_REPRESENTATION&limit=$LIMIT"
 
     private static final ORDER_TYPE = BUY
-    private static final PRICE = 2000.0d
     private static final PRICE_AT_ORDER_EXECUTION_TIME = 2100.0d
     private static final AMOUNT = 2.0d
     private static final AMOUNT_AT_ORDER_EXECUTION_TIME = 1.0d
     private static final TIMESTAMP = 100000L
-    private static final ORDER_TO_EXECUTE = Order.builder()
-        .type(ORDER_TYPE).symbol(SYMBOL).amount(AMOUNT).price(PRICE).build()
-    private static final ORDER_EXECUTION_REQUEST_BODY =
+    private static final ORDER_TO_EXECUTE = Order.builder().type(ORDER_TYPE).symbol(SYMBOL).amount(AMOUNT).build()
+    private static final STUB_ORDER_TO_EXECUTE = ORDER_TO_EXECUTE.toBuilder().executionType(OrderExecutionType.STUB).build()
+    private static final MARKET_ORDER_TO_EXECUTE = ORDER_TO_EXECUTE.toBuilder().executionType(OrderExecutionType.MARKET).build()
+    private static final MARKET_ORDER_EXECUTION_REQUEST_BODY =
         "quantity=$AMOUNT&recvWindow=5000&side=$ORDER_TYPE" +
         "&symbol=$SYMBOL&timeInForce=FOK&timestamp=$TIMESTAMP&type=MARKET" +
         "&signature=e990f38a1aa8bf222cd7866982bbc432cdd6b9cdbb06e159a377d8f4071d0161" as String
@@ -85,7 +87,7 @@ class CurrencyComExchangeGatewayTest extends Specification {
         headers.add('X-MBX-APIKEY', API_KEY)
         return headers
     }
-    private static final ORDER_EXECUTION_REQUEST = new HttpEntity(ORDER_EXECUTION_REQUEST_BODY, ORDER_EXECUTION_REQUEST_HEADERS())
+    private static final MARKET_ORDER_EXECUTION_REQUEST = new HttpEntity(MARKET_ORDER_EXECUTION_REQUEST_BODY, ORDER_EXECUTION_REQUEST_HEADERS())
     private static final ORDER_EXECUTION_RESPONSE_BODY = { status -> "{" +
         "\"status\": \"$status\"," +
         "\"executedQty\": \"$AMOUNT_AT_ORDER_EXECUTION_TIME\"," +
@@ -134,7 +136,7 @@ class CurrencyComExchangeGatewayTest extends Specification {
 
         and:
         def bar1 = series.getBar(0)
-        bar1.getBeginTime().toInstant().toEpochMilli() == T1
+        bar1.getEndTime().toInstant().toEpochMilli() == CLOSE_TIMESTAMP_1
         bar1.getOpenPrice().doubleValue() == O1
         bar1.getHighPrice().doubleValue() == H1
         bar1.getLowPrice().doubleValue() == L1
@@ -143,7 +145,7 @@ class CurrencyComExchangeGatewayTest extends Specification {
 
         and:
         def bar2 = series.getBar(1)
-        bar2.getBeginTime().toInstant().toEpochMilli() == T2
+        bar2.getEndTime().toInstant().toEpochMilli() == CLOSE_TIMESTAMP_2
         bar2.getOpenPrice().doubleValue() == O2
         bar2.getHighPrice().doubleValue() == H2
         bar2.getLowPrice().doubleValue() == L2
@@ -294,21 +296,50 @@ class CurrencyComExchangeGatewayTest extends Specification {
     // order execution tests set
     // ---
 
-    def 'should execute order successfully with retries'() {
+    def 'should execute stub order successfully'() {
+        given:
+        def buyPrice = 5d
+        def sellPrice = 4d
+        exchangeGateway.currentPrices.putAll([(SYMBOL) : [(BUY) : buyPrice, (SELL) : sellPrice]])
+
         when:
-        def executedOrder = exchangeGateway.execute(ORDER_TO_EXECUTE)
+        def executedOrder = exchangeGateway.tryToExecute(STUB_ORDER_TO_EXECUTE).get()
+
+        then:
+        0 * _
+
+        and:
+        executedOrder.price == buyPrice
+    }
+
+    def 'should not execute stub order if current prices were not obtained'() {
+        given:
+        assert exchangeGateway.currentPrices.isEmpty()
+
+        when:
+        def executedOrderOptional = exchangeGateway.tryToExecute(STUB_ORDER_TO_EXECUTE)
+
+        then:
+        0 * _
+
+        and:
+        executedOrderOptional.isEmpty()
+    }
+
+    def 'should execute market order successfully with retries'() {
+        when:
+        def executedOrder = exchangeGateway.tryToExecute(MARKET_ORDER_TO_EXECUTE).get()
 
         then:
         1 * clock.millis() >> TIMESTAMP
         3 * rateLimiter.acquire()
-        3 * restTemplate.exchange(ORDER_URI, HttpMethod.POST, ORDER_EXECUTION_REQUEST, String) >>
+        3 * restTemplate.exchange(ORDER_URI, HttpMethod.POST, MARKET_ORDER_EXECUTION_REQUEST, String) >>
             { throw new RuntimeException() } >>
             { throw new RuntimeException() } >>
             new ResponseEntity(VALID_ORDER_EXECUTION_RESPONSE_BODY, HttpStatus.OK)
         0 * _
 
         and:
-        executedOrder.status == FILLED
         executedOrder.type == ORDER_TYPE
         executedOrder.symbol == SYMBOL
         executedOrder.amount == AMOUNT_AT_ORDER_EXECUTION_TIME
@@ -318,49 +349,41 @@ class CurrencyComExchangeGatewayTest extends Specification {
         noExceptionThrown()
     }
 
-    def 'should return NOT FILLED order in case of order execution 3rd party calls failure'() {
+    def 'should return NOT FILLED market order in case of order execution 3rd party calls failure'() {
         when:
-        def executedOrder = exchangeGateway.execute(ORDER_TO_EXECUTE)
+        def executedOrderOptional = exchangeGateway.tryToExecute(MARKET_ORDER_TO_EXECUTE)
 
         then:
         1 * clock.millis() >> TIMESTAMP
         3 * rateLimiter.acquire()
-        3 * restTemplate.exchange(ORDER_URI, HttpMethod.POST, ORDER_EXECUTION_REQUEST, String) >>
+        3 * restTemplate.exchange(ORDER_URI, HttpMethod.POST, MARKET_ORDER_EXECUTION_REQUEST, String) >>
             { throw new RuntimeException() } >>
             { throw new RuntimeException() } >>
             { throw new RuntimeException() }
         0 * _
 
         and:
-        executedOrder.status == NOT_FILLED
-        executedOrder.type == ORDER_TYPE
-        executedOrder.symbol == SYMBOL
-        executedOrder.amount == AMOUNT
-        executedOrder.price == PRICE
+        executedOrderOptional.isEmpty()
 
         and:
         noExceptionThrown()
     }
 
     @Unroll
-    def 'should return NOT FILLED order in case of invalid response from 3rd party'() {
+    def 'should return NOT FILLED market order in case of invalid response from 3rd party'() {
         when:
-        def executedOrder = exchangeGateway.execute(ORDER_TO_EXECUTE)
+        def executedOrderOptional = exchangeGateway.tryToExecute(MARKET_ORDER_TO_EXECUTE)
 
         then:
         1 * clock.millis() >> TIMESTAMP
         1 * rateLimiter.acquire()
-        1 * restTemplate.exchange(ORDER_URI, HttpMethod.POST, ORDER_EXECUTION_REQUEST, String) >> {
+        1 * restTemplate.exchange(ORDER_URI, HttpMethod.POST, MARKET_ORDER_EXECUTION_REQUEST, String) >> {
             return new ResponseEntity(invalidOrderExecutionResponseBoby, HttpStatus.OK)
         }
         0 * _
 
         and:
-        executedOrder.status == NOT_FILLED
-        executedOrder.type == ORDER_TYPE
-        executedOrder.symbol == SYMBOL
-        executedOrder.amount == AMOUNT
-        executedOrder.price == PRICE
+        executedOrderOptional.isEmpty()
 
         and:
         noExceptionThrown()

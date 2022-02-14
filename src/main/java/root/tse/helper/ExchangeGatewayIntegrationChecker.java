@@ -3,7 +3,6 @@ package root.tse.helper;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import org.springframework.boot.CommandLineRunner;
-import org.springframework.stereotype.Component;
 import root.tse.domain.ExchangeGateway;
 import root.tse.domain.clock.Interval;
 import root.tse.domain.order.Order;
@@ -12,6 +11,7 @@ import java.time.Clock;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
+import static root.tse.domain.order.OrderExecutionType.MARKET;
 import static root.tse.domain.order.OrderType.BUY;
 import static root.tse.domain.order.OrderType.SELL;
 
@@ -61,12 +61,13 @@ public class ExchangeGatewayIntegrationChecker implements CommandLineRunner {
     private void executeOrder() {
         var order = Order.builder()
             .type(SELL)
+            .executionType(MARKET)
             .symbol("ETH/USD")
             .amount(0.0126605365650173d)
             .price(3000d)
             .timestamp(clock.millis())
             .build();
-        var executedOrder = exchangeGateway.execute(order);
+        var executedOrder = exchangeGateway.tryToExecute(order).get();
         System.out.println("---------------------------");
         System.out.println(">>> " + executedOrder.toString());
         System.out.println("---------------------------");

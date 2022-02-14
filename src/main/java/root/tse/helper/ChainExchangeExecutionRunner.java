@@ -3,11 +3,10 @@ package root.tse.helper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
-import org.springframework.stereotype.Component;
 import root.tse.application.ChainExchangeExecutionService;
 import root.tse.application.model.command.StartChainExchangeExecutionCommand;
 import root.tse.configuration.properties.ExchangeGatewayConfigurationProperties;
-import root.tse.domain.order.OrderExecutionMode;
+import root.tse.domain.order.OrderExecutionType;
 
 //@Component
 @RequiredArgsConstructor
@@ -29,7 +28,7 @@ public class ChainExchangeExecutionRunner implements CommandLineRunner {
                 .assetChainId(assetChainId)
                 .amount(chainExchangeAmount)
                 .minProfitThreshold(minProfitThreshold)
-                .orderExecutionMode(OrderExecutionMode.STUB)
+                .orderExecutionType(OrderExecutionType.STUB)
                 .build();
             chainExchangeExecutionService.handle(command);
         });
@@ -41,7 +40,7 @@ public class ChainExchangeExecutionRunner implements CommandLineRunner {
 //            .assetChainId(1)
 //            .amount(chainExchangeAmount)
 //            .minProfitThreshold(minProfitThreshold)
-//            .orderExecutionMode(OrderExecutionMode.STUB)
+//            .orderExecutionType(OrderExecutionType.STUB)
 //            .build();
 //        chainExchangeExecutionService.handle(command);
 //    }

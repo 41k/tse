@@ -4,9 +4,9 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import root.tse.domain.order.OrderStatus;
+import root.tse.domain.order.OrderExecutionType;
 import root.tse.domain.order.OrderType;
-import root.tse.domain.strategy_execution.trade.*;
+import root.tse.domain.strategy_execution.trade.TradeType;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
@@ -30,6 +30,9 @@ public class TradeDbEntry {
     private Double orderFeePercent;
     @NotNull
     private String symbol;
+    @NotNull
+    @Enumerated(EnumType.STRING)
+    private OrderExecutionType orderExecutionType;
 
     @NotNull
     @Enumerated(EnumType.STRING)
@@ -40,15 +43,10 @@ public class TradeDbEntry {
     private Double entryOrderPrice;
     @NotNull
     private Instant entryOrderTimestamp;
-    @NotNull
-    @Enumerated(EnumType.STRING)
-    private OrderStatus entryOrderStatus;
 
     @Enumerated(EnumType.STRING)
     private OrderType exitOrderType;
     private Double exitOrderAmount;
     private Double exitOrderPrice;
     private Instant exitOrderTimestamp;
-    @Enumerated(EnumType.STRING)
-    private OrderStatus exitOrderStatus;
 }

@@ -1,7 +1,6 @@
 package root.tse.util
 
 import org.apache.commons.math3.util.Precision
-import org.ta4j.core.Bar
 import root.tse.application.model.ChainExchangeExecutionSettings
 import root.tse.application.model.command.StartChainExchangeExecutionCommand
 import root.tse.application.model.command.StopChainExchangeExecutionCommand
@@ -11,23 +10,16 @@ import root.tse.domain.chain_exchange_execution.ChainExchangeExecutionContext
 import root.tse.domain.clock.ClockSignal
 import root.tse.domain.clock.Interval
 import root.tse.domain.order.Order
-import root.tse.domain.order.OrderExecutionMode
-import root.tse.domain.strategy_execution.Strategy
-import root.tse.domain.strategy_execution.rule.EntryRule
-import root.tse.domain.strategy_execution.rule.ExitRule
+import root.tse.domain.order.OrderExecutionType
 import root.tse.domain.strategy_execution.trade.Trade
-import root.tse.domain.strategy_execution.trade.TradeClosingContext
 import root.tse.domain.strategy_execution.trade.TradeOpeningContext
-import root.tse.domain.strategy_execution.trade.TradeType
 import root.tse.infrastructure.persistence.chain_exchange.ChainExchangeDbEntry
 import root.tse.infrastructure.persistence.trade.TradeDbEntry
 
-import java.nio.charset.StandardCharsets
 import java.time.Clock
 import java.time.Instant
 import java.time.ZoneId
 
-import static root.tse.domain.order.OrderStatus.FILLED
 import static root.tse.domain.order.OrderType.BUY
 import static root.tse.domain.order.OrderType.SELL
 import static root.tse.domain.strategy_execution.trade.TradeType.LONG
@@ -35,10 +27,8 @@ import static root.tse.domain.strategy_execution.trade.TradeType.LONG
 class TestUtils {
 
     public static final TRADE_ID = '34598437'
-    public static final STRATEGY_ID = '5def5d38'
-    public static final STRATEGY_NAME = 'strategy-name-1'
     public static final STRATEGY_EXECUTION_ID = '3545de05'
-    public static final ORDER_EXECUTION_MODE = OrderExecutionMode.EXCHANGE_GATEWAY
+    public static final ORDER_EXECUTION_TYPE = OrderExecutionType.MARKET
     public static final SYMBOL_1 = 'symbol-1'
     public static final SYMBOL_2 = 'symbol-2'
     public static final SYMBOL_3 = 'symbol-3'
@@ -52,37 +42,39 @@ class TestUtils {
     public static final FUNDS_PER_TRADE = 200d
     public static final NUMBER_OF_SIMULTANEOUSLY_OPENED_TRADES = 3
     public static final CLOCK = Clock.fixed(Instant.ofEpochMilli(TIMESTAMP_1), ZoneId.systemDefault())
-    public static final CLOCK_SIGNAL_1 = createClockSignal(Interval.ONE_MINUTE, TIMESTAMP_1)
-    public static final CLOCK_SIGNAL_2 = createClockSignal(Interval.ONE_MINUTE, TIMESTAMP_2)
-    public static final CLOCK_SIGNAL_2_WITH_TIMESTAMP_OF_CLOCK_SIGNAL_1 = createClockSignal(Interval.ONE_MINUTE, TIMESTAMP_1)
+    public static final CLOCK_SIGNAL_1 = clockSignal(Interval.ONE_SECOND, TIMESTAMP_1)
+    public static final CLOCK_SIGNAL_2 = clockSignal(Interval.ONE_SECOND, TIMESTAMP_2)
     public static final REASON = 'reason-1'
     public static final DATA_SET_NAME = 'data-set-1'
     public static final ORDER_FEE_PERCENT = 0.2d
 
     public static final ENTRY_ORDER = Order.builder()
-        .status(FILLED).type(BUY).symbol(SYMBOL_1).amount(AMOUNT_1).price(PRICE_1).timestamp(TIMESTAMP_1).build()
+        .type(BUY).executionType(ORDER_EXECUTION_TYPE).symbol(SYMBOL_1)
+        .amount(AMOUNT_1).price(PRICE_1).timestamp(TIMESTAMP_1).build()
 
     public static final EXIT_ORDER = Order.builder()
-        .type(SELL).symbol(SYMBOL_1).amount(AMOUNT_2).price(PRICE_2).timestamp(TIMESTAMP_2).build()
+        .type(SELL).executionType(ORDER_EXECUTION_TYPE).symbol(SYMBOL_1)
+        .amount(AMOUNT_2).price(PRICE_2).timestamp(TIMESTAMP_2).build()
+
+    public static final TRADE_OPENING_CONTEXT = TradeOpeningContext.builder()
+        .strategyExecutionId(STRATEGY_EXECUTION_ID).orderExecutionType(ORDER_EXECUTION_TYPE).tradeType(LONG)
+        .orderFeePercent(ORDER_FEE_PERCENT).clockSignal(CLOCK_SIGNAL_1).symbol(SYMBOL_1).fundsPerTrade(FUNDS_PER_TRADE).build()
 
     public static final OPENED_TRADE = Trade.builder()
         .id(TRADE_ID).strategyExecutionId(STRATEGY_EXECUTION_ID).type(LONG)
-        .orderFeePercent(ORDER_FEE_PERCENT).entryOrderClockSignal(CLOCK_SIGNAL_1)
-        .entryOrder(ENTRY_ORDER).build()
+        .orderFeePercent(ORDER_FEE_PERCENT).entryOrder(ENTRY_ORDER).build()
 
-    public static final CLOSED_TRADE = OPENED_TRADE.toBuilder()
-        .exitOrder(EXIT_ORDER.toBuilder().status(FILLED).build()).build()
+    public static final CLOSED_TRADE = OPENED_TRADE.toBuilder().exitOrder(EXIT_ORDER).build()
 
     public static final OPENED_TRADE_DB_ENTRY = TradeDbEntry.builder()
-        .id(TRADE_ID).strategyExecutionId(STRATEGY_EXECUTION_ID).type(LONG).symbol(SYMBOL_1)
-        .orderFeePercent(ORDER_FEE_PERCENT).entryOrderStatus(FILLED).entryOrderType(BUY)
-        .entryOrderAmount(AMOUNT_1).entryOrderPrice(PRICE_1).entryOrderTimestamp(Instant.ofEpochMilli(TIMESTAMP_1))
-        .build()
+        .id(TRADE_ID).strategyExecutionId(STRATEGY_EXECUTION_ID).type(LONG)
+        .symbol(SYMBOL_1).orderExecutionType(ORDER_EXECUTION_TYPE).orderFeePercent(ORDER_FEE_PERCENT)
+        .entryOrderType(BUY).entryOrderAmount(AMOUNT_1).entryOrderPrice(PRICE_1)
+        .entryOrderTimestamp(Instant.ofEpochMilli(TIMESTAMP_1)).build()
 
     public static final CLOSED_TRADE_DB_ENTRY = OPENED_TRADE_DB_ENTRY.toBuilder()
-        .exitOrderStatus(FILLED).exitOrderType(SELL).exitOrderAmount(AMOUNT_2)
-        .exitOrderPrice(PRICE_2).exitOrderTimestamp(Instant.ofEpochMilli(TIMESTAMP_2))
-        .build()
+        .exitOrderType(SELL).exitOrderAmount(AMOUNT_2).exitOrderPrice(PRICE_2)
+        .exitOrderTimestamp(Instant.ofEpochMilli(TIMESTAMP_2)).build()
 
 
     public static final CHAIN_EXCHANGE_ID = '0ffe45d1'
@@ -134,13 +126,13 @@ class TestUtils {
     public static final CHAIN_EXCHANGE_EXECUTION_CONTEXT = ChainExchangeExecutionContext.builder()
         .assetChain(ASSET_CHAIN).assetCodeDelimiter(ASSET_CODE_DELIMITER).amount(CHAIN_EXCHANGE_AMOUNT)
         .symbolToPrecisionMap(SYMBOL_TO_PRECISION_MAP).orderFeePercent(ORDER_FEE_PERCENT)
-        .minProfitThreshold(MIN_PROFIT_THRESHOLD).orderExecutionMode(ORDER_EXECUTION_MODE)
+        .minProfitThreshold(MIN_PROFIT_THRESHOLD).orderExecutionType(ORDER_EXECUTION_TYPE)
         .nAmountSelectionSteps(N_AMOUNT_SELECTION_STEPS).build()
-    public static final CHAIN_ORDER_1 = Order.builder().type(BUY)
+    public static final CHAIN_ORDER_1 = Order.builder().type(BUY).executionType(ORDER_EXECUTION_TYPE)
         .symbol(CHAIN_SYMBOL_1).amount(CHAIN_ORDER_1_AMOUNT).price(CHAIN_SYMBOL_1_BUY_PRICE).build()
-    public static final CHAIN_ORDER_2 = Order.builder().type(SELL)
+    public static final CHAIN_ORDER_2 = Order.builder().type(SELL).executionType(ORDER_EXECUTION_TYPE)
         .symbol(CHAIN_SYMBOL_2).amount(CHAIN_ORDER_2_AMOUNT).price(CHAIN_SYMBOL_2_SELL_PRICE).build()
-    public static final CHAIN_ORDER_3 = Order.builder().type(SELL)
+    public static final CHAIN_ORDER_3 = Order.builder().type(SELL).executionType(ORDER_EXECUTION_TYPE)
         .symbol(CHAIN_SYMBOL_3).amount(CHAIN_ORDER_3_AMOUNT).price(CHAIN_SYMBOL_3_SELL_PRICE).build()
     public static final CHAIN_EXCHANGE_PROFIT = 10.15743083999996d
     public static final CHAIN_EXCHANGE_EXECUTION_TIMESTAMP = 1643284983000L
@@ -155,15 +147,16 @@ class TestUtils {
         .timestamp(CHAIN_EXCHANGE_EXECUTION_TIMESTAMP)
         .build()
     public static final EXECUTED_CHAIN_EXCHANGE = EXPECTED_CHAIN_EXCHANGE.toBuilder()
-        .order1(CHAIN_ORDER_1.toBuilder().status(FILLED).build())
-        .order2(CHAIN_ORDER_2.toBuilder().status(FILLED).build())
-        .order3(CHAIN_ORDER_3.toBuilder().status(FILLED).build())
+        .order1(CHAIN_ORDER_1)
+        .order2(CHAIN_ORDER_2)
+        .order3(CHAIN_ORDER_3)
         .build()
     public static final CHAIN_EXCHANGE_DB_ENTRY = ChainExchangeDbEntry.builder()
         .id(CHAIN_EXCHANGE_ID)
         .assetChain(ASSET_CHAIN_AS_STRING)
         .orderFeePercent(ORDER_FEE_PERCENT)
         .executionTimestamp(Instant.ofEpochMilli(CHAIN_EXCHANGE_EXECUTION_TIMESTAMP))
+        .orderExecutionType(ORDER_EXECUTION_TYPE)
         .order1Type(BUY)
         .order1Symbol(CHAIN_SYMBOL_1)
         .order1Amount(CHAIN_ORDER_1_AMOUNT)
@@ -180,66 +173,16 @@ class TestUtils {
         .build()
     public static final START_CHAIN_EXCHANGE_EXECUTION_COMMAND = StartChainExchangeExecutionCommand.builder()
         .assetChainId(ASSET_CHAIN_ID).amount(CHAIN_EXCHANGE_AMOUNT).minProfitThreshold(MIN_PROFIT_THRESHOLD)
-        .orderExecutionMode(ORDER_EXECUTION_MODE).build()
+        .orderExecutionType(ORDER_EXECUTION_TYPE).build()
     public static final STOP_CHAIN_EXCHANGE_EXECUTION_COMMAND = new StopChainExchangeExecutionCommand(ASSET_CHAIN_ID)
 
 
-    static ClockSignal createClockSignal(Interval clockSignalInterval = Interval.ONE_MINUTE, Long timestamp = TIMESTAMP_1) {
+    static ClockSignal clockSignal(Interval clockSignalInterval = Interval.ONE_MINUTE, Long timestamp = TIMESTAMP_1) {
         new ClockSignal(clockSignalInterval, timestamp)
-    }
-
-    static TradeOpeningContext createTradeOpeningContext(Bar bar) {
-        TradeOpeningContext.builder()
-            .strategyExecutionId(STRATEGY_EXECUTION_ID)
-            .orderExecutionMode(ORDER_EXECUTION_MODE)
-            .tradeType(LONG)
-            .orderFeePercent(ORDER_FEE_PERCENT)
-            .entryOrderClockSignal(CLOCK_SIGNAL_1)
-            .symbol(SYMBOL_1)
-            .bar(bar)
-            .fundsPerTrade(FUNDS_PER_TRADE)
-            .build()
-    }
-
-    static TradeClosingContext createTradeClosingContext(Bar bar) {
-        TradeClosingContext.builder()
-            .orderExecutionMode(ORDER_EXECUTION_MODE)
-            .openedTrade(OPENED_TRADE)
-            .bar(bar)
-            .build()
-    }
-
-    static Strategy createStrategy(EntryRule entryRule, ExitRule exitRule) {
-        new Strategy() {
-            @Override
-            String getId() {
-                return STRATEGY_ID
-            }
-            @Override
-            String getName() {
-                return STRATEGY_NAME
-            }
-            @Override
-            TradeType getTradeType() {
-                return LONG
-            }
-            @Override
-            EntryRule getEntryRule() {
-                return entryRule
-            }
-            @Override
-            ExitRule getExitRule() {
-                return exitRule
-            }
-        }
     }
 
     static boolean equalsWithPrecision(Number actualValue, double expectedValue, int precision) {
         def actualValueWithPrecision = Precision.round(actualValue as double, precision)
         actualValueWithPrecision == expectedValue
-    }
-
-    static String applyUrlEncoding(String string) {
-        URLEncoder.encode(string, StandardCharsets.UTF_8.toString())
     }
 }

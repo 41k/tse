@@ -1,13 +1,12 @@
 package root.tse.domain.strategy_execution.rule;
 
 import root.tse.domain.clock.Interval;
-import root.tse.domain.clock.ClockSignal;
 
-public abstract class Rule {
+import java.util.Collection;
 
-    public abstract Interval getLowestInterval();
+public interface Rule {
 
-    protected boolean notValid(ClockSignal clockSignal) {
-        return !getLowestInterval().equals(clockSignal.getInterval());
-    }
+    Collection<String> getDescription();
+
+    Interval getCheckInterval();
 }

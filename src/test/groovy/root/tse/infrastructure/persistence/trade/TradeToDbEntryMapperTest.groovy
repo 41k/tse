@@ -9,21 +9,16 @@ class TradeToDbEntryMapperTest extends Specification {
     private mapper = new TradeToDbEntryMapper()
 
     def 'should map correctly'() {
-        given:
-        // necessary since Trade#entryOrderClockSignal field is not persisted
-        def openedTrade = OPENED_TRADE.toBuilder().entryOrderClockSignal(null).build()
-        def closedTrade = CLOSED_TRADE.toBuilder().entryOrderClockSignal(null).build()
-
         expect:
-        mapper.mapToDbEntry(openedTrade) == OPENED_TRADE_DB_ENTRY
+        mapper.mapToDbEntry(OPENED_TRADE) == OPENED_TRADE_DB_ENTRY
 
         and:
-        mapper.mapToDomainObject(OPENED_TRADE_DB_ENTRY) == openedTrade
+        mapper.mapToDomainObject(OPENED_TRADE_DB_ENTRY) == OPENED_TRADE
 
         and:
-        mapper.mapToDbEntry(closedTrade) == CLOSED_TRADE_DB_ENTRY
+        mapper.mapToDbEntry(CLOSED_TRADE) == CLOSED_TRADE_DB_ENTRY
 
         and:
-        mapper.mapToDomainObject(CLOSED_TRADE_DB_ENTRY) == closedTrade
+        mapper.mapToDomainObject(CLOSED_TRADE_DB_ENTRY) == CLOSED_TRADE
     }
 }

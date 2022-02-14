@@ -1,6 +1,5 @@
 package root.tse.domain.strategy_execution
 
-import org.ta4j.core.Bar
 import root.tse.domain.clock.ClockSignalDispatcher
 import root.tse.domain.clock.Interval
 import root.tse.domain.event.EventBus
@@ -15,20 +14,20 @@ import spock.lang.Specification
 import java.util.concurrent.ScheduledExecutorService
 
 import static org.apache.commons.lang3.StringUtils.EMPTY
+import static root.tse.domain.strategy_execution.trade.TradeType.LONG
 import static root.tse.util.TestUtils.*
 
 class MarketScanningStrategyExecutionTest extends Specification {
 
     private static final SYMBOLS = [SYMBOL_1]
-    private static final ENTRY_RULE_HIGHEST_INTERVAL = Interval.TWELVE_HOURS
+    private static final MARKET_SCANNING_INTERVAL = Interval.TWELVE_HOURS
 
-    private bar = Mock(Bar)
     private entryRule = Mock(EntryRule)
     private exitRule = Mock(ExitRule)
-    private strategy = createStrategy(entryRule, exitRule)
     private strategyExecutionContext = StrategyExecutionContext.builder()
-        .strategy(strategy).symbols(SYMBOLS).orderExecutionMode(ORDER_EXECUTION_MODE)
-        .fundsPerTrade(FUNDS_PER_TRADE).orderFeePercent(ORDER_FEE_PERCENT)
+        .entryRule(entryRule).exitRule(exitRule).tradeType(LONG).symbols(SYMBOLS)
+        .orderExecutionType(ORDER_EXECUTION_TYPE).fundsPerTrade(FUNDS_PER_TRADE)
+        .orderFeePercent(ORDER_FEE_PERCENT).marketScanningInterval(MARKET_SCANNING_INTERVAL)
         .allowedNumberOfSimultaneouslyOpenedTrades(NUMBER_OF_SIMULTANEOUSLY_OPENED_TRADES).build()
     private marketScanningTaskExecutor = Mock(ScheduledExecutorService)
     private clockSignalDispatcher = Mock(ClockSignalDispatcher)
@@ -37,8 +36,6 @@ class MarketScanningStrategyExecutionTest extends Specification {
     private eventBus = Mock(EventBus)
     private marketScanningTask = Mock(MarketScanningTask)
     private tradeExecution = Mock(TradeExecution)
-    private tradeOpeningContext = createTradeOpeningContext(bar)
-    private tradeClosingContext = createTradeClosingContext(bar)
 
     private MarketScanningStrategyExecution strategyExecution
 
@@ -58,8 +55,7 @@ class MarketScanningStrategyExecutionTest extends Specification {
         strategyExecution.start()
 
         then:
-        1 * entryRule.getHighestInterval() >> ENTRY_RULE_HIGHEST_INTERVAL
-        1 * clockSignalDispatcher.subscribe([ENTRY_RULE_HIGHEST_INTERVAL] as Set, strategyExecution)
+        1 * clockSignalDispatcher.subscribe([MARKET_SCANNING_INTERVAL] as Set, strategyExecution)
         0 * _
     }
 
@@ -79,8 +75,7 @@ class MarketScanningStrategyExecutionTest extends Specification {
         strategyExecution.stop()
 
         then:
-        1 * entryRule.getHighestInterval() >> ENTRY_RULE_HIGHEST_INTERVAL
-        1 * clockSignalDispatcher.unsubscribe([ENTRY_RULE_HIGHEST_INTERVAL] as Set, strategyExecution)
+        1 * clockSignalDispatcher.unsubscribe([MARKET_SCANNING_INTERVAL] as Set, strategyExecution)
         1 * marketScanningTask.stop()
         1 * tradeExecution1.stop()
         1 * tradeExecution2.stop()
@@ -95,16 +90,12 @@ class MarketScanningStrategyExecutionTest extends Specification {
         strategyExecution.marketScanningTask = marketScanningTask
 
         and:
-        def clockSignal = createClockSignal(Interval.FOUR_HOURS)
-
-        and:
         def newMarketScanningTask = null
 
         when:
-        strategyExecution.accept(clockSignal)
+        strategyExecution.accept(clockSignal(MARKET_SCANNING_INTERVAL))
 
         then:
-        1 * entryRule.getHighestInterval() >> Interval.FOUR_HOURS
         1 * marketScanningTask.stop()
         1 * marketScanningTaskExecutor.submit(_) >> {
             newMarketScanningTask = it[0] as MarketScanningTask
@@ -124,14 +115,10 @@ class MarketScanningStrategyExecutionTest extends Specification {
         given: 'active market scanning task'
         strategyExecution.marketScanningTask = marketScanningTask
 
-        and:
-        def clockSignal = createClockSignal(Interval.ONE_HOUR)
-
         when:
-        strategyExecution.accept(clockSignal)
+        strategyExecution.accept(clockSignal(Interval.ONE_HOUR))
 
         then:
-        1 * entryRule.getHighestInterval() >> Interval.FOUR_HOURS
         0 * _
 
         and: 'market scanning task is still the same'
@@ -143,11 +130,11 @@ class MarketScanningStrategyExecutionTest extends Specification {
         assert strategyExecution.tradeExecutions.isEmpty()
 
         when:
-        strategyExecution.openTrade(SYMBOL_1, bar)
+        strategyExecution.openTrade(SYMBOL_1)
 
         then: 'try to open trade'
         1 * tradeService.getAllTradesByStrategyExecutionId(STRATEGY_EXECUTION_ID) >> [CLOSED_TRADE, OPENED_TRADE]
-        1 * tradeService.tryToOpenTrade(tradeOpeningContext) >> Optional.of(OPENED_TRADE)
+        1 * tradeService.tryToOpenTrade(TRADE_OPENING_CONTEXT) >> Optional.of(OPENED_TRADE)
 
         and: 'start trade execution'
         1 * tradeExecutionFactory.create(OPENED_TRADE, strategyExecution) >> tradeExecution
@@ -167,7 +154,7 @@ class MarketScanningStrategyExecutionTest extends Specification {
         strategyExecution.tradeExecutions << [(SYMBOL_1) : tradeExecution]
 
         when:
-        strategyExecution.openTrade(SYMBOL_1, bar)
+        strategyExecution.openTrade(SYMBOL_1)
 
         then: 'publish correct event'
         1 * eventBus.publishTradeWasNotOpenedEvent(STRATEGY_EXECUTION_ID, SYMBOL_1, '(there is a trade execution for the same symbol)')
@@ -184,7 +171,7 @@ class MarketScanningStrategyExecutionTest extends Specification {
         assert strategyExecution.tradeExecutions.isEmpty()
 
         when:
-        strategyExecution.openTrade(SYMBOL_1, bar)
+        strategyExecution.openTrade(SYMBOL_1)
 
         then: 'number of simultaneously opened trades has been reached'
         1 * tradeService.getAllTradesByStrategyExecutionId(STRATEGY_EXECUTION_ID) >> [
@@ -206,11 +193,11 @@ class MarketScanningStrategyExecutionTest extends Specification {
         assert strategyExecution.tradeExecutions.isEmpty()
 
         when:
-        strategyExecution.openTrade(SYMBOL_1, bar)
+        strategyExecution.openTrade(SYMBOL_1)
 
         then: 'try to open trade'
         1 * tradeService.getAllTradesByStrategyExecutionId(STRATEGY_EXECUTION_ID) >> [CLOSED_TRADE, OPENED_TRADE]
-        1 * tradeService.tryToOpenTrade(tradeOpeningContext) >> Optional.empty()
+        1 * tradeService.tryToOpenTrade(TRADE_OPENING_CONTEXT) >> Optional.empty()
 
         and: 'publish correct event'
         1 * eventBus.publishTradeWasNotOpenedEvent(STRATEGY_EXECUTION_ID, SYMBOL_1, EMPTY)
@@ -227,10 +214,10 @@ class MarketScanningStrategyExecutionTest extends Specification {
         strategyExecution.tradeExecutions << [(SYMBOL_1) : tradeExecution]
 
         when:
-        strategyExecution.closeTrade(OPENED_TRADE, bar)
+        strategyExecution.closeTrade(OPENED_TRADE, CLOCK_SIGNAL_2)
 
         then: 'try to close trade'
-        1 * tradeService.tryToCloseTrade(tradeClosingContext) >> Optional.of(CLOSED_TRADE)
+        1 * tradeService.tryToCloseTrade(OPENED_TRADE, CLOCK_SIGNAL_2) >> Optional.of(CLOSED_TRADE)
 
         and: 'stop trade execution'
         1 * tradeExecution.stop()
@@ -248,10 +235,10 @@ class MarketScanningStrategyExecutionTest extends Specification {
         strategyExecution.tradeExecutions << [(SYMBOL_1) : tradeExecution]
 
         when:
-        strategyExecution.closeTrade(OPENED_TRADE, bar)
+        strategyExecution.closeTrade(OPENED_TRADE, CLOCK_SIGNAL_2)
 
         then: 'try to close trade'
-        1 * tradeService.tryToCloseTrade(tradeClosingContext) >> Optional.empty()
+        1 * tradeService.tryToCloseTrade(OPENED_TRADE, CLOCK_SIGNAL_2) >> Optional.empty()
 
         and: 'publish correct event'
         1 * eventBus.publishTradeWasNotClosedEvent(OPENED_TRADE, EMPTY)

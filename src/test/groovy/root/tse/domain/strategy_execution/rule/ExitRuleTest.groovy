@@ -1,58 +1,61 @@
 package root.tse.domain.strategy_execution.rule
 
-import org.ta4j.core.Bar
 import root.tse.domain.clock.Interval
 import root.tse.domain.order.Order
 import spock.lang.Specification
 
 import static root.tse.domain.clock.Interval.*
-import static root.tse.util.TestUtils.createClockSignal
+import static root.tse.util.TestUtils.*
 
 class ExitRuleTest extends Specification {
 
-    private bar = Mock(Bar)
-    private entryOrder = Order.builder().build()
+    private entryOrder = Order.builder().timestamp(TIMESTAMP_1).build()
 
     def 'should be satisfied'() {
         given:
-        def lowestRequiredInterval = FOUR_HOURS
+        def ruleCheckInterval = FOUR_HOURS
         def clockSignalInterval = FOUR_HOURS
-        def clockSignal = createClockSignal(clockSignalInterval)
+        def clockSignal = clockSignal(clockSignalInterval, TIMESTAMP_2)
 
         and:
-        def exitRule = createExitRule(lowestRequiredInterval)
+        def exitRule = createExitRule(ruleCheckInterval)
 
-        when:
-        def ruleCheckResult = exitRule.check(clockSignal, entryOrder)
-
-        then:
-        ruleCheckResult.ruleWasSatisfied()
-        ruleCheckResult.barOnWhichRuleWasSatisfied == bar
+        expect:
+        exitRule.isSatisfied(clockSignal, entryOrder)
     }
 
     def 'should not be satisfied if clock signal interval does not match lowest required interval'() {
         given:
-        def lowestRequiredInterval = FIVE_MINUTES
+        def ruleCheckInterval = FIVE_MINUTES
         def clockSignalInterval = ONE_MINUTE
-        def clockSignal = createClockSignal(clockSignalInterval)
+        def clockSignal = clockSignal(clockSignalInterval, TIMESTAMP_2)
 
         and:
-        def exitRule = createExitRule(lowestRequiredInterval)
+        def exitRule = createExitRule(ruleCheckInterval)
 
-        when:
-        def ruleCheckResult = exitRule.check(clockSignal, entryOrder)
-
-        then:
-        !ruleCheckResult.ruleWasSatisfied()
-        !ruleCheckResult.barOnWhichRuleWasSatisfied
+        expect:
+        !exitRule.isSatisfied(clockSignal, entryOrder)
     }
 
-    private ExitRule createExitRule(Interval lowestRequiredInterval) {
+    def 'should not be satisfied if clock signal has  does not match lowest required interval'() {
+        given:
+        def ruleCheckInterval = FIVE_MINUTES
+        def clockSignalInterval = ONE_MINUTE
+        def clockSignal = clockSignal(clockSignalInterval, TIMESTAMP_2)
+
+        and:
+        def exitRule = createExitRule(ruleCheckInterval)
+
+        expect:
+        !exitRule.isSatisfied(clockSignal, entryOrder)
+    }
+
+    private ExitRule createExitRule(Interval ruleCheckInterval) {
         new ExitRule() {
             @Override
-            RuleCheckResult check(Order entryOrder) { RuleCheckResult.satisfied(bar) }
+            Interval getCheckInterval() { ruleCheckInterval }
             @Override
-            Interval getLowestInterval() { lowestRequiredInterval }
+            boolean isSatisfied(Order entryOrder) { true }
         }
     }
 }

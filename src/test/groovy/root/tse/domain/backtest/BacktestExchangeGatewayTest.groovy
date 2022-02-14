@@ -1,20 +1,28 @@
 package root.tse.domain.backtest
 
 import org.ta4j.core.BarSeries
+import root.tse.configuration.properties.BacktestConfigurationProperties
 import root.tse.domain.clock.Interval
 import root.tse.domain.order.Order
 import spock.lang.Specification
 
-import static root.tse.util.TestUtils.*
-import static root.tse.domain.order.OrderStatus.FILLED
-import static root.tse.domain.order.OrderStatus.NEW
 import static root.tse.domain.order.OrderType.BUY
 import static root.tse.domain.order.OrderType.SELL
+import static root.tse.util.TestUtils.*
 
 class BacktestExchangeGatewayTest extends Specification {
 
+    private static final CURRENT_PRICES = Optional.of([
+        (SYMBOL_1) : [(BUY) : PRICE_1, (SELL) : PRICE_1],
+        (SYMBOL_2) : [(BUY) : PRICE_2, (SELL) : PRICE_2]
+    ])
+
+    private backtestProperties = new BacktestConfigurationProperties(
+        dataSetName: DATA_SET_NAME,
+        symbol: SYMBOL_1
+    )
     private dataSetService = Mock(DataSetService)
-    private backtestExchangeGateway = new BacktestExchangeGateway(dataSetService, DATA_SET_NAME)
+    private backtestExchangeGateway = new BacktestExchangeGateway(backtestProperties, dataSetService)
 
     def 'should provide series'() {
         given:
@@ -37,23 +45,62 @@ class BacktestExchangeGatewayTest extends Specification {
         series.get() == expectedSeries
     }
 
-    def 'should execute order by just changing status to FILLED'() {
+    def 'should provide current prices'() {
         given:
-        def order = Order.builder().build()
+        def symbols = [SYMBOL_1, SYMBOL_2]
+        def currentTimestamp = TIMESTAMP_1
 
         and:
-        assert order.getStatus() == NEW
+        backtestExchangeGateway.setCurrentTimestamp(currentTimestamp)
+
+        and:
+        1 * dataSetService.getCurrentPrices(DATA_SET_NAME, symbols, currentTimestamp) >> CURRENT_PRICES
+        0 * _
+
+        expect:
+        backtestExchangeGateway.getCurrentPrices(symbols) == CURRENT_PRICES
+    }
+
+    def 'should execute order successfully'() {
+        given:
+        def order = Order.builder().type(BUY).symbol(SYMBOL_1).build()
+
+        and:
+        def symbols = List.of(SYMBOL_1)
+        def currentTimestamp = TIMESTAMP_1
+        backtestExchangeGateway.setCurrentTimestamp(currentTimestamp)
+
+        and:
+        1 * dataSetService.getCurrentPrices(DATA_SET_NAME, symbols, currentTimestamp) >> CURRENT_PRICES
+        0 * _
 
         when:
-        def executedOrder = backtestExchangeGateway.execute(order)
+        def executedOrder = backtestExchangeGateway.tryToExecute(order).get()
 
         then:
-        executedOrder.getStatus() == FILLED
+        executedOrder.getPrice() == PRICE_1
+    }
+
+    def 'should not execute order if current prices were not obtained'() {
+        given:
+        def order = Order.builder().type(BUY).symbol(SYMBOL_1).build()
+
+        and:
+        def symbols = List.of(SYMBOL_1)
+        def currentTimestamp = TIMESTAMP_1
+        backtestExchangeGateway.setCurrentTimestamp(currentTimestamp)
+
+        and:
+        1 * dataSetService.getCurrentPrices(DATA_SET_NAME, symbols, currentTimestamp) >> Optional.empty()
+        0 * _
+
+        expect:
+        backtestExchangeGateway.tryToExecute(order).isEmpty()
     }
 
     def 'should provide start timestamp'() {
         when:
-        def startTimestamp = backtestExchangeGateway.getStartTimestamp(SYMBOL_1)
+        def startTimestamp = backtestExchangeGateway.getStartTimestamp()
 
         then:
         1 * dataSetService.getStartTimestamp(DATA_SET_NAME, SYMBOL_1) >> TIMESTAMP_1
@@ -65,7 +112,7 @@ class BacktestExchangeGatewayTest extends Specification {
 
     def 'should provide end timestamp'() {
         when:
-        def endTimestamp = backtestExchangeGateway.getEndTimestamp(SYMBOL_1)
+        def endTimestamp = backtestExchangeGateway.getEndTimestamp()
 
         then:
         1 * dataSetService.getEndTimestamp(DATA_SET_NAME, SYMBOL_1) >> TIMESTAMP_2
@@ -73,25 +120,5 @@ class BacktestExchangeGatewayTest extends Specification {
 
         and:
         endTimestamp == TIMESTAMP_2
-    }
-
-    def 'should provide current prices'() {
-        given:
-        def symbols = [SYMBOL_1, SYMBOL_2]
-        def prices = Optional.of([
-            (SYMBOL_1) : [(BUY) : PRICE_1, (SELL) : PRICE_1],
-            (SYMBOL_2) : [(BUY) : PRICE_2, (SELL) : PRICE_2]
-        ])
-        def currentTimestamp = TIMESTAMP_1
-
-        and:
-        backtestExchangeGateway.setCurrentTimestamp(currentTimestamp)
-
-        and:
-        1 * dataSetService.getCurrentPrices(DATA_SET_NAME, symbols, currentTimestamp) >> prices
-        0 * _
-
-        expect:
-        backtestExchangeGateway.getCurrentPrices(symbols) == prices
     }
 }

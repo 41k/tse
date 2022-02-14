@@ -4,8 +4,6 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
 
-import static root.tse.domain.clock.Interval.ONE_MINUTE;
-
 @Getter
 @EqualsAndHashCode
 @ToString
@@ -16,14 +14,14 @@ public class ClockSignal {
 
     public ClockSignal(Interval interval, Long timestamp) {
         this.interval = interval;
-        this.timestamp = roundToMinutes(timestamp);
+        this.timestamp = roundToInterval(timestamp, interval);
     }
 
     public boolean isBefore(ClockSignal clockSignal) {
         return timestamp < clockSignal.getTimestamp();
     }
 
-    private Long roundToMinutes(Long timestamp) {
-        return timestamp - (timestamp % ONE_MINUTE.inMillis());
+    private Long roundToInterval(Long timestamp, Interval interval) {
+        return timestamp - (timestamp % interval.inMillis());
     }
 }

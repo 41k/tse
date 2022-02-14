@@ -5,8 +5,6 @@ import root.tse.domain.order.Order;
 
 import java.time.Instant;
 
-import static root.tse.domain.order.OrderStatus.FILLED;
-
 public class ChainExchangeToDbEntryMapper {
 
     public ChainExchangeDbEntry mapToDbEntry(ChainExchange chainExchange) {
@@ -18,6 +16,7 @@ public class ChainExchangeToDbEntryMapper {
             .assetChain(chainExchange.getAssetChain())
             .orderFeePercent(chainExchange.getOrderFeePercent())
             .executionTimestamp(Instant.ofEpochMilli(chainExchange.getTimestamp()))
+            .orderExecutionType(order1.getExecutionType())
             .order1Type(order1.getType())
             .order1Symbol(order1.getSymbol())
             .order1Amount(order1.getAmount())
@@ -37,24 +36,24 @@ public class ChainExchangeToDbEntryMapper {
     public ChainExchange mapToDomainObject(ChainExchangeDbEntry dbEntry) {
         var order1 = Order.builder()
             .type(dbEntry.getOrder1Type())
+            .executionType(dbEntry.getOrderExecutionType())
             .symbol(dbEntry.getOrder1Symbol())
             .amount(dbEntry.getOrder1Amount())
             .price(dbEntry.getOrder1Price())
-            .status(FILLED)
             .build();
         var order2 = Order.builder()
             .type(dbEntry.getOrder2Type())
+            .executionType(dbEntry.getOrderExecutionType())
             .symbol(dbEntry.getOrder2Symbol())
             .amount(dbEntry.getOrder2Amount())
             .price(dbEntry.getOrder2Price())
-            .status(FILLED)
             .build();
         var order3 = Order.builder()
             .type(dbEntry.getOrder3Type())
+            .executionType(dbEntry.getOrderExecutionType())
             .symbol(dbEntry.getOrder3Symbol())
             .amount(dbEntry.getOrder3Amount())
             .price(dbEntry.getOrder3Price())
-            .status(FILLED)
             .build();
         return ChainExchange.builder()
             .id(dbEntry.getId())

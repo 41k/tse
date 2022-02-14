@@ -126,7 +126,7 @@ jhipster:
 exchange-gateway:
   api-key: api-key-1
   secret-key: secret-key-1
-  base-rest-api-url: http://localhost:${wiremock.server.port}
+  base-rest-api-url: http://localhost
   series-uri: ${exchange-gateway.base-rest-api-url}/klines
   order-uri: ${exchange-gateway.base-rest-api-url}/order
   wss-connection-uri: wss://connect
@@ -158,6 +158,13 @@ exchange-gateway:
   rate-limit-per-second: 9
   retry-attempts-number: 4
   retry-backoff-in-milliseconds: 500
+
+backtest:
+  enabled: false
+  data-set-name: normalized_data_set_1
+  symbol: ETH_USD
+  funds-per-trade: 1000
+  order-fee-percent: 0.2 # 0.2% (note: 1% should be set as 1, not as 0.01)
 
 telegram:
   url-format: https://api.telegram.org/bot%s/sendMessage?chat_id=%s&parse_mode=html&text=%s

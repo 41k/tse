@@ -10,29 +10,40 @@ import org.springframework.retry.backoff.FixedBackOffPolicy;
 import org.springframework.retry.policy.SimpleRetryPolicy;
 import org.springframework.retry.support.RetryTemplate;
 import org.springframework.web.client.RestTemplate;
+import root.tse.configuration.properties.BacktestConfigurationProperties;
 import root.tse.configuration.properties.ExchangeGatewayConfigurationProperties;
 import root.tse.domain.ExchangeGateway;
+import root.tse.domain.backtest.BacktestExchangeGateway;
 import root.tse.infrastructure.exchange_gateway.CurrencyComExchangeGateway;
 import root.tse.infrastructure.exchange_gateway.CurrentPriceProviderFactory;
 
 import java.time.Clock;
 
 @Configuration
-@EnableConfigurationProperties(ExchangeGatewayConfigurationProperties.class)
+@EnableConfigurationProperties({
+    BacktestConfigurationProperties.class,
+    ExchangeGatewayConfigurationProperties.class
+})
 public class ExchangeGatewayConfiguration {
 
     @Bean
     public ExchangeGateway exchangeGateway(
-        ExchangeGatewayConfigurationProperties properties,
+        BacktestConfigurationProperties backtest,
+        BacktestExchangeGateway backtestExchangeGateway,
+        ExchangeGatewayConfigurationProperties exchangeGatewayProperties,
         CurrentPriceProviderFactory currentPriceProviderFactory,
         RestTemplate restTemplate,
         Clock clock
     ) {
-        var retryTemplate = buildRetryTemplate(properties);
-        var rateLimiter = RateLimiter.create(properties.getRateLimitPerSecond());
+        if (backtest.isEnabled()) {
+            return backtestExchangeGateway;
+        }
+        var retryTemplate = buildRetryTemplate(exchangeGatewayProperties);
+        var rateLimiter = RateLimiter.create(exchangeGatewayProperties.getRateLimitPerSecond());
         var objectMapper = new ObjectMapper();
         return new CurrencyComExchangeGateway(
-            properties, currentPriceProviderFactory, retryTemplate, rateLimiter, restTemplate, objectMapper, clock);
+            exchangeGatewayProperties, currentPriceProviderFactory,
+            retryTemplate, rateLimiter, restTemplate, objectMapper, clock);
     }
 
     @Bean

@@ -2,7 +2,7 @@ package root.tse.domain.clock
 
 import spock.lang.Specification
 
-import static root.tse.util.TestUtils.createClockSignal
+import static root.tse.util.TestUtils.clockSignal
 
 class SequentialClockSignalDispatcherTest extends Specification {
 
@@ -95,7 +95,7 @@ class SequentialClockSignalDispatcherTest extends Specification {
         ]
 
         and:
-        def clockSignal = createClockSignal(INTERVAL_1)
+        def clockSignal = clockSignal(INTERVAL_1)
 
         when:
         clockSignalDispatcher.dispatch(clockSignal)
@@ -114,11 +114,8 @@ class SequentialClockSignalDispatcherTest extends Specification {
             ]
         ]
 
-        and:
-        def clockSignal = createClockSignal(INTERVAL_1)
-
         when:
-        clockSignalDispatcher.dispatch(clockSignal)
+        clockSignalDispatcher.dispatch(clockSignal(INTERVAL_1))
 
         then:
         0 * _

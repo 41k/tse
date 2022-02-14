@@ -2,7 +2,8 @@ package root.tse.domain.strategy_execution;
 
 import lombok.Builder;
 import lombok.Value;
-import root.tse.domain.order.OrderExecutionMode;
+import root.tse.domain.clock.Interval;
+import root.tse.domain.order.OrderExecutionType;
 import root.tse.domain.strategy_execution.rule.EntryRule;
 import root.tse.domain.strategy_execution.rule.ExitRule;
 import root.tse.domain.strategy_execution.trade.TradeType;
@@ -13,23 +14,15 @@ import java.util.List;
 @Value
 public class StrategyExecutionContext {
 
-    Strategy strategy;
-    OrderExecutionMode orderExecutionMode;
+    EntryRule entryRule;
+    ExitRule exitRule;
+    TradeType tradeType;
+    OrderExecutionType orderExecutionType;
     List<String> symbols;
     Double fundsPerTrade;
     Double orderFeePercent;
     @Builder.Default
+    Interval marketScanningInterval = Interval.ONE_DAY;
+    @Builder.Default
     int allowedNumberOfSimultaneouslyOpenedTrades = 1;
-
-    public EntryRule getEntryRule() {
-        return strategy.getEntryRule();
-    }
-
-    public ExitRule getExitRule() {
-        return strategy.getExitRule();
-    }
-
-    public TradeType getTradeType() {
-        return strategy.getTradeType();
-    }
 }

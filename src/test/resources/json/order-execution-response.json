@@ -1,9 +1,0 @@
-{
-  "status": "FILLED",
-  "executedQty": "$AMOUNT",
-  "fills": [
-    {
-      "price": "$PRICE"
-    }
-  ]
-}

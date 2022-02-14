@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import root.tse.domain.order.OrderExecutionType;
 import root.tse.domain.order.OrderType;
 
 import javax.persistence.*;
@@ -26,6 +27,9 @@ public class ChainExchangeDbEntry {
     private Double orderFeePercent;
     @NotNull
     private Instant executionTimestamp;
+    @NotNull
+    @Enumerated(EnumType.STRING)
+    private OrderExecutionType orderExecutionType;
 
     @NotNull
     @Enumerated(EnumType.STRING)

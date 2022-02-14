@@ -18,35 +18,34 @@ public class TradeToDbEntryMapper {
             .type(trade.getType())
             .orderFeePercent(trade.getOrderFeePercent())
             .symbol(trade.getSymbol())
+            .orderExecutionType(entryOrder.getExecutionType())
             .entryOrderType(entryOrder.getType())
             .entryOrderAmount(entryOrder.getAmount())
             .entryOrderPrice(entryOrder.getPrice())
-            .entryOrderTimestamp(Instant.ofEpochMilli(entryOrder.getTimestamp()))
-            .entryOrderStatus(entryOrder.getStatus());
+            .entryOrderTimestamp(Instant.ofEpochMilli(entryOrder.getTimestamp()));
         Optional.ofNullable(trade.getExitOrder()).ifPresent(exitOrder ->
             dbEntryBuilder
                 .exitOrderType(exitOrder.getType())
                 .exitOrderAmount(exitOrder.getAmount())
                 .exitOrderPrice(exitOrder.getPrice())
-                .exitOrderTimestamp(Instant.ofEpochMilli(exitOrder.getTimestamp()))
-                .exitOrderStatus(exitOrder.getStatus()));
+                .exitOrderTimestamp(Instant.ofEpochMilli(exitOrder.getTimestamp())));
         return dbEntryBuilder.build();
     }
 
     public Trade mapToDomainObject(TradeDbEntry dbEntry) {
         var entryOrder = Order.builder()
-            .status(dbEntry.getEntryOrderStatus())
             .type(dbEntry.getEntryOrderType())
+            .executionType(dbEntry.getOrderExecutionType())
             .symbol(dbEntry.getSymbol())
             .amount(dbEntry.getEntryOrderAmount())
             .price(dbEntry.getEntryOrderPrice())
             .timestamp(dbEntry.getEntryOrderTimestamp().toEpochMilli())
             .build();
         var exitOrder = Optional.of(dbEntry)
-            .filter(entry -> nonNull(dbEntry.getExitOrderStatus()))
+            .filter(entry -> nonNull(dbEntry.getExitOrderType()))
             .map(entry -> Order.builder()
-                .status(dbEntry.getExitOrderStatus())
                 .type(dbEntry.getExitOrderType())
+                .executionType(dbEntry.getOrderExecutionType())
                 .symbol(dbEntry.getSymbol())
                 .amount(dbEntry.getExitOrderAmount())
                 .price(dbEntry.getExitOrderPrice())

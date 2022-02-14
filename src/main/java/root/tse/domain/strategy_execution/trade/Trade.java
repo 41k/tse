@@ -6,7 +6,6 @@ import lombok.NonNull;
 import lombok.Value;
 import root.tse.domain.order.Order;
 import root.tse.domain.order.OrderType;
-import root.tse.domain.clock.ClockSignal;
 
 import java.util.Map;
 import java.util.function.Supplier;
@@ -31,7 +30,6 @@ public class Trade {
     TradeType type;
     @NonNull
     Double orderFeePercent;
-    ClockSignal entryOrderClockSignal;
     @NonNull
     Order entryOrder;
     Order exitOrder;

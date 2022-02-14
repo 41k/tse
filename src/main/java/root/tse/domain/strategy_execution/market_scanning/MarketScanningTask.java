@@ -40,10 +40,8 @@ public class MarketScanningTask implements Runnable {
     }
 
     private String check(String symbol) {
-        var ruleCheckResult = entryRule.check(symbol);
-        if (ruleCheckResult.ruleWasSatisfied()) {
-            var bar = ruleCheckResult.getBarOnWhichRuleWasSatisfied();
-            strategyExecution.openTrade(symbol, bar);
+        if (entryRule.isSatisfied(symbol)) {
+            strategyExecution.openTrade(symbol);
         }
         return symbol;
     }

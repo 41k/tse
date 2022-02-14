@@ -4,7 +4,7 @@ import spock.lang.Specification
 
 import java.util.concurrent.ExecutorService
 
-import static root.tse.util.TestUtils.createClockSignal
+import static root.tse.util.TestUtils.clockSignal
 
 class ParallelClockSignalDispatcherTest extends Specification {
 
@@ -99,7 +99,7 @@ class ParallelClockSignalDispatcherTest extends Specification {
         ]
 
         and:
-        def clockSignal = createClockSignal(INTERVAL_1)
+        def clockSignal = clockSignal(INTERVAL_1)
 
         when:
         clockSignalDispatcher.dispatch(clockSignal)
@@ -119,7 +119,7 @@ class ParallelClockSignalDispatcherTest extends Specification {
         ]
 
         and:
-        def clockSignal = createClockSignal(INTERVAL_1)
+        def clockSignal = clockSignal(INTERVAL_1)
 
         when:
         clockSignalDispatcher.dispatch(clockSignal)

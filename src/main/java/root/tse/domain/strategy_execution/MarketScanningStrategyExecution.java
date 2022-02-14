@@ -2,8 +2,6 @@ package root.tse.domain.strategy_execution;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-import org.ta4j.core.Bar;
 import root.tse.domain.clock.ClockSignal;
 import root.tse.domain.clock.ClockSignalDispatcher;
 import root.tse.domain.clock.Interval;
@@ -21,9 +19,7 @@ import java.util.concurrent.ExecutorService;
 
 import static java.util.Objects.nonNull;
 import static org.apache.commons.lang3.StringUtils.EMPTY;
-import static root.tse.domain.clock.Interval.ONE_MINUTE;
 
-@Slf4j
 @RequiredArgsConstructor
 public class MarketScanningStrategyExecution implements StrategyExecution {
 
@@ -46,13 +42,13 @@ public class MarketScanningStrategyExecution implements StrategyExecution {
 
     @Override
     public void start() {
-        var clockSignalIntervals = Set.of(clockSignalIntervalToSubscribe());
+        var clockSignalIntervals = Set.of(context.getMarketScanningInterval());
         clockSignalDispatcher.subscribe(clockSignalIntervals, this);
     }
 
     @Override
     public void stop() {
-        var clockSignalIntervals = Set.of(clockSignalIntervalToSubscribe());
+        var clockSignalIntervals = Set.of(context.getMarketScanningInterval());
         clockSignalDispatcher.unsubscribe(clockSignalIntervals, this);
         Optional.ofNullable(marketScanningTask).ifPresent(MarketScanningTask::stop);
         tradeExecutions.values().forEach(TradeExecution::stop);
@@ -67,7 +63,7 @@ public class MarketScanningStrategyExecution implements StrategyExecution {
         rerunMarketScanningTask();
     }
 
-    public void openTrade(String symbol, Bar bar) {
+    public void openTrade(String symbol) {
         var tradeExecutionForSymbolExists = nonNull(tradeExecutions.get(symbol));
         if (tradeExecutionForSymbolExists) {
             eventBus.publishTradeWasNotOpenedEvent(id, symbol, SAME_SYMBOL_EXECUTION_REASON);
@@ -79,11 +75,10 @@ public class MarketScanningStrategyExecution implements StrategyExecution {
         }
         var tradeOpeningContext = TradeOpeningContext.builder()
             .strategyExecutionId(id)
-            .orderExecutionMode(context.getOrderExecutionMode())
+            .orderExecutionType(context.getOrderExecutionType())
             .tradeType(context.getTradeType())
-            .entryOrderClockSignal(entryOrderClockSignal())
+            .clockSignal(new ClockSignal(Interval.ONE_SECOND, clock.millis()))
             .symbol(symbol)
-            .bar(bar)
             .fundsPerTrade(context.getFundsPerTrade())
             .orderFeePercent(context.getOrderFeePercent())
             .build();
@@ -96,13 +91,8 @@ public class MarketScanningStrategyExecution implements StrategyExecution {
                 () -> eventBus.publishTradeWasNotOpenedEvent(id, symbol, EMPTY));
     }
 
-    public void closeTrade(Trade openedTrade, Bar bar) {
-        var tradeClosingContext = TradeClosingContext.builder()
-            .openedTrade(openedTrade)
-            .bar(bar)
-            .orderExecutionMode(context.getOrderExecutionMode())
-            .build();
-        tradeService.tryToCloseTrade(tradeClosingContext)
+    public void closeTrade(Trade openedTrade, ClockSignal clockSignal) {
+        tradeService.tryToCloseTrade(openedTrade, clockSignal)
             .ifPresentOrElse(
                 closedTrade -> {
                     stopTradeExecution(closedTrade);
@@ -146,15 +136,7 @@ public class MarketScanningStrategyExecution implements StrategyExecution {
         return numberOfOpenedTrades >= allowedNumberOfSimultaneouslyOpenedTrades;
     }
 
-    private Interval clockSignalIntervalToSubscribe() {
-        return context.getEntryRule().getHighestInterval();
-    }
-
     private boolean notValid(ClockSignal clockSignal) {
-        return !clockSignalIntervalToSubscribe().equals(clockSignal.getInterval());
-    }
-
-    private ClockSignal entryOrderClockSignal() {
-        return new ClockSignal(ONE_MINUTE, clock.millis());
+        return !context.getMarketScanningInterval().equals(clockSignal.getInterval());
     }
 }

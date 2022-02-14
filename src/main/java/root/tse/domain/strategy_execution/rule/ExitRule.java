@@ -1,16 +1,24 @@
 package root.tse.domain.strategy_execution.rule;
 
 import root.tse.domain.clock.ClockSignal;
+import root.tse.domain.clock.Interval;
 import root.tse.domain.order.Order;
 
-public abstract class ExitRule extends Rule {
+import java.util.Collection;
+import java.util.List;
 
-    public RuleCheckResult check(ClockSignal clockSignal, Order entryOrder) {
-        if (notValid(clockSignal)) {
-            return RuleCheckResult.notSatisfied();
-        }
-        return check(entryOrder);
+public abstract class ExitRule implements Rule {
+
+    @Override
+    public Collection<String> getDescription() { return List.of("abstract-exit-rule"); }
+    @Override
+    public Interval getCheckInterval() { return Interval.ONE_DAY; }
+
+    public boolean isSatisfied(ClockSignal clockSignal, Order entryOrder) {
+        return getCheckInterval().equals(clockSignal.getInterval())
+            && clockSignal.getTimestamp() > entryOrder.getTimestamp()
+            && isSatisfied(entryOrder);
     }
 
-    protected abstract RuleCheckResult check(Order entryOrder);
+    protected abstract boolean isSatisfied(Order entryOrder);
 }

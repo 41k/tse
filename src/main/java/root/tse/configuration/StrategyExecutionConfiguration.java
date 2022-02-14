@@ -3,10 +3,10 @@ package root.tse.configuration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.annotation.EnableScheduling;
+import root.tse.domain.ExchangeGateway;
 import root.tse.domain.IdGenerator;
 import root.tse.domain.clock.ClockSignalDispatcher;
 import root.tse.domain.event.EventBus;
-import root.tse.domain.order.OrderExecutor;
 import root.tse.domain.strategy_execution.MarketScanningStrategyExecutionFactory;
 import root.tse.domain.strategy_execution.SimpleStrategyExecutionFactory;
 import root.tse.domain.strategy_execution.report.ReportBuilder;
@@ -58,9 +58,9 @@ public class StrategyExecutionConfiguration {
 
     @Bean
     public TradeService tradeService(IdGenerator idGenerator,
-                                     OrderExecutor orderExecutor,
+                                     ExchangeGateway exchangeGateway,
                                      TradeRepository tradeRepository) {
-        return new TradeService(idGenerator, orderExecutor, tradeRepository);
+        return new TradeService(idGenerator, exchangeGateway, tradeRepository);
     }
 
     @Bean

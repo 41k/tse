@@ -2,6 +2,8 @@ package root.tse.domain.clock;
 
 public enum Interval {
 
+    ONE_SECOND(MillisOf.ONE_SECOND),
+
     ONE_MINUTE(MillisOf.ONE_MINUTE),
     THREE_MINUTES(3 * MillisOf.ONE_MINUTE),
     FIVE_MINUTES(5 * MillisOf.ONE_MINUTE),
@@ -29,7 +31,8 @@ public enum Interval {
     }
 
     private static class MillisOf {
-        public static final long ONE_MINUTE = 60_000L;
+        public static final long ONE_SECOND = 1000L;
+        public static final long ONE_MINUTE = 60 * ONE_SECOND;
         public static final long ONE_HOUR = 60 * ONE_MINUTE;
         public static final long ONE_DAY = 24 * ONE_HOUR;
     }

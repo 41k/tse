@@ -1,65 +1,49 @@
 package root.tse.domain.strategy_execution.rule
 
-import org.ta4j.core.Bar
 import root.tse.domain.clock.Interval
 import spock.lang.Specification
 
 import static root.tse.domain.clock.Interval.*
 import static root.tse.util.TestUtils.SYMBOL_1
-import static root.tse.util.TestUtils.createClockSignal
+import static root.tse.util.TestUtils.clockSignal
 
 class EntryRuleTest extends Specification {
 
-    private bar = Mock(Bar)
-
     def 'should be satisfied'() {
         given:
-        def lowestRequiredInterval = FOUR_HOURS
+        def ruleCheckInterval = FOUR_HOURS
         def clockSignalInterval = FOUR_HOURS
-        def clockSignal = createClockSignal(clockSignalInterval)
+        def clockSignal = clockSignal(clockSignalInterval)
 
         and:
-        def entryRule = createEntryRule(lowestRequiredInterval)
+        def entryRule = createEntryRule(ruleCheckInterval)
 
-        when:
-        def ruleCheckResult = entryRule.check(clockSignal, SYMBOL_1)
+        expect:
+        entryRule.isSatisfied(clockSignal, SYMBOL_1)
 
-        then:
-        ruleCheckResult.ruleWasSatisfied()
-
-        when:
-        ruleCheckResult = entryRule.check(SYMBOL_1)
-
-        then:
-        ruleCheckResult.ruleWasSatisfied()
-        ruleCheckResult.barOnWhichRuleWasSatisfied == bar
+        and:
+        entryRule.isSatisfied(SYMBOL_1)
     }
 
     def 'should not be satisfied if clock signal interval does not match lowest required interval'() {
         given:
-        def lowestRequiredInterval = FIVE_MINUTES
+        def ruleCheckInterval = FIVE_MINUTES
         def clockSignalInterval = ONE_MINUTE
-        def clockSignal = createClockSignal(clockSignalInterval)
+        def clockSignal = clockSignal(clockSignalInterval)
 
         and:
-        def entryRule = createEntryRule(lowestRequiredInterval)
+        def entryRule = createEntryRule(ruleCheckInterval)
 
-        when:
-        def ruleCheckResult = entryRule.check(clockSignal, SYMBOL_1)
-
-        then:
-        !ruleCheckResult.ruleWasSatisfied()
-        !ruleCheckResult.barOnWhichRuleWasSatisfied
+        expect:
+        !entryRule.isSatisfied(clockSignal, SYMBOL_1)
     }
 
-    private EntryRule createEntryRule(Interval lowestRequiredInterval) {
+    private EntryRule createEntryRule(Interval ruleCheckInterval) {
         new EntryRule() {
             @Override
-            RuleCheckResult check(String symbol) { RuleCheckResult.satisfied(bar) }
+            Interval getCheckInterval() { ruleCheckInterval }
             @Override
-            Interval getLowestInterval() { lowestRequiredInterval }
-            @Override
-            Interval getHighestInterval() { ONE_DAY }
+            boolean isSatisfied(String symbol) { true }
         }
     }
 }

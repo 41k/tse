@@ -1,32 +1,27 @@
 package root.tse.domain.strategy_execution
 
-import org.ta4j.core.Bar
 import root.tse.domain.clock.ClockSignalDispatcher
 import root.tse.domain.clock.Interval
 import root.tse.domain.event.EventBus
 import root.tse.domain.strategy_execution.rule.EntryRule
 import root.tse.domain.strategy_execution.rule.ExitRule
-import root.tse.domain.strategy_execution.rule.RuleCheckResult
 import root.tse.domain.strategy_execution.trade.TradeService
 import spock.lang.Specification
 
 import static org.apache.commons.lang3.StringUtils.EMPTY
+import static root.tse.domain.strategy_execution.trade.TradeType.LONG
 import static root.tse.util.TestUtils.*
 
 class SimpleStrategyExecutionTest extends Specification {
 
-    private bar = Mock(Bar)
     private entryRule = Mock(EntryRule)
     private exitRule = Mock(ExitRule)
-    private strategy = createStrategy(entryRule, exitRule)
     private strategyExecutionContext = StrategyExecutionContext.builder()
-        .strategy(strategy).symbols([SYMBOL_1]).orderExecutionMode(ORDER_EXECUTION_MODE)
-        .orderFeePercent(ORDER_FEE_PERCENT).fundsPerTrade(FUNDS_PER_TRADE).build()
+        .entryRule(entryRule).exitRule(exitRule).tradeType(LONG).symbols([SYMBOL_1])
+        .orderExecutionType(ORDER_EXECUTION_TYPE).orderFeePercent(ORDER_FEE_PERCENT).fundsPerTrade(FUNDS_PER_TRADE).build()
     private clockSignalDispatcher = Mock(ClockSignalDispatcher)
     private tradeService = Mock(TradeService)
     private eventBus = Mock(EventBus)
-    private tradeOpeningContext = createTradeOpeningContext(bar)
-    private tradeClosingContext = createTradeClosingContext(bar)
 
     private SimpleStrategyExecution strategyExecution
 
@@ -45,8 +40,8 @@ class SimpleStrategyExecutionTest extends Specification {
         strategyExecution.start()
 
         then:
-        1 * entryRule.getLowestInterval() >> Interval.ONE_MINUTE
-        1 * exitRule.getLowestInterval() >> Interval.FIFTEEN_MINUTES
+        1 * entryRule.getCheckInterval() >> Interval.ONE_MINUTE
+        1 * exitRule.getCheckInterval() >> Interval.FIFTEEN_MINUTES
         1 * clockSignalDispatcher.subscribe([Interval.ONE_MINUTE, Interval.FIFTEEN_MINUTES] as Set, strategyExecution)
         0 * _
     }
@@ -56,8 +51,8 @@ class SimpleStrategyExecutionTest extends Specification {
         strategyExecution.stop()
 
         then:
-        1 * entryRule.getLowestInterval() >> Interval.ONE_HOUR
-        1 * exitRule.getLowestInterval() >> Interval.FIVE_MINUTES
+        1 * entryRule.getCheckInterval() >> Interval.ONE_HOUR
+        1 * exitRule.getCheckInterval() >> Interval.FIVE_MINUTES
         1 * clockSignalDispatcher.unsubscribe([Interval.ONE_HOUR, Interval.FIVE_MINUTES] as Set, strategyExecution)
         0 * _
     }
@@ -70,10 +65,10 @@ class SimpleStrategyExecutionTest extends Specification {
         strategyExecution.accept(CLOCK_SIGNAL_1)
 
         then: 'check entry rule: satisfied'
-        1 * entryRule.check(CLOCK_SIGNAL_1, SYMBOL_1) >> RuleCheckResult.satisfied(bar)
+        1 * entryRule.isSatisfied(CLOCK_SIGNAL_1, SYMBOL_1) >> true
 
         and: 'try to open trade: trade was opened'
-        1 * tradeService.tryToOpenTrade(tradeOpeningContext) >> Optional.of(OPENED_TRADE)
+        1 * tradeService.tryToOpenTrade(TRADE_OPENING_CONTEXT) >> Optional.of(OPENED_TRADE)
 
         and: 'publish correct event'
         1 * eventBus.publishTradeWasOpenedEvent(OPENED_TRADE)
@@ -93,7 +88,7 @@ class SimpleStrategyExecutionTest extends Specification {
         strategyExecution.accept(CLOCK_SIGNAL_1)
 
         then: 'check entry rule: not satisfied'
-        1 * entryRule.check(CLOCK_SIGNAL_1, SYMBOL_1) >> RuleCheckResult.notSatisfied()
+        1 * entryRule.isSatisfied(CLOCK_SIGNAL_1, SYMBOL_1) >> false
 
         and: 'no other actions'
         0 * _
@@ -110,10 +105,10 @@ class SimpleStrategyExecutionTest extends Specification {
         strategyExecution.accept(CLOCK_SIGNAL_1)
 
         then: 'check entry rule: satisfied'
-        1 * entryRule.check(CLOCK_SIGNAL_1, SYMBOL_1) >> RuleCheckResult.satisfied(bar)
+        1 * entryRule.isSatisfied(CLOCK_SIGNAL_1, SYMBOL_1) >> true
 
         and: 'try to open trade: trade was not opened'
-        1 * tradeService.tryToOpenTrade(tradeOpeningContext) >> Optional.empty()
+        1 * tradeService.tryToOpenTrade(TRADE_OPENING_CONTEXT) >> Optional.empty()
 
         and: 'publish correct event'
         1 * eventBus.publishTradeWasNotOpenedEvent(STRATEGY_EXECUTION_ID, SYMBOL_1, EMPTY)
@@ -133,10 +128,10 @@ class SimpleStrategyExecutionTest extends Specification {
         strategyExecution.accept(CLOCK_SIGNAL_2)
 
         then: 'check exit rule: satisfied'
-        1 * exitRule.check(CLOCK_SIGNAL_2, ENTRY_ORDER) >> RuleCheckResult.satisfied(bar)
+        1 * exitRule.isSatisfied(CLOCK_SIGNAL_2, ENTRY_ORDER) >> true
 
         and: 'try to close trade: trade was closed'
-        1 * tradeService.tryToCloseTrade(tradeClosingContext) >> Optional.of(CLOSED_TRADE)
+        1 * tradeService.tryToCloseTrade(OPENED_TRADE, CLOCK_SIGNAL_2) >> Optional.of(CLOSED_TRADE)
 
         and: 'publish correct event'
         1 * eventBus.publishTradeWasClosedEvent(CLOSED_TRADE)
@@ -148,20 +143,6 @@ class SimpleStrategyExecutionTest extends Specification {
         !strategyExecution.openedTrade
     }
 
-    def 'should not close trade if clock signal has timestamp which is similar to entry order clock signal timestamp'() {
-        given: 'opened trade'
-        strategyExecution.openedTrade = OPENED_TRADE
-
-        when: 'clock signal with timestamp which is similar to entry order clock signal timestamp'
-        strategyExecution.accept(CLOCK_SIGNAL_2_WITH_TIMESTAMP_OF_CLOCK_SIGNAL_1)
-
-        then: 'no other actions'
-        0 * _
-
-        and: 'trade is still opened'
-        strategyExecution.openedTrade == OPENED_TRADE
-    }
-
     def 'should not close trade if exit rule was not satisfied'() {
         given: 'opened trade'
         strategyExecution.openedTrade = OPENED_TRADE
@@ -170,7 +151,7 @@ class SimpleStrategyExecutionTest extends Specification {
         strategyExecution.accept(CLOCK_SIGNAL_2)
 
         then: 'check exit rule: not satisfied'
-        1 * exitRule.check(CLOCK_SIGNAL_2, ENTRY_ORDER) >> RuleCheckResult.notSatisfied()
+        1 * exitRule.isSatisfied(CLOCK_SIGNAL_2, ENTRY_ORDER) >> false
 
         and: 'no other actions'
         0 * _
@@ -187,10 +168,10 @@ class SimpleStrategyExecutionTest extends Specification {
         strategyExecution.accept(CLOCK_SIGNAL_2)
 
         then: 'check exit rule: satisfied'
-        1 * exitRule.check(CLOCK_SIGNAL_2, ENTRY_ORDER) >> RuleCheckResult.satisfied(bar)
+        1 * exitRule.isSatisfied(CLOCK_SIGNAL_2, ENTRY_ORDER) >> true
 
         and: 'try to close trade: trade was not closed'
-        1 * tradeService.tryToCloseTrade(tradeClosingContext) >> Optional.empty()
+        1 * tradeService.tryToCloseTrade(OPENED_TRADE, CLOCK_SIGNAL_2) >> Optional.empty()
 
         and: 'publish correct event'
         1 * eventBus.publishTradeWasNotClosedEvent(OPENED_TRADE, EMPTY)

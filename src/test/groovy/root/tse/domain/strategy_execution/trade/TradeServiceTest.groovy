@@ -1,17 +1,10 @@
 package root.tse.domain.strategy_execution.trade
 
-import org.ta4j.core.Bar
-import org.ta4j.core.num.PrecisionNum
+import root.tse.domain.ExchangeGateway
 import root.tse.domain.IdGenerator
 import root.tse.domain.order.Order
-import root.tse.domain.order.OrderExecutor
 import spock.lang.Specification
 
-import java.time.Instant
-import java.time.ZoneId
-import java.time.ZonedDateTime
-
-import static root.tse.domain.order.OrderStatus.*
 import static root.tse.domain.order.OrderType.BUY
 import static root.tse.domain.order.OrderType.SELL
 import static root.tse.domain.strategy_execution.trade.TradeType.LONG
@@ -19,26 +12,22 @@ import static root.tse.util.TestUtils.*
 
 class TradeServiceTest extends Specification {
 
-    private bar = Mock(Bar)
-    private tradeOpeningContext = createTradeOpeningContext(bar)
-    private tradeClosingContext = createTradeClosingContext(bar)
     private idGenerator = Mock(IdGenerator)
-    private orderExecutor = Mock(OrderExecutor)
+    private exchangeGateway = Mock(ExchangeGateway)
     private tradeRepository = Mock(TradeRepository)
 
-    private tradeService = new TradeService(idGenerator, orderExecutor, tradeRepository)
+    private tradeService = new TradeService(idGenerator, exchangeGateway, tradeRepository)
 
     def 'should open trade successfully'() {
         when:
-        def openedTradeOptional = tradeService.tryToOpenTrade(tradeOpeningContext)
+        def openedTradeOptional = tradeService.tryToOpenTrade(TRADE_OPENING_CONTEXT)
 
         then: 'execute entry order'
-        1 * bar.getClosePrice() >> PrecisionNum.valueOf(PRICE_1)
-        1 * bar.getEndTime() >> ZonedDateTime.ofInstant(Instant.ofEpochMilli(TIMESTAMP_1), ZoneId.systemDefault())
-        1 * orderExecutor.execute(_, ORDER_EXECUTION_MODE) >> {
+        1 * exchangeGateway.getCurrentPrices([SYMBOL_1]) >> Optional.of([(SYMBOL_1) : [(BUY) : PRICE_1]])
+        1 * exchangeGateway.tryToExecute(_) >> {
             def entryOrder = it[0] as Order
             assertEntryOrderBeforeExecution(entryOrder)
-            return entryOrder.toBuilder().status(FILLED).build()
+            return Optional.of(entryOrder.toBuilder().price(PRICE_1).build())
         }
 
         and: 'create and save opened trade'
@@ -53,20 +42,29 @@ class TradeServiceTest extends Specification {
         assertOpenedTrade(openedTrade)
     }
 
-    def 'should not open trade if entry order was not filled'() {
+    def 'should not open trade if current price was not obtained'() {
         when:
-        def openedTradeOptional = tradeService.tryToOpenTrade(tradeOpeningContext)
+        def openedTradeOptional = tradeService.tryToOpenTrade(TRADE_OPENING_CONTEXT)
+
+        then: 'failed to obtain current price'
+        1 * exchangeGateway.getCurrentPrices([SYMBOL_1]) >> Optional.empty()
+        0 * _
+
+        and:
+        openedTradeOptional.isEmpty()
+    }
+
+    def 'should not open trade if entry order was not executed'() {
+        when:
+        def openedTradeOptional = tradeService.tryToOpenTrade(TRADE_OPENING_CONTEXT)
 
         then: 'failed entry order execution'
-        1 * bar.getClosePrice() >> PrecisionNum.valueOf(PRICE_1)
-        1 * bar.getEndTime() >> ZonedDateTime.ofInstant(Instant.ofEpochMilli(TIMESTAMP_1), ZoneId.systemDefault())
-        1 * orderExecutor.execute(_, ORDER_EXECUTION_MODE) >> {
+        1 * exchangeGateway.getCurrentPrices([SYMBOL_1]) >> Optional.of([(SYMBOL_1) : [(BUY) : PRICE_1]])
+        1 * exchangeGateway.tryToExecute(_) >> {
             def entryOrder = it[0] as Order
             assertEntryOrderBeforeExecution(entryOrder)
-            return entryOrder.toBuilder().status(NOT_FILLED).build()
+            return Optional.empty()
         }
-
-        and: 'no other actions'
         0 * _
 
         and:
@@ -75,15 +73,13 @@ class TradeServiceTest extends Specification {
 
     def 'should close trade successfully'() {
         when:
-        def closedTradeOptional = tradeService.tryToCloseTrade(tradeClosingContext)
+        def closedTradeOptional = tradeService.tryToCloseTrade(OPENED_TRADE, CLOCK_SIGNAL_2)
 
         then: 'execute exit order'
-        1 * bar.getClosePrice() >> PrecisionNum.valueOf(PRICE_2)
-        1 * bar.getEndTime() >> ZonedDateTime.ofInstant(Instant.ofEpochMilli(TIMESTAMP_2), ZoneId.systemDefault())
-        1 * orderExecutor.execute(_, ORDER_EXECUTION_MODE) >> {
+        1 * exchangeGateway.tryToExecute(_) >> {
             def exitOrder = it[0] as Order
             assertExitOrderBeforeExecution(exitOrder)
-            return exitOrder.toBuilder().status(FILLED).build()
+            return Optional.of(exitOrder.toBuilder().price(PRICE_2).build())
         }
 
         and: 'save closed trade'
@@ -97,20 +93,16 @@ class TradeServiceTest extends Specification {
         assertClosedTrade(closedTrade)
     }
 
-    def 'should not close trade if exit order was not filled'() {
+    def 'should not close trade if exit order was not executed'() {
         when:
-        def closedTradeOptional = tradeService.tryToCloseTrade(tradeClosingContext)
+        def closedTradeOptional = tradeService.tryToCloseTrade(OPENED_TRADE, CLOCK_SIGNAL_2)
 
         then: 'failed exit order execution'
-        1 * bar.getClosePrice() >> PrecisionNum.valueOf(PRICE_2)
-        1 * bar.getEndTime() >> ZonedDateTime.ofInstant(Instant.ofEpochMilli(TIMESTAMP_2), ZoneId.systemDefault())
-        1 * orderExecutor.execute(_, ORDER_EXECUTION_MODE) >> {
+        1 * exchangeGateway.tryToExecute(_) >> {
             def exitOrder = it[0] as Order
             assertExitOrderBeforeExecution(exitOrder)
-            return exitOrder.toBuilder().status(NOT_FILLED).build()
+            return Optional.empty()
         }
-
-        and: 'no other actions'
         0 * _
 
         and:
@@ -133,11 +125,10 @@ class TradeServiceTest extends Specification {
     }
 
     private assertEntryOrderBeforeExecution(Order entryOrder) {
-        assert entryOrder.status == NEW
         assert entryOrder.type == BUY
         assert entryOrder.symbol == SYMBOL_1
         assert entryOrder.amount == AMOUNT_1
-        assert entryOrder.price == PRICE_1
+        assert !entryOrder.price
         assert entryOrder.timestamp == TIMESTAMP_1
     }
 
@@ -145,7 +136,6 @@ class TradeServiceTest extends Specification {
         assert openedTrade.id == TRADE_ID
         assert openedTrade.strategyExecutionId == STRATEGY_EXECUTION_ID
         assert openedTrade.type == LONG
-        assert openedTrade.entryOrder.status == FILLED
         assert openedTrade.entryOrder.type == BUY
         assert openedTrade.entryOrder.symbol == SYMBOL_1
         assert openedTrade.entryOrder.amount == AMOUNT_1
@@ -156,11 +146,10 @@ class TradeServiceTest extends Specification {
     }
 
     private assertExitOrderBeforeExecution(Order exitOrder) {
-        assert exitOrder.status == NEW
         assert exitOrder.type == SELL
         assert exitOrder.symbol == SYMBOL_1
         assert exitOrder.amount == AMOUNT_1
-        assert exitOrder.price == PRICE_2
+        assert !exitOrder.price
         assert exitOrder.timestamp == TIMESTAMP_2
     }
 
@@ -169,7 +158,6 @@ class TradeServiceTest extends Specification {
         assert closedTrade.strategyExecutionId == STRATEGY_EXECUTION_ID
         assert closedTrade.type == LONG
         assert closedTrade.entryOrder == ENTRY_ORDER
-        assert closedTrade.exitOrder.status == FILLED
         assert closedTrade.exitOrder.type == SELL
         assert closedTrade.exitOrder.symbol == SYMBOL_1
         assert closedTrade.exitOrder.amount == AMOUNT_1

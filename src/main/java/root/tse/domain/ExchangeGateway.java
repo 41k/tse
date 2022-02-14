@@ -15,5 +15,5 @@ public interface ExchangeGateway {
 
     Optional<Map<String, Map<OrderType, Double>>> getCurrentPrices(List<String> symbols);
 
-    Order execute(Order order);
+    Optional<Order> tryToExecute(Order order);
 }

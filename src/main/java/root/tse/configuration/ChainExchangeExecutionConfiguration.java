@@ -9,7 +9,6 @@ import root.tse.domain.ExchangeGateway;
 import root.tse.domain.IdGenerator;
 import root.tse.domain.chain_exchange_execution.*;
 import root.tse.domain.event.EventBus;
-import root.tse.domain.order.OrderExecutor;
 import root.tse.infrastructure.chain_exchange_execution.ChainExchangeTask;
 import root.tse.infrastructure.persistence.chain_exchange.ChainExchangeDbEntryJpaRepository;
 import root.tse.infrastructure.persistence.chain_exchange.ChainExchangeRepositoryImpl;
@@ -46,23 +45,22 @@ public class ChainExchangeExecutionConfiguration {
 
     @Bean
     public ChainExchangeExecutionFactory chainExchangeExecutionFactory(
-        ExchangeGateway exchangeGateway,
         ChainExchangeService chainExchangeService,
         EventBus eventBus
     ) {
-        return new ChainExchangeExecutionFactory(exchangeGateway, chainExchangeService, eventBus);
+        return new ChainExchangeExecutionFactory(chainExchangeService, eventBus);
     }
 
     @Bean
     public ChainExchangeService chainExchangeService(
         IdGenerator idGenerator,
-        OrderExecutor orderExecutor,
+        ExchangeGateway exchangeGateway,
         ChainExchangeRepository chainExchangeRepository,
         Clock clock
     ) {
         var initialOrderAmountCalculator = new InitialOrderAmountCalculator();
         return new ChainExchangeService(
-            idGenerator, orderExecutor, initialOrderAmountCalculator, chainExchangeRepository, clock);
+            idGenerator, exchangeGateway, initialOrderAmountCalculator, chainExchangeRepository, clock);
     }
 
     @Bean

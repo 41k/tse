@@ -1,6 +1,5 @@
 package root.tse.domain.chain_exchange_execution
 
-import root.tse.domain.ExchangeGateway
 import root.tse.domain.event.EventBus
 import spock.lang.Specification
 
@@ -8,12 +7,11 @@ import static root.tse.util.TestUtils.CHAIN_EXCHANGE_EXECUTION_CONTEXT
 
 class ChainExchangeExecutionFactoryTest extends Specification {
 
-    private exchangeGateway = Mock(ExchangeGateway)
     private chainExchangeService = Mock(ChainExchangeService)
     private eventBus = Mock(EventBus)
 
     private chainExchangeExecutionFactory =
-        new ChainExchangeExecutionFactory(exchangeGateway, chainExchangeService, eventBus)
+        new ChainExchangeExecutionFactory(chainExchangeService, eventBus)
 
     def 'should create chain exchange execution correctly'() {
         when:
@@ -24,7 +22,6 @@ class ChainExchangeExecutionFactoryTest extends Specification {
 
         and:
         chainExchangeExecution.context == CHAIN_EXCHANGE_EXECUTION_CONTEXT
-        chainExchangeExecution.exchangeGateway == exchangeGateway
         chainExchangeExecution.chainExchangeService == chainExchangeService
         chainExchangeExecution.eventBus == eventBus
     }
