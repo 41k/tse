@@ -18,7 +18,7 @@ class SimpleStrategyExecutionTest extends Specification {
     private exitRule = Mock(ExitRule)
     private strategyExecutionContext = StrategyExecutionContext.builder()
         .entryRule(entryRule).exitRule(exitRule).tradeType(LONG).symbols([SYMBOL_1])
-        .orderExecutionType(ORDER_EXECUTION_TYPE).orderFeePercent(ORDER_FEE_PERCENT).fundsPerTrade(FUNDS_PER_TRADE).build()
+        .orderExecutionType(ORDER_EXECUTION_TYPE).fundsPerTrade(FUNDS_PER_TRADE).build()
     private clockSignalDispatcher = Mock(ClockSignalDispatcher)
     private tradeService = Mock(TradeService)
     private eventBus = Mock(EventBus)

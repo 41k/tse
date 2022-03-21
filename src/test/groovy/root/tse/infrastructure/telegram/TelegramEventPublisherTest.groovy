@@ -16,8 +16,9 @@ class TelegramEventPublisherTest extends Specification {
         then:
         1 * telegramApiClient.sendMessage(
             "<b>Trade was <u>OPENED</u></b>----------" +
-            "<b>Trade Id:</b> 34598437-----" +
-            "<b>Execution Id:</b> 3545de05----------" +
+            "<b>Trade:</b> $TRADE_ID-----" +
+            "<b>Strategy execution:</b> $STRATEGY_EXECUTION_ID----------" +
+            "<b>Order execution type:</b> $ORDER_EXECUTION_TYPE-----" +
             "<b>Symbol:</b> $SYMBOL_1-----" +
             "<b>Amount:</b> $AMOUNT_1-----" +
             "<b>Price:</b> $PRICE_1-----" +
@@ -34,7 +35,7 @@ class TelegramEventPublisherTest extends Specification {
         then:
         1 * telegramApiClient.sendMessage(
             "<b>Trade was <u>NOT OPENED</u></b>----------" +
-            "<b>Execution Id:</b> 3545de05-----" +
+            "<b>Strategy execution:</b> $STRATEGY_EXECUTION_ID-----" +
             "<b>Symbol:</b> $SYMBOL_1-----" +
             "<b>Reason:</b> $REASON"
         )
@@ -48,8 +49,9 @@ class TelegramEventPublisherTest extends Specification {
         then:
         1 * telegramApiClient.sendMessage(
             "<b>Trade was <u>CLOSED</u></b>----------" +
-            "<b>Trade Id:</b> 34598437-----" +
-            "<b>Execution Id:</b> 3545de05----------" +
+            "<b>Trade:</b> $TRADE_ID-----" +
+            "<b>Strategy execution:</b> $STRATEGY_EXECUTION_ID----------" +
+            "<b>Order execution type:</b> $ORDER_EXECUTION_TYPE-----" +
             "<b>Symbol:</b> $SYMBOL_1-----" +
             "<b>Amount:</b> $AMOUNT_1-----" +
             "<b>Profit:</b> 1895.4-----" +
@@ -66,8 +68,9 @@ class TelegramEventPublisherTest extends Specification {
         then:
         1 * telegramApiClient.sendMessage(
             "<b>Trade was <u>NOT CLOSED</u></b>----------" +
-            "<b>Trade Id:</b> 34598437-----" +
-            "<b>Execution Id:</b> 3545de05-----" +
+            "<b>Trade:</b> $TRADE_ID-----" +
+            "<b>Strategy execution:</b> $STRATEGY_EXECUTION_ID-----" +
+            "<b>Order execution type:</b> $ORDER_EXECUTION_TYPE-----" +
             "<b>Symbol:</b> $SYMBOL_1-----" +
             "<b>Amount:</b> $AMOUNT_1-----" +
             "<b>Reason:</b> $REASON"
@@ -81,9 +84,9 @@ class TelegramEventPublisherTest extends Specification {
 
         then:
         1 * telegramApiClient.sendMessage(
-            "<b>Chain Exchange was <u>EXECUTED</u></b>----------" +
-            "<b>Chain Exchange Id:</b> $CHAIN_EXCHANGE_ID-----" +
-            "<b>Asset Chain:</b> $ASSET_CHAIN_AS_STRING-----" +
+            "<b>Chain exchange was <u>EXECUTED</u></b>----------" +
+            "<b>Chain exchange:</b> $CHAIN_EXCHANGE_ID-----" +
+            "<b>Asset chain:</b> $ASSET_CHAIN_AS_STRING-----" +
             "<b>Profit:</b> $CHAIN_EXCHANGE_PROFIT"
         )
         0 * _
@@ -95,9 +98,9 @@ class TelegramEventPublisherTest extends Specification {
 
         then:
         1 * telegramApiClient.sendMessage(
-            "<b>Chain Exchange execution <u>FAILED</u></b>----------" +
-            "<b>Chain Exchange Id:</b> $CHAIN_EXCHANGE_ID-----" +
-            "<b>Asset Chain:</b> $ASSET_CHAIN_AS_STRING"
+            "<b>Chain exchange execution <u>FAILED</u></b>----------" +
+            "<b>Chain exchange:</b> $CHAIN_EXCHANGE_ID-----" +
+            "<b>Asset chain:</b> $ASSET_CHAIN_AS_STRING"
         )
         0 * _
     }

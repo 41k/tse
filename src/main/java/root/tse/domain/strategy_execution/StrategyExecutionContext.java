@@ -20,7 +20,6 @@ public class StrategyExecutionContext {
     OrderExecutionType orderExecutionType;
     List<String> symbols;
     Double fundsPerTrade;
-    Double orderFeePercent;
     @Builder.Default
     Interval marketScanningInterval = Interval.ONE_DAY;
     @Builder.Default

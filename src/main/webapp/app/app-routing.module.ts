@@ -35,6 +35,18 @@ const LAYOUT_ROUTES = [navbarRoute, ...errorRoute];
             import('./tse/component/strategy-executions/strategy-executions.module').then(m => m.StrategyExecutionsModule),
         },
         {
+          path: 'strategy-executions/:id',
+          loadChildren: () =>
+            import('./tse/component/strategy-execution-details/strategy-execution-details.module').then(
+              m => m.StrategyExecutionDetailsModule
+            ),
+        },
+        {
+          path: 'new-strategy-execution',
+          loadChildren: () =>
+            import('./tse/component/new-strategy-execution/new-strategy-execution.module').then(m => m.NewStrategyExecutionModule),
+        },
+        {
           path: 'backtest-report',
           loadChildren: () => import('./tse/component/backtest-report/backtest-report.module').then(m => m.BacktestReportModule),
         },

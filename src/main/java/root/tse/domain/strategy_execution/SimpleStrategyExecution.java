@@ -61,7 +61,6 @@ public class SimpleStrategyExecution implements StrategyExecution {
                 .clockSignal(clockSignal)
                 .symbol(symbol)
                 .fundsPerTrade(context.getFundsPerTrade())
-                .orderFeePercent(context.getOrderFeePercent())
                 .build();
             tradeService.tryToOpenTrade(tradeOpeningContext)
                 .ifPresentOrElse(

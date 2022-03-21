@@ -19,10 +19,16 @@ class BacktestExchangeGatewayTest extends Specification {
 
     private backtestProperties = new BacktestConfigurationProperties(
         dataSetName: DATA_SET_NAME,
-        symbol: SYMBOL_1
+        symbol: SYMBOL_1,
+        orderFeePercent: ORDER_FEE_PERCENT
     )
     private dataSetService = Mock(DataSetService)
     private backtestExchangeGateway = new BacktestExchangeGateway(backtestProperties, dataSetService)
+
+    def 'should provide order fee percent'() {
+        expect:
+        backtestExchangeGateway.getOrderFeePercent() == ORDER_FEE_PERCENT
+    }
 
     def 'should provide series'() {
         given:

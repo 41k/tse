@@ -32,7 +32,6 @@ public class StrategyExecutionRunner implements CommandLineRunner {
             .orderExecutionType(OrderExecutionType.STUB)
             .symbols(List.of("ETH/USD"))
             .fundsPerTrade(800d)
-            .orderFeePercent(0.2d)
             .build();
         strategyExecution = simpleStrategyExecutionFactory.create(strategyExecutionContext);
         strategyExecution.start();
@@ -48,7 +47,6 @@ public class StrategyExecutionRunner implements CommandLineRunner {
 //            .orderExecutionType(OrderExecutionType.STUB)
 //            .symbols(List.of("BTC/USD", "ETH/USD", "LTC/USD", "XRP/USD"))
 //            .fundsPerTrade(1000d)
-//            .orderFeePercent(0.2d)
 //            .allowedNumberOfSimultaneouslyOpenedTrades(4)
 //            .build();
 //        strategyExecution = marketScanningStrategyExecutionFactory.create(strategyExecutionContext);

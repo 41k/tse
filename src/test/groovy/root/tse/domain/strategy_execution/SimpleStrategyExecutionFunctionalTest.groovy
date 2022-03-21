@@ -16,6 +16,7 @@ class SimpleStrategyExecutionFunctionalTest extends BaseStrategyExecutionFunctio
 
     def setup() {
         exchangeGatewayMock().reset()
+        exchangeGatewayMock().orderFeePercent = ORDER_FEE_PERCENT
         exchangeGatewayMock().currentPrices = [(SYMBOL_1) : [(BUY) : PRICE_1, (SELL) : PRICE_2]]
         exchangeGatewayMock().orderExecutionSuccess = true
         def strategyExecutionContext = StrategyExecutionContext.builder()
@@ -25,7 +26,6 @@ class SimpleStrategyExecutionFunctionalTest extends BaseStrategyExecutionFunctio
             .orderExecutionType(MARKET)
             .symbols([SYMBOL_1])
             .fundsPerTrade(FUNDS_PER_TRADE)
-            .orderFeePercent(ORDER_FEE_PERCENT)
             .build()
         strategyExecution = strategyExecutionFactory.create(strategyExecutionContext)
         strategyExecution.start()

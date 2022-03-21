@@ -39,7 +39,7 @@ public class TradeService {
                     .id(idGenerator.generateId())
                     .strategyExecutionId(context.getStrategyExecutionId())
                     .type(tradeType)
-                    .orderFeePercent(context.getOrderFeePercent())
+                    .orderFeePercent(exchangeGateway.getOrderFeePercent())
                     .entryOrder(executedEntryOrder)
                     .build();
                 tradeRepository.save(openedTrade);
@@ -48,13 +48,8 @@ public class TradeService {
     }
 
     public Optional<Trade> tryToCloseTrade(Trade openedTrade, ClockSignal clockSignal) {
-        var exitOrder = Order.builder()
-            .type(openedTrade.getExitOrderType())
-            .executionType(openedTrade.getEntryOrder().getExecutionType())
-            .symbol(openedTrade.getSymbol())
-            .amount(openedTrade.getAmount())
-            .timestamp(clockSignal.getTimestamp())
-            .build();
+        var timestamp = clockSignal.getTimestamp();
+        var exitOrder = openedTrade.formExitOrder(timestamp);
         return exchangeGateway.tryToExecute(exitOrder)
             .map(executedExitOrder -> {
                 var closedTrade = openedTrade.toBuilder().exitOrder(executedExitOrder).build();

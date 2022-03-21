@@ -1,4 +1,4 @@
-package root.tse.application.model
+package root.tse.application.chain_exchange_execution
 
 import spock.lang.Specification
 

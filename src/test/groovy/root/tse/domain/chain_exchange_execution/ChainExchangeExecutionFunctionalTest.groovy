@@ -25,13 +25,13 @@ class ChainExchangeExecutionFunctionalTest extends BaseFunctionalTest {
 
     def setup() {
         exchangeGatewayMock().reset()
+        exchangeGatewayMock().orderFeePercent = ORDER_FEE_PERCENT
         exchangeGatewayMock().currentPrices = CHAIN_PRICES
         exchangeGatewayMock().orderExecutionSuccess = true
         def context = ChainExchangeExecutionContext.builder()
             .assetChain(ASSET_CHAIN)
             .assetCodeDelimiter(ASSET_CODE_DELIMITER)
             .symbolToPrecisionMap(SYMBOL_TO_PRECISION_MAP)
-            .orderFeePercent(ORDER_FEE_PERCENT)
             .nAmountSelectionSteps(N_AMOUNT_SELECTION_STEPS)
             .amount(CHAIN_EXCHANGE_AMOUNT)
             .minProfitThreshold(MIN_PROFIT_THRESHOLD)

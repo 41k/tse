@@ -12,7 +12,7 @@ class InitialOrderAmountCalculatorTest extends Specification {
 
     def 'should calculate initial order amount successfully'() {
         expect:
-        initialOrderAmountCalculator.tryToCalculate(CHAIN_EXCHANGE_EXECUTION_CONTEXT, CHAIN_PRICES).get() == 0.331d
+        initialOrderAmountCalculator.tryToCalculate(CHAIN_EXCHANGE_EXECUTION_CONTEXT, CHAIN_PRICES, ORDER_FEE_PERCENT).get() == 0.331d
     }
 
     def 'should return empty optional if amount for order1 is less than threshold'() {
@@ -20,7 +20,7 @@ class InitialOrderAmountCalculatorTest extends Specification {
         def context = CHAIN_EXCHANGE_EXECUTION_CONTEXT.toBuilder().amount(1d).build()
 
         expect:
-        initialOrderAmountCalculator.tryToCalculate(context, CHAIN_PRICES).isEmpty()
+        initialOrderAmountCalculator.tryToCalculate(context, CHAIN_PRICES, ORDER_FEE_PERCENT).isEmpty()
     }
 
     def 'should return empty optional if amount for order3 is less than threshold'() {
@@ -32,6 +32,6 @@ class InitialOrderAmountCalculatorTest extends Specification {
         ]
 
         expect:
-        initialOrderAmountCalculator.tryToCalculate(CHAIN_EXCHANGE_EXECUTION_CONTEXT, prices).isEmpty()
+        initialOrderAmountCalculator.tryToCalculate(CHAIN_EXCHANGE_EXECUTION_CONTEXT, prices, ORDER_FEE_PERCENT).isEmpty()
     }
 }

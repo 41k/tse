@@ -3,7 +3,7 @@ package root.tse.configuration;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import root.tse.application.ChainExchangeExecutionService;
+import root.tse.application.chain_exchange_execution.ChainExchangeExecutionService;
 import root.tse.configuration.properties.ExchangeGatewayConfigurationProperties;
 import root.tse.domain.ExchangeGateway;
 import root.tse.domain.IdGenerator;

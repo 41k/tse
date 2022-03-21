@@ -7,16 +7,9 @@ import { Report } from 'app/tse/model/report.model';
 
 @Injectable({ providedIn: 'root' })
 export class BacktestApiClient {
-  baseUrl!: string;
-
-  constructor(private http: HttpClient) {
-    this.baseUrl = SERVER_API_URL + '/api/backtest';
-  }
+  constructor(private http: HttpClient) {}
 
   getReport(): Observable<HttpResponse<Report>> {
-    const requestURL = this.baseUrl + '/report';
-    return this.http.get<Report>(requestURL, {
-      observe: 'response',
-    });
+    return this.http.get<Report>(SERVER_API_URL + '/api/v1/backtest/report', { observe: 'response' });
   }
 }

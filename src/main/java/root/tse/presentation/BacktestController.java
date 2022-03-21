@@ -8,7 +8,7 @@ import root.tse.domain.backtest.BacktestService;
 import root.tse.domain.strategy_execution.report.Report;
 
 @RestController
-@RequestMapping("/api/backtest")
+@RequestMapping("/api/v1/backtest")
 @RequiredArgsConstructor
 public class BacktestController {
 

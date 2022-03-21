@@ -5,7 +5,6 @@ export class Report {
     public strategyExecutionId: string,
     public symbols: Array<string>,
     public fundsPerTrade: number,
-    public orderFeePercent: number,
 
     public equityCurve: Array<EquityCurvePoint>,
     public ntrades: number,

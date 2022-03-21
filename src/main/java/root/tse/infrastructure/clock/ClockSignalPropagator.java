@@ -3,9 +3,9 @@ package root.tse.infrastructure.clock;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
-import root.tse.domain.clock.Interval;
 import root.tse.domain.clock.ClockSignal;
 import root.tse.domain.clock.ClockSignalDispatcher;
+import root.tse.domain.clock.Interval;
 
 import java.time.Clock;
 
@@ -19,7 +19,7 @@ public class ClockSignalPropagator {
     private final Clock clock;
     private final ClockSignalDispatcher clockSignalDispatcher;
 
-    @Scheduled(cron = "0/1 * * * * *")
+    @Scheduled(fixedDelay = 1000)
     public void propagateOneSecondSignal() {
         propagateClockSignal(ONE_SECOND);
     }

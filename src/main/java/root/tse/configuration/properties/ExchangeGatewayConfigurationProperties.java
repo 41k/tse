@@ -6,7 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.validation.annotation.Validated;
-import root.tse.application.model.ChainExchangeExecutionSettings;
+import root.tse.application.chain_exchange_execution.ChainExchangeExecutionSettings;
 import root.tse.domain.clock.Interval;
 
 import javax.validation.Valid;
@@ -78,7 +78,6 @@ public class ExchangeGatewayConfigurationProperties {
             .assetChains(assetChains)
             .assetCodeDelimiter(assetCodeDelimiter)
             .symbolToPrecisionMap(getSymbolToPrecisionMap())
-            .orderFeePercent(orderFeePercent)
             .nAmountSelectionSteps(numberOfAmountSelectionSteps)
             .build();
     }

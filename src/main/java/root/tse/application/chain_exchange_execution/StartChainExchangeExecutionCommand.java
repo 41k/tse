@@ -1,4 +1,4 @@
-package root.tse.application.model.command;
+package root.tse.application.chain_exchange_execution;
 
 import lombok.Builder;
 import lombok.Value;

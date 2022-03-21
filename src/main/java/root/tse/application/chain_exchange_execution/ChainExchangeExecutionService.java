@@ -1,10 +1,7 @@
-package root.tse.application;
+package root.tse.application.chain_exchange_execution;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import root.tse.application.model.ChainExchangeExecutionSettings;
-import root.tse.application.model.command.StartChainExchangeExecutionCommand;
-import root.tse.application.model.command.StopChainExchangeExecutionCommand;
 import root.tse.domain.chain_exchange_execution.ChainExchangeExecution;
 import root.tse.domain.chain_exchange_execution.ChainExchangeExecutionContext;
 import root.tse.domain.chain_exchange_execution.ChainExchangeExecutionFactory;
@@ -33,7 +30,6 @@ public class ChainExchangeExecutionService {
             .orderExecutionType(command.getOrderExecutionType())
             .assetCodeDelimiter(settings.getAssetCodeDelimiter())
             .symbolToPrecisionMap(settings.getSymbolToPrecisionMap())
-            .orderFeePercent(settings.getOrderFeePercent())
             .nAmountSelectionSteps(settings.getNAmountSelectionSteps())
             .build();
         var chainExchangeExecution = chainExchangeExecutionFactory.create(context);

@@ -24,9 +24,10 @@ public class ChainExchangeService {
 
     public Optional<ChainExchange> tryToFormExpectedChainExchange(ChainExchangeExecutionContext context) {
         var symbols = context.getSymbols();
+        var orderFeePercent = exchangeGateway.getOrderFeePercent();
         return exchangeGateway.getCurrentPrices(symbols)
             .flatMap(prices ->
-                initialOrderAmountCalculator.tryToCalculate(context, prices)
+                initialOrderAmountCalculator.tryToCalculate(context, prices, orderFeePercent)
                     .map(amountForOrder1 -> {
                         var orderExecutionType = context.getOrderExecutionType();
                         var symbol1 = symbols.get(0);
@@ -50,7 +51,7 @@ public class ChainExchangeService {
                             .build();
                         var symbol3 = symbols.get(2);
                         var priceForSymbol3 = prices.get(symbol3).get(OrderType.SELL);
-                        var amountForOrder3 = calculateAmountForOrder3(order2, context);
+                        var amountForOrder3 = calculateAmountForOrder3(order2, orderFeePercent, context);
                         var order3 = Order.builder()
                             .type(OrderType.SELL)
                             .executionType(orderExecutionType)
@@ -58,11 +59,11 @@ public class ChainExchangeService {
                             .amount(amountForOrder3)
                             .price(priceForSymbol3)
                             .build();
-                        var profit = calculateProfit(order1, order3, context);
+                        var profit = calculateProfit(order1, order3, orderFeePercent);
                         return ChainExchange.builder()
                             .id(idGenerator.generateId())
                             .assetChain(context.getAssetChainAsString())
-                            .orderFeePercent(context.getOrderFeePercent())
+                            .orderFeePercent(orderFeePercent)
                             .order1(order1)
                             .order2(order2)
                             .order3(order3)
@@ -74,6 +75,7 @@ public class ChainExchangeService {
 
     public Optional<ChainExchange> tryToExecute(ChainExchange expectedChainExchange,
                                                 ChainExchangeExecutionContext context) {
+        var orderFeePercent = expectedChainExchange.getOrderFeePercent();
         var order1 = expectedChainExchange.getOrder1();
         return exchangeGateway.tryToExecute(order1)
             .flatMap(executedOrder1 -> {
@@ -81,11 +83,11 @@ public class ChainExchangeService {
                 var order2 = expectedChainExchange.getOrder2().toBuilder().amount(amountForOrder2).build();
                 return exchangeGateway.tryToExecute(order2)
                     .flatMap(executedOrder2 -> {
-                        var amountForOrder3 = calculateAmountForOrder3(executedOrder2, context);
+                        var amountForOrder3 = calculateAmountForOrder3(executedOrder2, orderFeePercent, context);
                         var order3 = expectedChainExchange.getOrder3().toBuilder().amount(amountForOrder3).build();
                         return exchangeGateway.tryToExecute(order3)
                             .map(executedOrder3 -> {
-                                var profit = calculateProfit(executedOrder1, executedOrder3, context);
+                                var profit = calculateProfit(executedOrder1, executedOrder3, orderFeePercent);
                                 var executedChainExchange = expectedChainExchange.toBuilder()
                                     .order1(executedOrder1)
                                     .order2(executedOrder2)
@@ -99,15 +101,13 @@ public class ChainExchangeService {
             });
     }
 
-    private Double calculateAmountForOrder3(Order order2, ChainExchangeExecutionContext context) {
+    private Double calculateAmountForOrder3(Order order2, Double orderFeePercent, ChainExchangeExecutionContext context) {
         var symbol3 = context.getSymbols().get(2);
-        var orderFeePercent = context.getOrderFeePercent();
         var precisionForSymbol3 = context.getSymbolToPrecisionMap().get(symbol3);
         return trimToPrecision(order2.getNetTotal(orderFeePercent), precisionForSymbol3);
     }
 
-    private Double calculateProfit(Order order1, Order order3, ChainExchangeExecutionContext context) {
-        var orderFeePercent = context.getOrderFeePercent();
+    private Double calculateProfit(Order order1, Order order3, Double orderFeePercent) {
         return order3.getNetTotal(orderFeePercent) - order1.getNetTotal(orderFeePercent);
     }
 }

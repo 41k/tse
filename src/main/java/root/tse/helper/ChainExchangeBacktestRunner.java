@@ -41,7 +41,6 @@ public class ChainExchangeBacktestRunner implements CommandLineRunner {
             .orderExecutionType(OrderExecutionType.STUB)
             .assetCodeDelimiter(exchangeGatewayProperties.getAssetCodeDelimiter())
             .symbolToPrecisionMap(exchangeGatewayProperties.getSymbolToPrecisionMap())
-            .orderFeePercent(exchangeGatewayProperties.getOrderFeePercent())
             .nAmountSelectionSteps(exchangeGatewayProperties.getNumberOfAmountSelectionSteps())
             .build();
         var chainExchangeExecution = new ChainExchangeExecution(context, chainExchangeService, eventBus);

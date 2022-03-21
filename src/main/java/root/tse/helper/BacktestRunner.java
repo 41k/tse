@@ -40,7 +40,6 @@ public class BacktestRunner implements CommandLineRunner {
             .orderExecutionType(OrderExecutionType.STUB)
             .symbols(List.of(backtestProperties.getSymbol()))
             .fundsPerTrade(backtestProperties.getFundsPerTrade())
-            .orderFeePercent(backtestProperties.getOrderFeePercent())
             .build();
         backtestService.runBacktest(strategyExecutionContext);
         var backtestReport = backtestService.getReport();

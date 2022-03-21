@@ -80,7 +80,6 @@ public class MarketScanningStrategyExecution implements StrategyExecution {
             .clockSignal(new ClockSignal(Interval.ONE_SECOND, clock.millis()))
             .symbol(symbol)
             .fundsPerTrade(context.getFundsPerTrade())
-            .orderFeePercent(context.getOrderFeePercent())
             .build();
         tradeService.tryToOpenTrade(tradeOpeningContext)
             .ifPresentOrElse(

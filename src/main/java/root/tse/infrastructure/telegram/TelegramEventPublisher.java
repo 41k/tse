@@ -18,8 +18,9 @@ public class TelegramEventPublisher implements EventSubscriber {
 
     private static final String TRADE_WAS_OPENED_EVENT_FORMAT = "" +
         "<b>Trade was <u>OPENED</u></b>" + LINE_BREAK + LINE_BREAK +
-        "<b>Trade Id:</b> %s" + LINE_BREAK +
-        "<b>Execution Id:</b> %s" + LINE_BREAK + LINE_BREAK +
+        "<b>Trade:</b> %s" + LINE_BREAK +
+        "<b>Strategy execution:</b> %s" + LINE_BREAK + LINE_BREAK +
+        "<b>Order execution type:</b> %s" + LINE_BREAK +
         "<b>Symbol:</b> %s" + LINE_BREAK +
         "<b>Amount:</b> %s" + LINE_BREAK +
         "<b>Price:</b> %s" + LINE_BREAK +
@@ -28,14 +29,15 @@ public class TelegramEventPublisher implements EventSubscriber {
 
     private static final String TRADE_WAS_NOT_OPENED_EVENT_FORMAT = "" +
         "<b>Trade was <u>NOT OPENED</u></b>" + LINE_BREAK + LINE_BREAK +
-        "<b>Execution Id:</b> %s" + LINE_BREAK +
+        "<b>Strategy execution:</b> %s" + LINE_BREAK +
         "<b>Symbol:</b> %s" + LINE_BREAK +
         "<b>Reason:</b> %s";
 
     private static final String TRADE_WAS_CLOSED_EVENT_FORMAT = "" +
         "<b>Trade was <u>CLOSED</u></b>" + LINE_BREAK + LINE_BREAK +
-        "<b>Trade Id:</b> %s" + LINE_BREAK +
-        "<b>Execution Id:</b> %s" + LINE_BREAK + LINE_BREAK +
+        "<b>Trade:</b> %s" + LINE_BREAK +
+        "<b>Strategy execution:</b> %s" + LINE_BREAK + LINE_BREAK +
+        "<b>Order execution type:</b> %s" + LINE_BREAK +
         "<b>Symbol:</b> %s" + LINE_BREAK +
         "<b>Amount:</b> %s" + LINE_BREAK +
         "<b>Profit:</b> %s" + LINE_BREAK +
@@ -44,22 +46,23 @@ public class TelegramEventPublisher implements EventSubscriber {
 
     private static final String TRADE_WAS_NOT_CLOSED_EVENT_FORMAT = "" +
         "<b>Trade was <u>NOT CLOSED</u></b>" + LINE_BREAK + LINE_BREAK +
-        "<b>Trade Id:</b> %s" + LINE_BREAK +
-        "<b>Execution Id:</b> %s" + LINE_BREAK +
+        "<b>Trade:</b> %s" + LINE_BREAK +
+        "<b>Strategy execution:</b> %s" + LINE_BREAK +
+        "<b>Order execution type:</b> %s" + LINE_BREAK +
         "<b>Symbol:</b> %s" + LINE_BREAK +
         "<b>Amount:</b> %s" + LINE_BREAK +
         "<b>Reason:</b> %s";
 
     private static final String CHAIN_EXCHANGE_WAS_EXECUTED_EVENT_FORMAT = "" +
-        "<b>Chain Exchange was <u>EXECUTED</u></b>" + LINE_BREAK + LINE_BREAK +
-        "<b>Chain Exchange Id:</b> %s" + LINE_BREAK +
-        "<b>Asset Chain:</b> %s" + LINE_BREAK +
+        "<b>Chain exchange was <u>EXECUTED</u></b>" + LINE_BREAK + LINE_BREAK +
+        "<b>Chain exchange:</b> %s" + LINE_BREAK +
+        "<b>Asset chain:</b> %s" + LINE_BREAK +
         "<b>Profit:</b> %s";
 
     private static final String CHAIN_EXCHANGE_EXECUTION_FAILED_EVENT_FORMAT = "" +
-        "<b>Chain Exchange execution <u>FAILED</u></b>" + LINE_BREAK + LINE_BREAK +
-        "<b>Chain Exchange Id:</b> %s" + LINE_BREAK +
-        "<b>Asset Chain:</b> %s";
+        "<b>Chain exchange execution <u>FAILED</u></b>" + LINE_BREAK + LINE_BREAK +
+        "<b>Chain exchange:</b> %s" + LINE_BREAK +
+        "<b>Asset chain:</b> %s";
 
     private final TelegramApiClient telegramApiClient;
 
@@ -68,6 +71,7 @@ public class TelegramEventPublisher implements EventSubscriber {
         var message = String.format(TRADE_WAS_OPENED_EVENT_FORMAT,
             openedTrade.getId(),
             openedTrade.getStrategyExecutionId(),
+            openedTrade.getEntryOrder().getExecutionType(),
             openedTrade.getSymbol(),
             openedTrade.getAmount(),
             openedTrade.getEntryOrder().getPrice(),
@@ -87,6 +91,7 @@ public class TelegramEventPublisher implements EventSubscriber {
         var message = String.format(TRADE_WAS_CLOSED_EVENT_FORMAT,
             closedTrade.getId(),
             closedTrade.getStrategyExecutionId(),
+            closedTrade.getEntryOrder().getExecutionType(),
             closedTrade.getSymbol(),
             closedTrade.getAmount(),
             closedTrade.getProfit(),
@@ -100,6 +105,7 @@ public class TelegramEventPublisher implements EventSubscriber {
         var message = String.format(TRADE_WAS_NOT_CLOSED_EVENT_FORMAT,
             openedTrade.getId(),
             openedTrade.getStrategyExecutionId(),
+            openedTrade.getEntryOrder().getExecutionType(),
             openedTrade.getSymbol(),
             openedTrade.getAmount(),
             reason);

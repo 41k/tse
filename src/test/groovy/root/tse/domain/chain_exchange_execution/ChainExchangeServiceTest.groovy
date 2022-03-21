@@ -25,8 +25,9 @@ class ChainExchangeServiceTest extends Specification {
             chainExchangeService.tryToFormExpectedChainExchange(CHAIN_EXCHANGE_EXECUTION_CONTEXT).get()
 
         then:
+        1 * exchangeGateway.getOrderFeePercent() >> ORDER_FEE_PERCENT
         1 * exchangeGateway.getCurrentPrices(CHAIN_SYMBOLS) >> Optional.of(CHAIN_PRICES)
-        1 * initialOrderAmountCalculator.tryToCalculate(CHAIN_EXCHANGE_EXECUTION_CONTEXT, CHAIN_PRICES) >> Optional.of(CHAIN_ORDER_1_AMOUNT)
+        1 * initialOrderAmountCalculator.tryToCalculate(CHAIN_EXCHANGE_EXECUTION_CONTEXT, CHAIN_PRICES, ORDER_FEE_PERCENT) >> Optional.of(CHAIN_ORDER_1_AMOUNT)
         1 * idGenerator.generateId() >> CHAIN_EXCHANGE_ID
         1 * clock.millis() >> CHAIN_EXCHANGE_EXECUTION_TIMESTAMP
         0 * _
@@ -37,6 +38,7 @@ class ChainExchangeServiceTest extends Specification {
 
     def 'should return empty optional if current prices retrieval failed'() {
         given:
+        1 * exchangeGateway.getOrderFeePercent() >> ORDER_FEE_PERCENT
         1 * exchangeGateway.getCurrentPrices(CHAIN_SYMBOLS) >> Optional.empty()
         0 * _
 
@@ -46,8 +48,9 @@ class ChainExchangeServiceTest extends Specification {
 
     def 'should return empty optional if initial order amount calculation failed'() {
         given:
+        1 * exchangeGateway.getOrderFeePercent() >> ORDER_FEE_PERCENT
         1 * exchangeGateway.getCurrentPrices(CHAIN_SYMBOLS) >> Optional.of(CHAIN_PRICES)
-        1 * initialOrderAmountCalculator.tryToCalculate(CHAIN_EXCHANGE_EXECUTION_CONTEXT, CHAIN_PRICES) >> Optional.empty()
+        1 * initialOrderAmountCalculator.tryToCalculate(CHAIN_EXCHANGE_EXECUTION_CONTEXT, CHAIN_PRICES, ORDER_FEE_PERCENT) >> Optional.empty()
         0 * _
 
         expect:

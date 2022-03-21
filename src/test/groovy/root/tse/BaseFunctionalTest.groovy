@@ -60,8 +60,11 @@ abstract class BaseFunctionalTest extends Specification {
     }
 
     static class ExchangeGatewayMock implements ExchangeGateway {
+        Double orderFeePercent
         Map<String, Map<OrderType, Double>> currentPrices
         boolean orderExecutionSuccess
+        @Override
+        Double getOrderFeePercent() { orderFeePercent }
         @Override
         Optional<BarSeries> getSeries(String symbol, Interval interval, Integer seriesLength) { Optional.empty() }
         @Override
@@ -70,9 +73,10 @@ abstract class BaseFunctionalTest extends Specification {
         Optional<Order> tryToExecute(Order order) {
             orderExecutionSuccess ?
                 Optional.of(order.toBuilder().price(currentPrices.get(order.symbol).get(order.type)).build()) :
-                Optional.empty()
+                Optional.<Order>empty()
         }
         void reset() {
+            orderFeePercent = null
             currentPrices = null
             orderExecutionSuccess = false
         }

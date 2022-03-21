@@ -7,6 +7,6 @@ export const HOME_ROUTE: Route = {
   component: SignInComponent,
   data: {
     authorities: [],
-    pageTitle: 'login.form.button',
+    pageTitle: 'global.title',
   },
 };

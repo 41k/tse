@@ -16,6 +16,7 @@ class MarketScanningStrategyExecutionFunctionalTest extends BaseStrategyExecutio
 
     def setup() {
         exchangeGatewayMock().reset()
+        exchangeGatewayMock().orderFeePercent = ORDER_FEE_PERCENT
         exchangeGatewayMock().currentPrices = [
             (SYMBOL_1) : [(BUY) : PRICE_1, (SELL) : PRICE_2],
             (SYMBOL_2) : [(BUY) : PRICE_2, (SELL) : PRICE_1]
@@ -28,7 +29,6 @@ class MarketScanningStrategyExecutionFunctionalTest extends BaseStrategyExecutio
             .orderExecutionType(MARKET)
             .symbols(SYMBOLS)
             .fundsPerTrade(FUNDS_PER_TRADE)
-            .orderFeePercent(ORDER_FEE_PERCENT)
             .marketScanningInterval(ENTRY_RULE_CLOCK_SIGNAL_INTERVAL)
             .allowedNumberOfSimultaneouslyOpenedTrades(NUMBER_OF_SIMULTANEOUSLY_OPENED_TRADES)
             .build()

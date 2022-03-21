@@ -1,9 +1,9 @@
 package root.tse.util
 
 import org.apache.commons.math3.util.Precision
-import root.tse.application.model.ChainExchangeExecutionSettings
-import root.tse.application.model.command.StartChainExchangeExecutionCommand
-import root.tse.application.model.command.StopChainExchangeExecutionCommand
+import root.tse.application.chain_exchange_execution.ChainExchangeExecutionSettings
+import root.tse.application.chain_exchange_execution.StartChainExchangeExecutionCommand
+import root.tse.application.chain_exchange_execution.StopChainExchangeExecutionCommand
 import root.tse.configuration.properties.ExchangeGatewayConfigurationProperties.SymbolSettings
 import root.tse.domain.chain_exchange_execution.ChainExchange
 import root.tse.domain.chain_exchange_execution.ChainExchangeExecutionContext
@@ -25,6 +25,9 @@ import static root.tse.domain.order.OrderType.SELL
 import static root.tse.domain.strategy_execution.trade.TradeType.LONG
 
 class TestUtils {
+
+    public static final ENTRY_RULE_ID = 'entry-rule-1'
+    public static final EXIT_RULE_ID = 'exit-rule-1'
 
     public static final TRADE_ID = '34598437'
     public static final STRATEGY_EXECUTION_ID = '3545de05'
@@ -57,8 +60,8 @@ class TestUtils {
         .amount(AMOUNT_2).price(PRICE_2).timestamp(TIMESTAMP_2).build()
 
     public static final TRADE_OPENING_CONTEXT = TradeOpeningContext.builder()
-        .strategyExecutionId(STRATEGY_EXECUTION_ID).orderExecutionType(ORDER_EXECUTION_TYPE).tradeType(LONG)
-        .orderFeePercent(ORDER_FEE_PERCENT).clockSignal(CLOCK_SIGNAL_1).symbol(SYMBOL_1).fundsPerTrade(FUNDS_PER_TRADE).build()
+        .strategyExecutionId(STRATEGY_EXECUTION_ID).orderExecutionType(ORDER_EXECUTION_TYPE)
+        .tradeType(LONG).clockSignal(CLOCK_SIGNAL_1).symbol(SYMBOL_1).fundsPerTrade(FUNDS_PER_TRADE).build()
 
     public static final OPENED_TRADE = Trade.builder()
         .id(TRADE_ID).strategyExecutionId(STRATEGY_EXECUTION_ID).type(LONG)
@@ -122,12 +125,11 @@ class TestUtils {
     public static final N_AMOUNT_SELECTION_STEPS = 20
     public static final CHAIN_EXCHANGE_EXECUTION_SETTINGS = ChainExchangeExecutionSettings.builder()
         .assetChains(ASSET_CHAINS).assetCodeDelimiter(ASSET_CODE_DELIMITER).symbolToPrecisionMap(SYMBOL_TO_PRECISION_MAP)
-        .orderFeePercent(ORDER_FEE_PERCENT).nAmountSelectionSteps(N_AMOUNT_SELECTION_STEPS).build()
+        .nAmountSelectionSteps(N_AMOUNT_SELECTION_STEPS).build()
     public static final CHAIN_EXCHANGE_EXECUTION_CONTEXT = ChainExchangeExecutionContext.builder()
         .assetChain(ASSET_CHAIN).assetCodeDelimiter(ASSET_CODE_DELIMITER).amount(CHAIN_EXCHANGE_AMOUNT)
-        .symbolToPrecisionMap(SYMBOL_TO_PRECISION_MAP).orderFeePercent(ORDER_FEE_PERCENT)
-        .minProfitThreshold(MIN_PROFIT_THRESHOLD).orderExecutionType(ORDER_EXECUTION_TYPE)
-        .nAmountSelectionSteps(N_AMOUNT_SELECTION_STEPS).build()
+        .symbolToPrecisionMap(SYMBOL_TO_PRECISION_MAP).minProfitThreshold(MIN_PROFIT_THRESHOLD)
+        .orderExecutionType(ORDER_EXECUTION_TYPE).nAmountSelectionSteps(N_AMOUNT_SELECTION_STEPS).build()
     public static final CHAIN_ORDER_1 = Order.builder().type(BUY).executionType(ORDER_EXECUTION_TYPE)
         .symbol(CHAIN_SYMBOL_1).amount(CHAIN_ORDER_1_AMOUNT).price(CHAIN_SYMBOL_1_BUY_PRICE).build()
     public static final CHAIN_ORDER_2 = Order.builder().type(SELL).executionType(ORDER_EXECUTION_TYPE)

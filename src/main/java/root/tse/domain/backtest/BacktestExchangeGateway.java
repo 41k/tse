@@ -22,6 +22,11 @@ public class BacktestExchangeGateway implements ExchangeGateway {
     private Long currentTimestamp;
 
     @Override
+    public Double getOrderFeePercent() {
+        return backtestProperties.getOrderFeePercent();
+    }
+
+    @Override
     public Optional<BarSeries> getSeries(String symbol, Interval interval, Integer seriesLength) {
         var dataSetName = backtestProperties.getDataSetName();
         var series = dataSetService.getSeries(dataSetName, symbol, interval, currentTimestamp, seriesLength);

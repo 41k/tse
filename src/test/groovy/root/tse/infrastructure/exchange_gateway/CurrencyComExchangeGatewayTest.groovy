@@ -17,6 +17,7 @@ import static org.springframework.http.MediaType.APPLICATION_FORM_URLENCODED
 import static root.tse.configuration.ExchangeGatewayConfiguration.buildRetryTemplate
 import static root.tse.domain.order.OrderType.BUY
 import static root.tse.domain.order.OrderType.SELL
+import static root.tse.util.TestUtils.ORDER_FEE_PERCENT
 
 class CurrencyComExchangeGatewayTest extends Specification {
 
@@ -31,7 +32,7 @@ class CurrencyComExchangeGatewayTest extends Specification {
     private static final RETRY_ATTEMPTS_NUMBER = 3
     private static final RETRY_BACKOFF_IN_MILLISECONDS = 50
     private static final CONFIGURATION_PROPERTIES = ExchangeGatewayConfigurationProperties.builder()
-        .apiKey(API_KEY).secretKey(SECRET_KEY).seriesUri(SERIES_URI).orderUri(ORDER_URI)
+        .apiKey(API_KEY).secretKey(SECRET_KEY).seriesUri(SERIES_URI).orderUri(ORDER_URI).orderFeePercent(ORDER_FEE_PERCENT)
         .intervalToRepresentationMap(INTERVAL_TO_REPRESENTATION_MAP).retryAttemptsNumber(RETRY_ATTEMPTS_NUMBER)
         .retryBackoffInMilliseconds(RETRY_BACKOFF_IN_MILLISECONDS).build()
 
@@ -111,6 +112,12 @@ class CurrencyComExchangeGatewayTest extends Specification {
         exchangeGateway = new CurrencyComExchangeGateway(
             CONFIGURATION_PROPERTIES, currentPriceProviderFactory,
             retryTemplate, rateLimiter, restTemplate, objectMapper, clock)
+    }
+
+
+    def 'should provide order fee percent'() {
+        expect:
+        exchangeGateway.getOrderFeePercent() == ORDER_FEE_PERCENT
     }
 
 

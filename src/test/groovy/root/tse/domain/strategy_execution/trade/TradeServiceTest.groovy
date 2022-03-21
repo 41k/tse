@@ -32,6 +32,7 @@ class TradeServiceTest extends Specification {
 
         and: 'create and save opened trade'
         1 * idGenerator.generateId() >> TRADE_ID
+        1 * exchangeGateway.getOrderFeePercent() >> ORDER_FEE_PERCENT
         1 * tradeRepository.save(_) >> { assertOpenedTrade(it[0] as Trade) }
 
         and: 'no other actions'

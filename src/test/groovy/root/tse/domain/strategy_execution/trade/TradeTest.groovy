@@ -19,12 +19,14 @@ class TradeTest extends Specification {
     }
 
     @Unroll
-    def 'should provide correct exit order type'() {
+    def 'should form exit order'() {
         given:
         def trade = tradeBuilder().type(tradeType).build()
 
         expect:
-        trade.getExitOrderType() == exitOrderType
+        trade.formExitOrder(TIMESTAMP_2) ==
+            Order.builder().type(exitOrderType).executionType(ORDER_EXECUTION_TYPE)
+                .symbol(SYMBOL_1).amount(AMOUNT_1).timestamp(TIMESTAMP_2).build()
 
         where:
         tradeType       || exitOrderType
@@ -76,7 +78,6 @@ class TradeTest extends Specification {
 
     private Trade.TradeBuilder tradeBuilder() {
         Trade.builder().id(TRADE_ID).strategyExecutionId(STRATEGY_EXECUTION_ID)
-            .type(TradeType.LONG).orderFeePercent(ORDER_FEE_PERCENT)
-            .entryOrder(Order.builder().symbol(SYMBOL_1).amount(AMOUNT_1).build())
+            .type(TradeType.LONG).orderFeePercent(ORDER_FEE_PERCENT).entryOrder(ENTRY_ORDER)
     }
 }

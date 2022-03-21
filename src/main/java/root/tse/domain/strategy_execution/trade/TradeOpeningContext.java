@@ -15,5 +15,4 @@ public class TradeOpeningContext {
     ClockSignal clockSignal;
     String symbol;
     Double fundsPerTrade;
-    Double orderFeePercent;
 }

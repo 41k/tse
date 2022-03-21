@@ -1,4 +1,4 @@
-package root.tse.application.model;
+package root.tse.application.chain_exchange_execution;
 
 import lombok.Builder;
 import lombok.Value;
@@ -15,7 +15,6 @@ public class ChainExchangeExecutionSettings {
     Map<Integer, List<String>> assetChains;
     String assetCodeDelimiter;
     Map<String, Integer> symbolToPrecisionMap;
-    Double orderFeePercent;
     Integer nAmountSelectionSteps;
 
     public List<String> getAssetChain(Integer id) {

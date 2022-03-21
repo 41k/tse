@@ -14,7 +14,6 @@ public class ChainExchangeExecutionContext {
     List<String> assetChain;
     String assetCodeDelimiter;
     Map<String, Integer> symbolToPrecisionMap;
-    Double orderFeePercent;
     Integer nAmountSelectionSteps;
     Double amount;
     Double minProfitThreshold;

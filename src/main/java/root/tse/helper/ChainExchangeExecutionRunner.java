@@ -3,8 +3,8 @@ package root.tse.helper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
-import root.tse.application.ChainExchangeExecutionService;
-import root.tse.application.model.command.StartChainExchangeExecutionCommand;
+import root.tse.application.chain_exchange_execution.ChainExchangeExecutionService;
+import root.tse.application.chain_exchange_execution.StartChainExchangeExecutionCommand;
 import root.tse.configuration.properties.ExchangeGatewayConfigurationProperties;
 import root.tse.domain.order.OrderExecutionType;
 

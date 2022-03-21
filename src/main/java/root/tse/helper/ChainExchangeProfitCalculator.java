@@ -48,7 +48,6 @@ public class ChainExchangeProfitCalculator implements CommandLineRunner {
             .orderExecutionType(OrderExecutionType.STUB)
             .assetCodeDelimiter(exchangeGatewayConfigurationProperties.getAssetCodeDelimiter())
             .symbolToPrecisionMap(exchangeGatewayConfigurationProperties.getSymbolToPrecisionMap())
-            .orderFeePercent(exchangeGatewayConfigurationProperties.getOrderFeePercent())
             .nAmountSelectionSteps(exchangeGatewayConfigurationProperties.getNumberOfAmountSelectionSteps())
             .build();
         var expectedChainExchange = chainExchangeService.tryToFormExpectedChainExchange(context).get();
@@ -59,6 +58,8 @@ public class ChainExchangeProfitCalculator implements CommandLineRunner {
 
     private ExchangeGateway buildExchangeGatewayProvidingPrices(Map<String, Map<OrderType, Double>> prices) {
         return new ExchangeGateway() {
+            @Override
+            public Double getOrderFeePercent() { return exchangeGatewayConfigurationProperties.getOrderFeePercent(); }
             @Override
             public Optional<BarSeries> getSeries(String symbol, Interval interval, Integer seriesLength) { return Optional.empty(); }
             @Override

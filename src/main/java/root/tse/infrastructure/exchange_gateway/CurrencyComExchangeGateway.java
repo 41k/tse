@@ -97,6 +97,11 @@ public class CurrencyComExchangeGateway implements ExchangeGateway {
         startNewCurrentPriceProvider();
     }
 
+    @Override
+    public Double getOrderFeePercent() {
+        return configurationProperties.getOrderFeePercent();
+    }
+
     // Note: the last bar which is returned by the API is incomplete so it is skipped.
     // More details:
     // If call for e.g. bars with ONE_DAY interval is made at 2021-10-11 05:00

@@ -14,9 +14,10 @@ import static root.tse.domain.util.NumberUtil.trimToPrecision;
 @RequiredArgsConstructor
 public class InitialOrderAmountCalculator {
 
-    public Optional<Double> tryToCalculate(ChainExchangeExecutionContext context, Map<String, Map<OrderType, Double>> prices) {
+    public Optional<Double> tryToCalculate(ChainExchangeExecutionContext context,
+                                           Map<String, Map<OrderType, Double>> prices,
+                                           Double orderFeePercent) {
         var exchangeAmount = context.getAmount();
-        var orderFeePercent = context.getOrderFeePercent();
         var nSteps = context.getNAmountSelectionSteps();
         var symbols = context.getSymbols();
         var symbolToPrecisionMap = context.getSymbolToPrecisionMap();

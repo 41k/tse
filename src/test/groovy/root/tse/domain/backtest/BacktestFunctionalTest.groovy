@@ -25,7 +25,6 @@ class BacktestFunctionalTest extends BaseFunctionalTest {
 
     private static final SYMBOL = 'ETH_USD'
     private static final FUNDS_PER_TRADE = 1000d
-    private static final ORDER_FEE_PERCENT = 0.2d
     private static final ENTRY_PRICES = [2550.9d, 2519.52d, 2475.53d, 2466.14d, 2478.96d, 2455.19d, 2450.79d, 2491.35d, 2456.55d]
     private static final EXIT_PRICES = [2558.96d, 2507.19d, 2480.57d, 2491.59d, 2491.21d, 2472.93d, 2502.31d, 2480.57d]
     // Approximate trade's profits:
@@ -64,7 +63,6 @@ class BacktestFunctionalTest extends BaseFunctionalTest {
             .orderExecutionType(OrderExecutionType.STUB)
             .symbols([SYMBOL])
             .fundsPerTrade(FUNDS_PER_TRADE)
-            .orderFeePercent(ORDER_FEE_PERCENT)
             .build()
 
         when:
@@ -74,7 +72,6 @@ class BacktestFunctionalTest extends BaseFunctionalTest {
         backtestReport.strategyExecutionId
         backtestReport.symbols == [SYMBOL]
         backtestReport.fundsPerTrade == FUNDS_PER_TRADE
-        backtestReport.orderFeePercent == ORDER_FEE_PERCENT
 
         and:
         backtestReport.equityCurve == EQUITY_CURVE

@@ -1,16 +1,16 @@
 package root.tse.domain.strategy_execution.report
 
+import root.tse.domain.order.Order
 import root.tse.domain.strategy_execution.StrategyExecution
 import root.tse.domain.strategy_execution.StrategyExecutionContext
-import root.tse.domain.order.Order
 import root.tse.domain.strategy_execution.trade.Trade
 import root.tse.domain.strategy_execution.trade.TradeRepository
 import root.tse.domain.strategy_execution.trade.TradeType
 import spock.lang.Specification
 
-import static root.tse.util.TestUtils.*
 import static root.tse.domain.order.OrderType.BUY
 import static root.tse.domain.order.OrderType.SELL
+import static root.tse.util.TestUtils.*
 
 class ReportBuilderTest extends Specification {
 
@@ -26,8 +26,7 @@ class ReportBuilderTest extends Specification {
         new EquityCurvePoint(TIMESTAMP_4, 0.7757982000001391d)
     ]
 
-    private strategyExecutionContext = StrategyExecutionContext.builder()
-        .symbols(SYMBOLS).fundsPerTrade(FUNDS_PER_TRADE).orderFeePercent(ORDER_FEE_PERCENT).build()
+    private strategyExecutionContext = StrategyExecutionContext.builder().symbols(SYMBOLS).fundsPerTrade(FUNDS_PER_TRADE).build()
 
     private trade1 = tradeBuilder() // profit = 1.926798
         .entryOrder(Order.builder().type(BUY).price(2475.89d).amount(0.1d).build())
@@ -63,7 +62,6 @@ class ReportBuilderTest extends Specification {
         report.strategyExecutionId == STRATEGY_EXECUTION_ID
         report.symbols == SYMBOLS
         report.fundsPerTrade == FUNDS_PER_TRADE
-        report.orderFeePercent == ORDER_FEE_PERCENT
 
         and:
         report.equityCurve == EQUITY_CURVE
