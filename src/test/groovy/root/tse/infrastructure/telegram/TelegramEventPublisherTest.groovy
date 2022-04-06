@@ -2,6 +2,7 @@ package root.tse.infrastructure.telegram
 
 import spock.lang.Specification
 
+import static root.tse.domain.order.OrderType.BUY
 import static root.tse.util.TestUtils.*
 
 class TelegramEventPublisherTest extends Specification {
@@ -101,6 +102,38 @@ class TelegramEventPublisherTest extends Specification {
             "<b>Chain exchange execution <u>FAILED</u></b>----------" +
             "<b>Chain exchange:</b> $CHAIN_EXCHANGE_ID-----" +
             "<b>Asset chain:</b> $ASSET_CHAIN_AS_STRING"
+        )
+        0 * _
+    }
+
+    def 'should publish ORDER WAS EXECUTED event'() {
+        when:
+        telegramEventPublisher.acceptOrderWasExecutedEvent(ORDER_EXECUTION_ID, ENTRY_ORDER)
+
+        then:
+        1 * telegramApiClient.sendMessage(
+            "<b>Order was <u>EXECUTED</u></b>----------" +
+            "<b>Order execution:</b> $ORDER_EXECUTION_ID-----" +
+            "<b>Order type:</b> $BUY-----" +
+            "<b>Order execution type:</b> $ORDER_EXECUTION_TYPE-----" +
+            "<b>Symbol:</b> $SYMBOL_1-----" +
+            "<b>Amount:</b> $AMOUNT_1-----" +
+            "<b>Price:</b> $PRICE_1-----" +
+            "<b>Executed at:</b> 2021-10-03 04:00"
+        )
+        0 * _
+    }
+
+    def 'should publish ORDER EXECUTION FAILED event'() {
+        when:
+        telegramEventPublisher.acceptOrderExecutionFailedEvent(ORDER_EXECUTION_ID, BUY, SYMBOL_1)
+
+        then:
+        1 * telegramApiClient.sendMessage(
+            "<b>Order execution <u>FAILED</u></b>----------" +
+            "<b>Order execution:</b> $ORDER_EXECUTION_ID-----" +
+            "<b>Order type:</b> $BUY-----" +
+            "<b>Symbol:</b> $SYMBOL_1"
         )
         0 * _
     }

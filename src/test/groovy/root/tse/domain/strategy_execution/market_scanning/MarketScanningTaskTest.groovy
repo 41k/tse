@@ -1,7 +1,7 @@
 package root.tse.domain.strategy_execution.market_scanning
 
 import root.tse.domain.strategy_execution.MarketScanningStrategyExecution
-import root.tse.domain.strategy_execution.rule.EntryRule
+import root.tse.domain.rule.EntryRule
 import spock.lang.Specification
 
 import static root.tse.util.TestUtils.*

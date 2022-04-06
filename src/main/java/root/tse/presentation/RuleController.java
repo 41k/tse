@@ -4,8 +4,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import root.tse.application.strategy_execution.rule.RuleDescription;
-import root.tse.application.strategy_execution.rule.RuleService;
+import root.tse.application.rule.RuleDescription;
+import root.tse.application.rule.RuleService;
 
 import java.util.Collection;
 

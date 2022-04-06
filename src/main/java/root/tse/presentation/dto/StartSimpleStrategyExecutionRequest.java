@@ -2,7 +2,7 @@ package root.tse.presentation.dto;
 
 import lombok.Data;
 import org.springframework.validation.annotation.Validated;
-import root.tse.application.strategy_execution.rule.RuleParameter;
+import root.tse.application.rule.RuleParameter;
 import root.tse.domain.order.OrderExecutionType;
 
 import javax.validation.constraints.NotEmpty;

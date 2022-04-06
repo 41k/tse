@@ -3,6 +3,8 @@ package root.tse.domain.event;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import root.tse.domain.chain_exchange_execution.ChainExchange;
+import root.tse.domain.order.Order;
+import root.tse.domain.order.OrderType;
 import root.tse.domain.strategy_execution.trade.Trade;
 
 import java.util.List;
@@ -20,6 +22,9 @@ public class EventBus {
     private static final String CHAIN_EXCHANGE_DESCRIPTION = "Chain exchange [{}] with asset chain [{}]";
     private static final String CHAIN_EXCHANGE_WAS_EXECUTED = LOG_MSG_PREFIX + CHAIN_EXCHANGE_DESCRIPTION + " was executed with profit [{}]";
     private static final String CHAIN_EXCHANGE_EXECUTION_FAILED = LOG_MSG_PREFIX + CHAIN_EXCHANGE_DESCRIPTION + " execution failed";
+    private static final String ORDER_DESCRIPTION = "Order [{}]: {} {}";
+    private static final String ORDER_WAS_EXECUTED = LOG_MSG_PREFIX + ORDER_DESCRIPTION + " was executed successfully";
+    private static final String ORDER_EXECUTION_FAILED = LOG_MSG_PREFIX + ORDER_DESCRIPTION + " execution failed";
     private static final String ACCEPTANCE_FAILURE = LOG_MSG_PREFIX + "subscriber [{}] failed to accept [{}] event";
 
     private final List<EventSubscriber> subscribers;
@@ -86,6 +91,28 @@ public class EventBus {
                 subscriber.acceptChainExchangeExecutionFailedEvent(chainExchangeId, assetChain);
             } catch (Exception e) {
                 log.error(ACCEPTANCE_FAILURE, subscriber.getClass().getSimpleName(), "chain exchange execution failed", e);
+            }
+        });
+    }
+
+    public void publishOrderWasExecutedEvent(String orderExecutionId, Order order) {
+        log.info(ORDER_WAS_EXECUTED, orderExecutionId, order.getType(), order.getSymbol());
+        subscribers.forEach(subscriber -> {
+            try {
+                subscriber.acceptOrderWasExecutedEvent(orderExecutionId, order);
+            } catch (Exception e) {
+                log.error(ACCEPTANCE_FAILURE, subscriber.getClass().getSimpleName(), "order was executed", e);
+            }
+        });
+    }
+
+    public void publishOrderExecutionFailedEvent(String orderExecutionId, OrderType orderType, String symbol) {
+        log.error(ORDER_EXECUTION_FAILED, orderExecutionId, orderType, symbol);
+        subscribers.forEach(subscriber -> {
+            try {
+                subscriber.acceptOrderExecutionFailedEvent(orderExecutionId, orderType, symbol);
+            } catch (Exception e) {
+                log.error(ACCEPTANCE_FAILURE, subscriber.getClass().getSimpleName(), "order execution failed", e);
             }
         });
     }

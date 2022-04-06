@@ -10,8 +10,6 @@ import root.tse.domain.strategy_execution.trade.Trade;
 import root.tse.domain.strategy_execution.trade.TradeOpeningContext;
 import root.tse.domain.strategy_execution.trade.TradeService;
 
-import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 import static org.apache.commons.lang3.StringUtils.EMPTY;
@@ -31,14 +29,12 @@ public class SimpleStrategyExecution implements StrategyExecution {
 
     @Override
     public void start() {
-        var clockSignalIntervals = getClockSignalIntervals();
-        clockSignalDispatcher.subscribe(clockSignalIntervals, this);
+        clockSignalDispatcher.subscribe(clockSignalIntervals(), this);
     }
 
     @Override
     public void stop() {
-        var clockSignalIntervals = getClockSignalIntervals();
-        clockSignalDispatcher.unsubscribe(clockSignalIntervals, this);
+        clockSignalDispatcher.unsubscribe(clockSignalIntervals(), this);
     }
 
     @Override
@@ -86,10 +82,10 @@ public class SimpleStrategyExecution implements StrategyExecution {
         }
     }
 
-    private Set<Interval> getClockSignalIntervals() {
-        return new HashSet<>(List.of(
+    private Set<Interval> clockSignalIntervals() {
+        return Set.of(
             context.getEntryRule().getCheckInterval(),
             context.getExitRule().getCheckInterval()
-        ));
+        );
     }
 }

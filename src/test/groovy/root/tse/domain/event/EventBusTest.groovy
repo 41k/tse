@@ -2,6 +2,7 @@ package root.tse.domain.event
 
 import spock.lang.Specification
 
+import static root.tse.domain.order.OrderType.BUY
 import static root.tse.util.TestUtils.*
 
 class EventBusTest extends Specification {
@@ -130,6 +131,48 @@ class EventBusTest extends Specification {
         then:
         1 * eventSubscriber1.acceptChainExchangeExecutionFailedEvent(CHAIN_EXCHANGE_ID, ASSET_CHAIN_AS_STRING)
         1 * eventSubscriber2.acceptChainExchangeExecutionFailedEvent(CHAIN_EXCHANGE_ID, ASSET_CHAIN_AS_STRING) >> { throw new RuntimeException() }
+        0 * _
+
+        and:
+        noExceptionThrown()
+    }
+
+    def 'should dispatch ORDER WAS EXECUTED event'() {
+        when:
+        eventBus.publishOrderWasExecutedEvent(ORDER_EXECUTION_ID, ENTRY_ORDER)
+
+        then:
+        1 * eventSubscriber1.acceptOrderWasExecutedEvent(ORDER_EXECUTION_ID, ENTRY_ORDER)
+        1 * eventSubscriber2.acceptOrderWasExecutedEvent(ORDER_EXECUTION_ID, ENTRY_ORDER)
+        0 * _
+
+        when:
+        eventBus.publishOrderWasExecutedEvent(ORDER_EXECUTION_ID, ENTRY_ORDER)
+
+        then:
+        1 * eventSubscriber1.acceptOrderWasExecutedEvent(ORDER_EXECUTION_ID, ENTRY_ORDER)
+        1 * eventSubscriber2.acceptOrderWasExecutedEvent(ORDER_EXECUTION_ID, ENTRY_ORDER) >> { throw new RuntimeException() }
+        0 * _
+
+        and:
+        noExceptionThrown()
+    }
+
+    def 'should dispatch ORDER EXECUTION FAILED event'() {
+        when:
+        eventBus.publishOrderExecutionFailedEvent(ORDER_EXECUTION_ID, BUY, SYMBOL_1)
+
+        then:
+        1 * eventSubscriber1.acceptOrderExecutionFailedEvent(ORDER_EXECUTION_ID, BUY, SYMBOL_1)
+        1 * eventSubscriber2.acceptOrderExecutionFailedEvent(ORDER_EXECUTION_ID, BUY, SYMBOL_1)
+        0 * _
+
+        when:
+        eventBus.publishOrderExecutionFailedEvent(ORDER_EXECUTION_ID, BUY, SYMBOL_1)
+
+        then:
+        1 * eventSubscriber1.acceptOrderExecutionFailedEvent(ORDER_EXECUTION_ID, BUY, SYMBOL_1)
+        1 * eventSubscriber2.acceptOrderExecutionFailedEvent(ORDER_EXECUTION_ID, BUY, SYMBOL_1) >> { throw new RuntimeException() }
         0 * _
 
         and:

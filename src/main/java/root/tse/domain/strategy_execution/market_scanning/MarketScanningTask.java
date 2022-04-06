@@ -3,7 +3,7 @@ package root.tse.domain.strategy_execution.market_scanning;
 import lombok.Builder;
 import lombok.extern.slf4j.Slf4j;
 import root.tse.domain.strategy_execution.MarketScanningStrategyExecution;
-import root.tse.domain.strategy_execution.rule.EntryRule;
+import root.tse.domain.rule.EntryRule;
 
 import java.util.ArrayList;
 import java.util.List;

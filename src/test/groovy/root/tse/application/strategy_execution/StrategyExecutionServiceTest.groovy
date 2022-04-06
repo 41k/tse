@@ -1,7 +1,7 @@
 package root.tse.application.strategy_execution
 
-import root.tse.application.strategy_execution.rule.RuleContext
-import root.tse.application.strategy_execution.rule.RuleService
+import root.tse.application.rule.RuleContext
+import root.tse.application.rule.RuleService
 import root.tse.domain.order.OrderType
 import root.tse.domain.strategy_execution.SimpleStrategyExecution
 import root.tse.domain.strategy_execution.SimpleStrategyExecutionFactory
@@ -9,8 +9,8 @@ import root.tse.domain.strategy_execution.StrategyExecution
 import root.tse.domain.strategy_execution.StrategyExecutionContext
 import root.tse.domain.strategy_execution.report.Report
 import root.tse.domain.strategy_execution.report.ReportBuilder
-import root.tse.domain.strategy_execution.rule.EntryRule
-import root.tse.domain.strategy_execution.rule.ExitRule
+import root.tse.domain.rule.EntryRule
+import root.tse.domain.rule.ExitRule
 import root.tse.domain.strategy_execution.trade.TradeType
 import spock.lang.Specification
 

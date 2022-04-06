@@ -31,6 +31,7 @@ class TestUtils {
 
     public static final TRADE_ID = '34598437'
     public static final STRATEGY_EXECUTION_ID = '3545de05'
+    public static final ORDER_EXECUTION_ID = 'cee03a91'
     public static final ORDER_EXECUTION_TYPE = OrderExecutionType.MARKET
     public static final SYMBOL_1 = 'symbol-1'
     public static final SYMBOL_2 = 'symbol-2'

@@ -6,8 +6,8 @@ import root.tse.domain.clock.ClockSignal;
 import root.tse.domain.clock.ClockSignalDispatcher;
 import root.tse.domain.clock.Interval;
 import root.tse.domain.event.EventBus;
+import root.tse.domain.rule.ExitRule;
 import root.tse.domain.strategy_execution.market_scanning.MarketScanningTask;
-import root.tse.domain.strategy_execution.rule.ExitRule;
 import root.tse.domain.strategy_execution.trade.*;
 
 import java.time.Clock;
@@ -42,21 +42,19 @@ public class MarketScanningStrategyExecution implements StrategyExecution {
 
     @Override
     public void start() {
-        var clockSignalIntervals = Set.of(context.getMarketScanningInterval());
-        clockSignalDispatcher.subscribe(clockSignalIntervals, this);
+        clockSignalDispatcher.subscribe(clockSignalIntervals(), this);
     }
 
     @Override
     public void stop() {
-        var clockSignalIntervals = Set.of(context.getMarketScanningInterval());
-        clockSignalDispatcher.unsubscribe(clockSignalIntervals, this);
+        clockSignalDispatcher.unsubscribe(clockSignalIntervals(), this);
         Optional.ofNullable(marketScanningTask).ifPresent(MarketScanningTask::stop);
         tradeExecutions.values().forEach(TradeExecution::stop);
         tradeExecutions.clear();
     }
 
     @Override
-    public void accept(ClockSignal clockSignal) {
+    public synchronized void accept(ClockSignal clockSignal) {
         if (notValid(clockSignal)) {
             return;
         }
@@ -137,5 +135,9 @@ public class MarketScanningStrategyExecution implements StrategyExecution {
 
     private boolean notValid(ClockSignal clockSignal) {
         return !context.getMarketScanningInterval().equals(clockSignal.getInterval());
+    }
+
+    private Set<Interval> clockSignalIntervals() {
+        return Set.of(context.getMarketScanningInterval());
     }
 }

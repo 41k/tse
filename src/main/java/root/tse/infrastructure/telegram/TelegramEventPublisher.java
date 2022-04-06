@@ -3,6 +3,8 @@ package root.tse.infrastructure.telegram;
 import lombok.RequiredArgsConstructor;
 import root.tse.domain.chain_exchange_execution.ChainExchange;
 import root.tse.domain.event.EventSubscriber;
+import root.tse.domain.order.Order;
+import root.tse.domain.order.OrderType;
 import root.tse.domain.strategy_execution.trade.Trade;
 
 import java.text.Format;
@@ -64,6 +66,22 @@ public class TelegramEventPublisher implements EventSubscriber {
         "<b>Chain exchange:</b> %s" + LINE_BREAK +
         "<b>Asset chain:</b> %s";
 
+    private static final String ORDER_WAS_EXECUTED_EVENT_FORMAT = "" +
+        "<b>Order was <u>EXECUTED</u></b>" + LINE_BREAK + LINE_BREAK +
+        "<b>Order execution:</b> %s" + LINE_BREAK +
+        "<b>Order type:</b> %s" + LINE_BREAK +
+        "<b>Order execution type:</b> %s" + LINE_BREAK +
+        "<b>Symbol:</b> %s" + LINE_BREAK +
+        "<b>Amount:</b> %s" + LINE_BREAK +
+        "<b>Price:</b> %s" + LINE_BREAK +
+        "<b>Executed at:</b> %s";
+
+    private static final String ORDER_EXECUTION_FAILED_EVENT_FORMAT = "" +
+        "<b>Order execution <u>FAILED</u></b>" + LINE_BREAK + LINE_BREAK +
+        "<b>Order execution:</b> %s" + LINE_BREAK +
+        "<b>Order type:</b> %s" + LINE_BREAK +
+        "<b>Symbol:</b> %s";
+
     private final TelegramApiClient telegramApiClient;
 
     @Override
@@ -124,6 +142,25 @@ public class TelegramEventPublisher implements EventSubscriber {
     @Override
     public void acceptChainExchangeExecutionFailedEvent(String chainExchangeId, String assetChain) {
         var message = String.format(CHAIN_EXCHANGE_EXECUTION_FAILED_EVENT_FORMAT, chainExchangeId, assetChain);
+        telegramApiClient.sendMessage(message);
+    }
+
+    @Override
+    public void acceptOrderWasExecutedEvent(String orderExecutionId, Order order) {
+        var message = String.format(ORDER_WAS_EXECUTED_EVENT_FORMAT,
+            orderExecutionId,
+            order.getType(),
+            order.getExecutionType(),
+            order.getSymbol(),
+            order.getAmount(),
+            order.getPrice(),
+            formTimeString(order.getTimestamp()));
+        telegramApiClient.sendMessage(message);
+    }
+
+    @Override
+    public void acceptOrderExecutionFailedEvent(String orderExecutionId, OrderType orderType, String symbol) {
+        var message = String.format(ORDER_EXECUTION_FAILED_EVENT_FORMAT, orderExecutionId, orderType, symbol);
         telegramApiClient.sendMessage(message);
     }
 

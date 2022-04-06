@@ -4,16 +4,15 @@ import lombok.Builder;
 import lombok.Value;
 import root.tse.domain.clock.Interval;
 import root.tse.domain.order.OrderExecutionType;
-import root.tse.domain.strategy_execution.rule.EntryRule;
-import root.tse.domain.strategy_execution.rule.ExitRule;
+import root.tse.domain.rule.EntryRule;
+import root.tse.domain.rule.ExitRule;
 import root.tse.domain.strategy_execution.trade.TradeType;
 
 import java.util.List;
 
-@Builder
 @Value
+@Builder
 public class StrategyExecutionContext {
-
     EntryRule entryRule;
     ExitRule exitRule;
     TradeType tradeType;

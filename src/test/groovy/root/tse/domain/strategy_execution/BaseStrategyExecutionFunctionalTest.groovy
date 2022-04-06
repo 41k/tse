@@ -8,8 +8,8 @@ import root.tse.domain.clock.ClockSignalDispatcher
 import root.tse.domain.clock.Interval
 import root.tse.domain.clock.SequentialClockSignalDispatcher
 import root.tse.domain.order.Order
-import root.tse.domain.strategy_execution.rule.EntryRule
-import root.tse.domain.strategy_execution.rule.ExitRule
+import root.tse.domain.rule.EntryRule
+import root.tse.domain.rule.ExitRule
 
 import java.time.Clock
 import java.time.Instant

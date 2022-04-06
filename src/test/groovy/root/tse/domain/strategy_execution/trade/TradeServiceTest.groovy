@@ -127,6 +127,7 @@ class TradeServiceTest extends Specification {
 
     private assertEntryOrderBeforeExecution(Order entryOrder) {
         assert entryOrder.type == BUY
+        assert entryOrder.executionType == ORDER_EXECUTION_TYPE
         assert entryOrder.symbol == SYMBOL_1
         assert entryOrder.amount == AMOUNT_1
         assert !entryOrder.price
@@ -138,6 +139,7 @@ class TradeServiceTest extends Specification {
         assert openedTrade.strategyExecutionId == STRATEGY_EXECUTION_ID
         assert openedTrade.type == LONG
         assert openedTrade.entryOrder.type == BUY
+        assert openedTrade.entryOrder.executionType == ORDER_EXECUTION_TYPE
         assert openedTrade.entryOrder.symbol == SYMBOL_1
         assert openedTrade.entryOrder.amount == AMOUNT_1
         assert openedTrade.entryOrder.price == PRICE_1
@@ -148,6 +150,7 @@ class TradeServiceTest extends Specification {
 
     private assertExitOrderBeforeExecution(Order exitOrder) {
         assert exitOrder.type == SELL
+        assert exitOrder.executionType == ORDER_EXECUTION_TYPE
         assert exitOrder.symbol == SYMBOL_1
         assert exitOrder.amount == AMOUNT_1
         assert !exitOrder.price
@@ -160,6 +163,7 @@ class TradeServiceTest extends Specification {
         assert closedTrade.type == LONG
         assert closedTrade.entryOrder == ENTRY_ORDER
         assert closedTrade.exitOrder.type == SELL
+        assert closedTrade.exitOrder.executionType == ORDER_EXECUTION_TYPE
         assert closedTrade.exitOrder.symbol == SYMBOL_1
         assert closedTrade.exitOrder.amount == AMOUNT_1
         assert closedTrade.exitOrder.price == PRICE_2

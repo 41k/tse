@@ -10,7 +10,7 @@ import static root.tse.util.TestUtils.STRATEGY_EXECUTION_ID
 
 class SimpleStrategyExecutionFactoryTest extends Specification {
 
-    private strategyExecutionContext = StrategyExecutionContext.builder().symbols(['SYMBOL-000']).build()
+    private strategyExecutionContext = StrategyExecutionContext.builder().build()
     private idGenerator = Mock(IdGenerator)
     private clockSignalDispatcher = Mock(ClockSignalDispatcher)
     private tradeService = Mock(TradeService)

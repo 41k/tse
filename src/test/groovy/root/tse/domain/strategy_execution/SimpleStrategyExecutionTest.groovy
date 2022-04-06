@@ -3,8 +3,8 @@ package root.tse.domain.strategy_execution
 import root.tse.domain.clock.ClockSignalDispatcher
 import root.tse.domain.clock.Interval
 import root.tse.domain.event.EventBus
-import root.tse.domain.strategy_execution.rule.EntryRule
-import root.tse.domain.strategy_execution.rule.ExitRule
+import root.tse.domain.rule.EntryRule
+import root.tse.domain.rule.ExitRule
 import root.tse.domain.strategy_execution.trade.TradeService
 import spock.lang.Specification
 
@@ -33,6 +33,11 @@ class SimpleStrategyExecutionTest extends Specification {
     def 'should provide id'() {
         expect:
         strategyExecution.getId() == STRATEGY_EXECUTION_ID
+    }
+
+    def 'should provide context'() {
+        expect:
+        strategyExecution.getContext() == strategyExecutionContext
     }
 
     def 'should be started correctly'() {

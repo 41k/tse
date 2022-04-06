@@ -10,8 +10,8 @@ import root.tse.domain.order.Order
 import root.tse.domain.order.OrderExecutionType
 import root.tse.domain.strategy_execution.StrategyExecutionContext
 import root.tse.domain.strategy_execution.report.EquityCurvePoint
-import root.tse.domain.strategy_execution.rule.EntryRule
-import root.tse.domain.strategy_execution.rule.ExitRule
+import root.tse.domain.rule.EntryRule
+import root.tse.domain.rule.ExitRule
 import root.tse.domain.strategy_execution.trade.TradeType
 
 import static root.tse.util.TestUtils.equalsWithPrecision
