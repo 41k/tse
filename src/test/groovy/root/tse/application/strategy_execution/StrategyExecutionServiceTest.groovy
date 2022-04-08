@@ -3,14 +3,14 @@ package root.tse.application.strategy_execution
 import root.tse.application.rule.RuleContext
 import root.tse.application.rule.RuleService
 import root.tse.domain.order.OrderType
+import root.tse.domain.rule.EntryRule
+import root.tse.domain.rule.ExitRule
 import root.tse.domain.strategy_execution.SimpleStrategyExecution
 import root.tse.domain.strategy_execution.SimpleStrategyExecutionFactory
 import root.tse.domain.strategy_execution.StrategyExecution
 import root.tse.domain.strategy_execution.StrategyExecutionContext
 import root.tse.domain.strategy_execution.report.Report
 import root.tse.domain.strategy_execution.report.ReportBuilder
-import root.tse.domain.rule.EntryRule
-import root.tse.domain.rule.ExitRule
 import root.tse.domain.strategy_execution.trade.TradeType
 import spock.lang.Specification
 
@@ -83,11 +83,11 @@ class StrategyExecutionServiceTest extends Specification {
         when:
         strategyExecutionService.handle(command)
 
-        then:
+        then: 'strategy execution was stopped'
         1 * simpleStrategyExecution.stop()
         0 * _
 
-        and:'strategy execution was stopped'
+        and: 'strategy execution was removed from store'
         !strategyExecutionsStore.get(STRATEGY_EXECUTION_ID)
     }
 
@@ -138,7 +138,7 @@ class StrategyExecutionServiceTest extends Specification {
         exception.message == 'Invalid strategy execution id'
     }
 
-    def 'should provide strategy execution'() {
+    def 'should provide strategy executions'() {
         given:
         def strategyExecution1 = Mock(StrategyExecution)
         def strategyExecution2 = Mock(StrategyExecution)

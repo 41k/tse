@@ -50,6 +50,14 @@ const LAYOUT_ROUTES = [navbarRoute, ...errorRoute];
           path: 'backtest-report',
           loadChildren: () => import('./tse/component/backtest-report/backtest-report.module').then(m => m.BacktestReportModule),
         },
+        {
+          path: 'order-executions',
+          loadChildren: () => import('./tse/component/order-executions/order-executions.module').then(m => m.OrderExecutionsModule),
+        },
+        {
+          path: 'new-order-execution',
+          loadChildren: () => import('./tse/component/new-order-execution/new-order-execution.module').then(m => m.NewOrderExecutionModule),
+        },
         ...LAYOUT_ROUTES,
       ],
       { enableTracing: DEBUG_INFO_ENABLED }

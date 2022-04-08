@@ -1,11 +1,8 @@
 package root.tse.configuration;
 
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.annotation.EnableScheduling;
-import root.tse.application.rule.EntryRuleBuilder;
-import root.tse.application.rule.ExitRuleBuilder;
 import root.tse.application.rule.RuleService;
 import root.tse.application.strategy_execution.StrategyExecutionService;
 import root.tse.domain.ExchangeGateway;
@@ -42,14 +39,6 @@ public class StrategyExecutionConfiguration {
     ) {
         return new StrategyExecutionService(
             ruleService, simpleStrategyExecutionFactory, strategyExecutionsStore, reportBuilder);
-    }
-
-    @Bean
-    public RuleService ruleService(
-        @Qualifier("entryRuleBuilders") Map<String, EntryRuleBuilder> entryRuleBuilders,
-        @Qualifier("exitRuleBuilders") Map<String, ExitRuleBuilder> exitRuleBuilders
-    ) {
-        return new RuleService(entryRuleBuilders, exitRuleBuilders);
     }
 
     @Bean

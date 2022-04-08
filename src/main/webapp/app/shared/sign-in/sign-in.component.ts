@@ -29,7 +29,7 @@ export class SignInComponent {
           if (account) {
             const authorities = account.authorities;
             if (authorities.includes('ROLE_USER')) {
-              this.router.navigate(['strategy-executions']);
+              this.router.navigate(['order-executions']);
             }
             if (authorities.includes('ROLE_ADMIN')) {
               this.router.navigate(['admin/metrics']);

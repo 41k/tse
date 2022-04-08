@@ -9,9 +9,9 @@ import root.tse.domain.rule.EntryRule;
 @Value
 @Builder
 public class OrderExecutionContext {
-    EntryRule rule;
-    OrderType orderType;
     OrderExecutionType orderExecutionType;
+    OrderType orderType;
     String symbol;
     Double amount;
+    EntryRule rule;
 }

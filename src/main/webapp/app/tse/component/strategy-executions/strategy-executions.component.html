@@ -10,7 +10,10 @@
     <div class="col-sm-12 col-lg-4" *ngFor="let strategyExecution of strategyExecutions">
         <div class="card bg-light mb-4 custom-card">
             <div class="card-body">
-                <h4 align="center">{{strategyExecution.id}}</h4>
+                <h4>
+                    <fa-icon icon="angle-double-right" [fixedWidth]="true"></fa-icon>
+                    {{strategyExecution.id}}
+                </h4>
                 <table class="table table-hover mt-3">
                     <tbody>
                         <tr>

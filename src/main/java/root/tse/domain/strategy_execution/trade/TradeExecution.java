@@ -4,8 +4,8 @@ import lombok.Builder;
 import root.tse.domain.clock.ClockSignal;
 import root.tse.domain.clock.ClockSignalConsumer;
 import root.tse.domain.clock.ClockSignalDispatcher;
-import root.tse.domain.strategy_execution.MarketScanningStrategyExecution;
 import root.tse.domain.rule.ExitRule;
+import root.tse.domain.strategy_execution.MarketScanningStrategyExecution;
 
 import java.util.Set;
 
@@ -23,8 +23,8 @@ public class TradeExecution implements ClockSignalConsumer {
     }
 
     public void start() {
-        var clockSignalIntervals = Set.of(exitRule.getCheckInterval());
-        clockSignalDispatcher.subscribe(clockSignalIntervals, this);
+        var clockSignalInterval = Set.of(exitRule.getCheckInterval());
+        clockSignalDispatcher.subscribe(clockSignalInterval, this);
     }
 
     public void stop() {

@@ -10,6 +10,7 @@ import root.tse.domain.strategy_execution.trade.Trade;
 import root.tse.domain.strategy_execution.trade.TradeOpeningContext;
 import root.tse.domain.strategy_execution.trade.TradeService;
 
+import java.util.HashSet;
 import java.util.Set;
 
 import static org.apache.commons.lang3.StringUtils.EMPTY;
@@ -83,9 +84,9 @@ public class SimpleStrategyExecution implements StrategyExecution {
     }
 
     private Set<Interval> clockSignalIntervals() {
-        return Set.of(
-            context.getEntryRule().getCheckInterval(),
-            context.getExitRule().getCheckInterval()
-        );
+        return new HashSet<>() {{
+            add(context.getEntryRule().getCheckInterval());
+            add(context.getExitRule().getCheckInterval());
+        }};
     }
 }

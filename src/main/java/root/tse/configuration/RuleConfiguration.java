@@ -1,9 +1,11 @@
 package root.tse.configuration;
 
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import root.tse.application.rule.EntryRuleBuilder;
 import root.tse.application.rule.ExitRuleBuilder;
+import root.tse.application.rule.RuleService;
 import root.tse.application.rule.entry.ImmediatelySatisfiedOnlyOnce_EntryRuleBuilder;
 import root.tse.application.rule.entry.PriceIs_EntryRuleBuilder;
 import root.tse.application.rule.exit.PriceIs_ExitRuleBuilder;
@@ -17,6 +19,14 @@ import java.util.stream.Collectors;
 
 @Configuration
 public class RuleConfiguration {
+
+    @Bean
+    public RuleService ruleService(
+        @Qualifier("entryRuleBuilders") Map<String, EntryRuleBuilder> entryRuleBuilders,
+        @Qualifier("exitRuleBuilders") Map<String, ExitRuleBuilder> exitRuleBuilders
+    ) {
+        return new RuleService(entryRuleBuilders, exitRuleBuilders);
+    }
 
     @Bean
     public Map<String, EntryRuleBuilder> entryRuleBuilders(List<EntryRuleBuilder> ruleBuilders) {
