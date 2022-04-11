@@ -5,6 +5,8 @@ import root.tse.domain.order.Order;
 import root.tse.domain.order.OrderType;
 import root.tse.domain.strategy_execution.trade.Trade;
 
+import java.util.List;
+
 public interface EventSubscriber {
 
     void acceptTradeWasOpenedEvent(Trade openedTrade);
@@ -15,9 +17,9 @@ public interface EventSubscriber {
 
     void acceptTradeWasNotClosedEvent(Trade openedTrade, String reason);
 
-    void acceptChainExchangeWasExecutedEvent(ChainExchange chainExchange);
+    void acceptChainExchangeWasExecutedEvent(ChainExchange chainExchange, List<String> assetChain);
 
-    void acceptChainExchangeExecutionFailedEvent(String chainExchangeId, String assetChain);
+    void acceptChainExchangeExecutionFailedEvent(String chainExchangeId, List<String> assetChain);
 
     void acceptOrderWasExecutedEvent(String orderExecutionId, Order order);
 

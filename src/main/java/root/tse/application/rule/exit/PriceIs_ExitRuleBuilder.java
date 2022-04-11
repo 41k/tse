@@ -26,14 +26,17 @@ public class PriceIs_ExitRuleBuilder implements ExitRuleBuilder {
         return RuleDescription.builder()
             .id("6c21d09c3499")
             .name("Price is")
-            .parameters(List.of(COMPARISON_OPERATOR, TARGET_PRICE))
+            .parameters(List.of(
+                COMPARISON_OPERATOR.getName(),
+                TARGET_PRICE.getName()
+            ))
             .build();
     }
 
     @Override
     public ExitRule build(RuleContext context) {
-        var comparisonOperator = context.getParameterValue(COMPARISON_OPERATOR, String::valueOf);
-        var targetPrice = context.getParameterValue(TARGET_PRICE, Double::valueOf);
+        var comparisonOperator = context.getParameterValue(COMPARISON_OPERATOR);
+        var targetPrice = context.getParameterValue(TARGET_PRICE);
         var comparison = new Comparison(comparisonOperator, targetPrice);
         return new ExitRule() {
             @Override

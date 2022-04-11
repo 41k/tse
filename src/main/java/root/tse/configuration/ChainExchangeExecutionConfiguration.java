@@ -15,7 +15,8 @@ import root.tse.infrastructure.persistence.chain_exchange.ChainExchangeRepositor
 import root.tse.infrastructure.persistence.chain_exchange.ChainExchangeToDbEntryMapper;
 
 import java.time.Clock;
-import java.util.HashMap;
+import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 @Configuration
@@ -40,7 +41,7 @@ public class ChainExchangeExecutionConfiguration {
 
     @Bean
     public Map<Integer, ChainExchangeExecution> chainExchangeExecutionStore() {
-        return new HashMap<>();
+        return Collections.synchronizedMap(new LinkedHashMap<>());
     }
 
     @Bean

@@ -27,14 +27,17 @@ public class ProfitOrLossValueIs_ExitRuleBuilder implements ExitRuleBuilder {
         return RuleDescription.builder()
             .id("39d7d3b5788b")
             .name("Profit or loss value is")
-            .parameters(List.of(PROFIT_VALUE, LOSS_VALUE))
+            .parameters(List.of(
+                PROFIT_VALUE.getName(),
+                LOSS_VALUE.getName()
+            ))
             .build();
     }
 
     @Override
     public ExitRule build(RuleContext context) {
-        var acceptableProfit = context.getParameterValue(PROFIT_VALUE, Double::valueOf);
-        var acceptableLoss = context.getParameterValue(LOSS_VALUE, Double::valueOf);
+        var acceptableProfit = context.getParameterValue(PROFIT_VALUE);
+        var acceptableLoss = context.getParameterValue(LOSS_VALUE);
         if (acceptableProfit < 0 && acceptableLoss < 0) {
             throw new IllegalArgumentException("Profit and loss values should be positive");
         }

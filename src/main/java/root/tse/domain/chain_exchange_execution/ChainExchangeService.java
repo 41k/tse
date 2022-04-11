@@ -62,7 +62,7 @@ public class ChainExchangeService {
                         var profit = calculateProfit(order1, order3, orderFeePercent);
                         return ChainExchange.builder()
                             .id(idGenerator.generateId())
-                            .assetChain(context.getAssetChainAsString())
+                            .assetChainId(context.getAssetChainId())
                             .orderFeePercent(orderFeePercent)
                             .order1(order1)
                             .order2(order2)

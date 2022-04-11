@@ -19,6 +19,6 @@ public class ChainExchangeExecutionSettings {
 
     public List<String> getAssetChain(Integer id) {
         return Optional.ofNullable(assetChains.get(id)).orElseThrow(() ->
-            new NoSuchElementException(String.format(">>> asset chain with id [%s] is not configured", id)));
+            new IllegalArgumentException(String.format("Asset chain with id [%s] is not configured", id)));
     }
 }

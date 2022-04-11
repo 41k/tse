@@ -11,6 +11,7 @@ import java.util.Map;
 @Builder(toBuilder = true)
 public class ChainExchangeExecutionContext {
 
+    Integer assetChainId;
     List<String> assetChain;
     String assetCodeDelimiter;
     Map<String, Integer> symbolToPrecisionMap;
@@ -18,10 +19,6 @@ public class ChainExchangeExecutionContext {
     Double amount;
     Double minProfitThreshold;
     OrderExecutionType orderExecutionType;
-
-    public String getAssetChainAsString() {
-        return String.join(assetCodeDelimiter, assetChain);
-    }
 
     public List<String> getSymbols() {
         return List.of(

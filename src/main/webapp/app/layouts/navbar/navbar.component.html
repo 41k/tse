@@ -10,16 +10,24 @@
             <li *jhiHasAnyAuthority="'ROLE_USER'" class="nav-item" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">
                 <a class="nav-link" routerLink="order-executions" (click)="collapseNavbar()">
                     <span>
-                        <fa-icon icon="angle-right" [fixedWidth]="true"></fa-icon>
-                        <span>Order executions</span>
+                        <fa-icon icon="comment-dollar" [fixedWidth]="true"></fa-icon>
+                        <span>Order</span>
                     </span>
                 </a>
             </li>
             <li *jhiHasAnyAuthority="'ROLE_USER'" class="nav-item" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">
                 <a class="nav-link" routerLink="strategy-executions" (click)="collapseNavbar()">
                     <span>
-                        <fa-icon icon="angle-double-right" [fixedWidth]="true"></fa-icon>
-                        <span jhiTranslate="global.menu.strategy-executions">Strategy executions</span>
+                        <fa-icon icon="random" [fixedWidth]="true"></fa-icon>
+                        <span>Strategy</span>
+                    </span>
+                </a>
+            </li>
+            <li *jhiHasAnyAuthority="'ROLE_USER'" class="nav-item" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">
+                <a class="nav-link" routerLink="chain-exchange-executions" (click)="collapseNavbar()">
+                    <span>
+                        <fa-icon icon="recycle" [fixedWidth]="true"></fa-icon>
+                        <span>Chain exchange</span>
                     </span>
                 </a>
             </li>

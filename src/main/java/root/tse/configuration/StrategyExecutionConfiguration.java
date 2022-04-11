@@ -21,7 +21,8 @@ import root.tse.infrastructure.persistence.trade.TradeRepositoryImpl;
 import root.tse.infrastructure.persistence.trade.TradeToDbEntryMapper;
 
 import java.time.Clock;
-import java.util.HashMap;
+import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -43,7 +44,7 @@ public class StrategyExecutionConfiguration {
 
     @Bean
     public Map<String, StrategyExecution> strategyExecutionsStore() {
-        return new HashMap<>();
+        return Collections.synchronizedMap(new LinkedHashMap<>());
     }
 
     @Bean

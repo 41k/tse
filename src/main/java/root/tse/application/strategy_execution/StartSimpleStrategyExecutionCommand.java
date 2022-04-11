@@ -2,7 +2,6 @@ package root.tse.application.strategy_execution;
 
 import lombok.Builder;
 import lombok.Value;
-import root.tse.application.rule.RuleParameter;
 import root.tse.domain.order.OrderExecutionType;
 
 import java.util.Map;
@@ -15,6 +14,6 @@ public class StartSimpleStrategyExecutionCommand {
     Double fundsPerTrade;
     String entryRuleId;
     String exitRuleId;
-    Map<RuleParameter, String> entryRuleParameters;
-    Map<RuleParameter, String> exitRuleParameters;
+    Map<String, String> entryRuleParameters;
+    Map<String, String> exitRuleParameters;
 }

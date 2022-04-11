@@ -10,6 +10,7 @@ import root.tse.domain.strategy_execution.trade.Trade;
 import java.text.Format;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.List;
 
 import static root.tse.infrastructure.telegram.TelegramApiClient.LINE_BREAK;
 
@@ -131,16 +132,16 @@ public class TelegramEventPublisher implements EventSubscriber {
     }
 
     @Override
-    public void acceptChainExchangeWasExecutedEvent(ChainExchange chainExchange) {
+    public void acceptChainExchangeWasExecutedEvent(ChainExchange chainExchange, List<String> assetChain) {
         var message = String.format(CHAIN_EXCHANGE_WAS_EXECUTED_EVENT_FORMAT,
             chainExchange.getId(),
-            chainExchange.getAssetChain(),
+            assetChain,
             chainExchange.getProfit());
         telegramApiClient.sendMessage(message);
     }
 
     @Override
-    public void acceptChainExchangeExecutionFailedEvent(String chainExchangeId, String assetChain) {
+    public void acceptChainExchangeExecutionFailedEvent(String chainExchangeId, List<String> assetChain) {
         var message = String.format(CHAIN_EXCHANGE_EXECUTION_FAILED_EVENT_FORMAT, chainExchangeId, assetChain);
         telegramApiClient.sendMessage(message);
     }

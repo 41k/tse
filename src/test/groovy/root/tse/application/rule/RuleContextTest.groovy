@@ -10,31 +10,31 @@ class RuleContextTest extends Specification {
     private static final PRICE = 1024.83d
     private static final INVALID_VALUE = 'invalid-value'
     private static final RULE_PARAMETERS = [
-        (COMPARISON_OPERATOR) : OPERATOR,
-        (TARGET_PRICE) : PRICE as String,
-        (LOSS_VALUE) : INVALID_VALUE
+        (COMPARISON_OPERATOR.name) : OPERATOR,
+        (TARGET_PRICE.name) : PRICE as String,
+        (LOSS_VALUE.name) : INVALID_VALUE
     ]
 
     private context = RuleContext.builder().parameters(RULE_PARAMETERS).build()
 
     def 'should provide rule parameter successfully'() {
         expect:
-        context.getParameterValue(COMPARISON_OPERATOR, {value -> String.valueOf(value) }) == OPERATOR
-        context.getParameterValue(TARGET_PRICE, {value -> Double.valueOf(value) }) == PRICE
+        context.getParameterValue(COMPARISON_OPERATOR) == OPERATOR
+        context.getParameterValue(TARGET_PRICE) == PRICE
     }
 
     def 'should throw exception if parameter is not found'() {
         when:
-        context.getParameterValue(PROFIT_VALUE, {value -> Double.valueOf(value) })
+        context.getParameterValue(PROFIT_VALUE)
 
         then:
         def exception = thrown(IllegalArgumentException)
-        exception.message == "Rule parameter $PROFIT_VALUE is not provided" as String
+        exception.message == "Rule parameter [$PROFIT_VALUE.name] is not provided" as String
     }
 
     def 'should throw exception if parameter has invalid value'() {
         when:
-        context.getParameterValue(LOSS_VALUE, {value -> Double.valueOf(value) })
+        context.getParameterValue(LOSS_VALUE)
 
         then:
         def exception = thrown(NumberFormatException)

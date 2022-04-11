@@ -58,6 +58,18 @@ const LAYOUT_ROUTES = [navbarRoute, ...errorRoute];
           path: 'new-order-execution',
           loadChildren: () => import('./tse/component/new-order-execution/new-order-execution.module').then(m => m.NewOrderExecutionModule),
         },
+        {
+          path: 'chain-exchange-executions',
+          loadChildren: () =>
+            import('./tse/component/chain-exchange-executions/chain-exchange-executions.module').then(m => m.ChainExchangeExecutionsModule),
+        },
+        {
+          path: 'new-chain-exchange-execution',
+          loadChildren: () =>
+            import('./tse/component/new-chain-exchange-execution/new-chain-exchange-execution.module').then(
+              m => m.NewChainExchangeExecutionModule
+            ),
+        },
         ...LAYOUT_ROUTES,
       ],
       { enableTracing: DEBUG_INFO_ENABLED }

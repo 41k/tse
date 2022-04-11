@@ -10,5 +10,5 @@ import java.util.Collection;
 public class RuleDescription {
     String id;
     String name;
-    Collection<RuleParameter> parameters;
+    Collection<String> parameters;
 }

@@ -4,6 +4,7 @@ import { Router, ActivatedRouteSnapshot, NavigationEnd, NavigationError } from '
 import { TranslateService, LangChangeEvent } from '@ngx-translate/core';
 
 import { AccountService } from 'app/core/auth/account.service';
+import { AuthServerProvider } from 'app/core/auth/auth-jwt.service';
 
 @Component({
   selector: 'jhi-main',
@@ -14,6 +15,7 @@ export class MainComponent implements OnInit {
 
   constructor(
     private accountService: AccountService,
+    private authTokenProvider: AuthServerProvider,
     private titleService: Title,
     private router: Router,
     private translateService: TranslateService,
@@ -24,7 +26,10 @@ export class MainComponent implements OnInit {
 
   ngOnInit(): void {
     // try to log in automatically
-    this.accountService.identity().subscribe();
+    const authToken = this.authTokenProvider.getToken();
+    if (authToken && authToken !== '') {
+      this.accountService.identity().subscribe();
+    }
 
     this.router.events.subscribe(event => {
       if (event instanceof NavigationEnd) {

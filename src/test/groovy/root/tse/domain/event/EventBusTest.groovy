@@ -97,19 +97,19 @@ class EventBusTest extends Specification {
 
     def 'should dispatch CHAIN EXCHANGE WAS EXECUTED event'() {
         when:
-        eventBus.publishChainExchangeWasExecutedEvent(EXECUTED_CHAIN_EXCHANGE)
+        eventBus.publishChainExchangeWasExecutedEvent(EXECUTED_CHAIN_EXCHANGE, ASSET_CHAIN)
 
         then:
-        1 * eventSubscriber1.acceptChainExchangeWasExecutedEvent(EXECUTED_CHAIN_EXCHANGE)
-        1 * eventSubscriber2.acceptChainExchangeWasExecutedEvent(EXECUTED_CHAIN_EXCHANGE)
+        1 * eventSubscriber1.acceptChainExchangeWasExecutedEvent(EXECUTED_CHAIN_EXCHANGE, ASSET_CHAIN)
+        1 * eventSubscriber2.acceptChainExchangeWasExecutedEvent(EXECUTED_CHAIN_EXCHANGE, ASSET_CHAIN)
         0 * _
 
         when:
-        eventBus.publishChainExchangeWasExecutedEvent(EXECUTED_CHAIN_EXCHANGE)
+        eventBus.publishChainExchangeWasExecutedEvent(EXECUTED_CHAIN_EXCHANGE, ASSET_CHAIN)
 
         then:
-        1 * eventSubscriber1.acceptChainExchangeWasExecutedEvent(EXECUTED_CHAIN_EXCHANGE)
-        1 * eventSubscriber2.acceptChainExchangeWasExecutedEvent(EXECUTED_CHAIN_EXCHANGE) >> { throw new RuntimeException() }
+        1 * eventSubscriber1.acceptChainExchangeWasExecutedEvent(EXECUTED_CHAIN_EXCHANGE, ASSET_CHAIN)
+        1 * eventSubscriber2.acceptChainExchangeWasExecutedEvent(EXECUTED_CHAIN_EXCHANGE, ASSET_CHAIN) >> { throw new RuntimeException() }
         0 * _
 
         and:
@@ -118,19 +118,19 @@ class EventBusTest extends Specification {
 
     def 'should dispatch CHAIN EXCHANGE EXECUTION FAILED event'() {
         when:
-        eventBus.publishChainExchangeExecutionFailedEvent(CHAIN_EXCHANGE_ID, ASSET_CHAIN_AS_STRING)
+        eventBus.publishChainExchangeExecutionFailedEvent(CHAIN_EXCHANGE_ID, ASSET_CHAIN)
 
         then:
-        1 * eventSubscriber1.acceptChainExchangeExecutionFailedEvent(CHAIN_EXCHANGE_ID, ASSET_CHAIN_AS_STRING)
-        1 * eventSubscriber2.acceptChainExchangeExecutionFailedEvent(CHAIN_EXCHANGE_ID, ASSET_CHAIN_AS_STRING)
+        1 * eventSubscriber1.acceptChainExchangeExecutionFailedEvent(CHAIN_EXCHANGE_ID, ASSET_CHAIN)
+        1 * eventSubscriber2.acceptChainExchangeExecutionFailedEvent(CHAIN_EXCHANGE_ID, ASSET_CHAIN)
         0 * _
 
         when:
-        eventBus.publishChainExchangeExecutionFailedEvent(CHAIN_EXCHANGE_ID, ASSET_CHAIN_AS_STRING)
+        eventBus.publishChainExchangeExecutionFailedEvent(CHAIN_EXCHANGE_ID, ASSET_CHAIN)
 
         then:
-        1 * eventSubscriber1.acceptChainExchangeExecutionFailedEvent(CHAIN_EXCHANGE_ID, ASSET_CHAIN_AS_STRING)
-        1 * eventSubscriber2.acceptChainExchangeExecutionFailedEvent(CHAIN_EXCHANGE_ID, ASSET_CHAIN_AS_STRING) >> { throw new RuntimeException() }
+        1 * eventSubscriber1.acceptChainExchangeExecutionFailedEvent(CHAIN_EXCHANGE_ID, ASSET_CHAIN)
+        1 * eventSubscriber2.acceptChainExchangeExecutionFailedEvent(CHAIN_EXCHANGE_ID, ASSET_CHAIN) >> { throw new RuntimeException() }
         0 * _
 
         and:

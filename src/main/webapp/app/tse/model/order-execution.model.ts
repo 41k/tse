@@ -9,8 +9,4 @@ export class OrderExecution {
     public timestamp: number,
     public ruleDescription: Array<string>
   ) {}
-
-  completed(): boolean {
-    return this.price != null && this.timestamp != null;
-  }
 }

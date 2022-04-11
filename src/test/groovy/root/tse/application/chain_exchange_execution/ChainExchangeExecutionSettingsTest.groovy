@@ -19,7 +19,7 @@ class ChainExchangeExecutionSettingsTest extends Specification {
         CHAIN_EXCHANGE_EXECUTION_SETTINGS.getAssetChain(assetChainId)
 
         then:
-        def exception = thrown(NoSuchElementException)
-        exception.message == ">>> asset chain with id [$assetChainId] is not configured"
+        def exception = thrown(IllegalArgumentException)
+        exception.message == "Asset chain with id [$assetChainId] is not configured"
     }
 }

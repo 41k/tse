@@ -11,7 +11,8 @@ import root.tse.domain.event.EventBus;
 import root.tse.domain.order_execution.OrderExecution;
 import root.tse.domain.order_execution.OrderExecutionFactory;
 
-import java.util.HashMap;
+import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 @Configuration
@@ -38,6 +39,6 @@ public class OrderExecutionConfiguration {
 
     @Bean
     public Map<String, OrderExecution> orderExecutionsStore() {
-        return new HashMap<>();
+        return Collections.synchronizedMap(new LinkedHashMap<>());
     }
 }

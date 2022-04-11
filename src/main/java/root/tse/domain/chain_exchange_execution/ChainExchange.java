@@ -8,7 +8,7 @@ import root.tse.domain.order.Order;
 @Builder(toBuilder = true)
 public class ChainExchange {
     String id;
-    String assetChain;
+    Integer assetChainId;
     Double orderFeePercent;
     Order order1;
     Order order2;

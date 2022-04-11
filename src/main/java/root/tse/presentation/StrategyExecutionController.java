@@ -10,6 +10,7 @@ import root.tse.domain.strategy_execution.report.Report;
 import root.tse.presentation.dto.StartSimpleStrategyExecutionRequest;
 import root.tse.presentation.dto.StrategyExecutionDto;
 
+import javax.validation.Valid;
 import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -22,7 +23,7 @@ public class StrategyExecutionController {
     private final StrategyExecutionService strategyExecutionService;
 
     @PostMapping
-    public void startStrategyExecution(@RequestBody StartSimpleStrategyExecutionRequest request) {
+    public void startStrategyExecution(@RequestBody @Valid StartSimpleStrategyExecutionRequest request) {
         var command = StartSimpleStrategyExecutionCommand.builder()
             .orderExecutionType(request.getOrderExecutionType())
             .symbol(request.getSymbol())

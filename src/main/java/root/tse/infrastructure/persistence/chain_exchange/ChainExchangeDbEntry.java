@@ -22,7 +22,7 @@ public class ChainExchangeDbEntry {
     @Id
     private String id;
     @NotNull
-    private String assetChain;
+    private Integer assetChainId;
     @NotNull
     private Double orderFeePercent;
     @NotNull

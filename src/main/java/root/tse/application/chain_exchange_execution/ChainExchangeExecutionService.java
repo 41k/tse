@@ -6,6 +6,8 @@ import root.tse.domain.chain_exchange_execution.ChainExchangeExecution;
 import root.tse.domain.chain_exchange_execution.ChainExchangeExecutionContext;
 import root.tse.domain.chain_exchange_execution.ChainExchangeExecutionFactory;
 
+import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 
 @Slf4j
@@ -24,6 +26,7 @@ public class ChainExchangeExecutionService {
             return;
         }
         var context = ChainExchangeExecutionContext.builder()
+            .assetChainId(assetChainId)
             .assetChain(assetChain)
             .amount(command.getAmount())
             .minProfitThreshold(command.getMinProfitThreshold())
@@ -39,7 +42,16 @@ public class ChainExchangeExecutionService {
 
     public void handle(StopChainExchangeExecutionCommand command) {
         var assetChainId = command.getAssetChainId();
+        var assetChain = settings.getAssetChain(assetChainId);
         chainExchangeExecutionStore.remove(assetChainId);
-        log.info(">>> chain exchange execution {} has been stopped", settings.getAssetChain(assetChainId));
+        log.info(">>> chain exchange execution {} has been stopped", assetChain);
+    }
+
+    public Collection<ChainExchangeExecution> getChainExchangeExecutions() {
+        return chainExchangeExecutionStore.values();
+    }
+
+    public Map<Integer, List<String>> getAssetChains() {
+        return settings.getAssetChains();
     }
 }

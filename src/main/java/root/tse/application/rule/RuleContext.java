@@ -6,7 +6,6 @@ import root.tse.domain.order.OrderType;
 
 import java.util.Map;
 import java.util.Optional;
-import java.util.function.Function;
 
 @Value
 @Builder
@@ -14,13 +13,13 @@ public class RuleContext {
 
     String ruleId;
     OrderType orderType;
-    Map<RuleParameter, String> parameters;
+    Map<String, String> parameters;
 
-    public <T> T getParameterValue(RuleParameter parameter, Function<String, T> valueTransformer) {
-        return Optional.ofNullable(parameter)
-            .map(parameters::get)
-            .map(valueTransformer)
+    public <T> T getParameterValue(RuleParameter<T> parameter) {
+        return Optional.ofNullable(parameters)
+            .map(parameters -> parameters.get(parameter.getName()))
+            .map(parameter::transformValue)
             .orElseThrow(() -> new IllegalArgumentException(
-                String.format("Rule parameter %s is not provided", parameter)));
+                String.format("Rule parameter [%s] is not provided", parameter.getName())));
     }
 }

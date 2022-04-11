@@ -13,7 +13,7 @@ public class ChainExchangeToDbEntryMapper {
         var order3 = chainExchange.getOrder3();
         return ChainExchangeDbEntry.builder()
             .id(chainExchange.getId())
-            .assetChain(chainExchange.getAssetChain())
+            .assetChainId(chainExchange.getAssetChainId())
             .orderFeePercent(chainExchange.getOrderFeePercent())
             .executionTimestamp(Instant.ofEpochMilli(chainExchange.getTimestamp()))
             .orderExecutionType(order1.getExecutionType())
@@ -57,7 +57,7 @@ public class ChainExchangeToDbEntryMapper {
             .build();
         return ChainExchange.builder()
             .id(dbEntry.getId())
-            .assetChain(dbEntry.getAssetChain())
+            .assetChainId(dbEntry.getAssetChainId())
             .orderFeePercent(dbEntry.getOrderFeePercent())
             .order1(order1)
             .order2(order2)

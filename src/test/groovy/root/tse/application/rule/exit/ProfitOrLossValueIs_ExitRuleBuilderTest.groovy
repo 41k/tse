@@ -25,7 +25,10 @@ class ProfitOrLossValueIs_ExitRuleBuilderTest extends Specification {
             RuleDescription.builder()
                 .id('39d7d3b5788b')
                 .name('Profit or loss value is')
-                .parameters([PROFIT_VALUE, LOSS_VALUE])
+                .parameters([
+                    PROFIT_VALUE.name,
+                    LOSS_VALUE.name
+                ])
                 .build()
     }
 
@@ -36,8 +39,8 @@ class ProfitOrLossValueIs_ExitRuleBuilderTest extends Specification {
         def acceptableLoss = '30.0'
         def ruleContext = RuleContext.builder()
             .parameters([
-                (PROFIT_VALUE) : acceptableProfit,
-                (LOSS_VALUE) : acceptableLoss
+                (PROFIT_VALUE.name) : acceptableProfit,
+                (LOSS_VALUE.name) : acceptableLoss
             ])
             .build()
 

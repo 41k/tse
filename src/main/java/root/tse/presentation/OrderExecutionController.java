@@ -8,6 +8,7 @@ import root.tse.application.order_execution.StopOrderExecutionCommand;
 import root.tse.presentation.dto.OrderExecutionDto;
 import root.tse.presentation.dto.StartOrderExecutionRequest;
 
+import javax.validation.Valid;
 import java.util.Collection;
 import java.util.stream.Collectors;
 
@@ -19,7 +20,7 @@ public class OrderExecutionController {
     private final OrderExecutionService orderExecutionService;
 
     @PostMapping
-    public void startOrderExecution(@RequestBody StartOrderExecutionRequest request) {
+    public void startOrderExecution(@RequestBody @Valid StartOrderExecutionRequest request) {
         var command = StartOrderExecutionCommand.builder()
             .orderType(request.getOrderType())
             .orderExecutionType(request.getOrderExecutionType())

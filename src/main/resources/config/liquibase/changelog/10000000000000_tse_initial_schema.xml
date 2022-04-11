@@ -51,7 +51,7 @@
             <column name="id" type="varchar(36)">
                 <constraints primaryKey="true" nullable="false"/>
             </column>
-            <column name="asset_chain" type="varchar(255)">
+            <column name="asset_chain_id" type="int">
                 <constraints nullable="false"/>
             </column>
             <column name="order_fee_percent" type="double">

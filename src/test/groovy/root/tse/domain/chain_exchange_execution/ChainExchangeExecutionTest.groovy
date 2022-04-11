@@ -20,7 +20,7 @@ class ChainExchangeExecutionTest extends Specification {
         then:
         1 * chainExchangeService.tryToFormExpectedChainExchange(CHAIN_EXCHANGE_EXECUTION_CONTEXT) >> Optional.of(EXPECTED_CHAIN_EXCHANGE)
         1 * chainExchangeService.tryToExecute(EXPECTED_CHAIN_EXCHANGE, CHAIN_EXCHANGE_EXECUTION_CONTEXT) >> Optional.of(EXECUTED_CHAIN_EXCHANGE)
-        1 * eventBus.publishChainExchangeWasExecutedEvent(EXECUTED_CHAIN_EXCHANGE)
+        1 * eventBus.publishChainExchangeWasExecutedEvent(EXECUTED_CHAIN_EXCHANGE, ASSET_CHAIN)
         0 * _
     }
 
@@ -52,7 +52,7 @@ class ChainExchangeExecutionTest extends Specification {
         then:
         1 * chainExchangeService.tryToFormExpectedChainExchange(CHAIN_EXCHANGE_EXECUTION_CONTEXT) >> Optional.of(EXPECTED_CHAIN_EXCHANGE)
         1 * chainExchangeService.tryToExecute(EXPECTED_CHAIN_EXCHANGE, CHAIN_EXCHANGE_EXECUTION_CONTEXT) >> Optional.empty()
-        1 * eventBus.publishChainExchangeExecutionFailedEvent(CHAIN_EXCHANGE_ID, ASSET_CHAIN_AS_STRING)
+        1 * eventBus.publishChainExchangeExecutionFailedEvent(CHAIN_EXCHANGE_ID, ASSET_CHAIN)
         0 * _
     }
 }

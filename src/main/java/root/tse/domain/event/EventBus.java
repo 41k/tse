@@ -19,7 +19,7 @@ public class EventBus {
     private static final String TRADE_WAS_NOT_OPENED = LOG_MSG_PREFIX + TRADE_DESCRIPTION + " was not opened ";
     private static final String TRADE_WAS_CLOSED = LOG_MSG_PREFIX + TRADE_DESCRIPTION + " has been closed successfully";
     private static final String TRADE_WAS_NOT_CLOSED = LOG_MSG_PREFIX + TRADE_DESCRIPTION + " was not closed ";
-    private static final String CHAIN_EXCHANGE_DESCRIPTION = "Chain exchange [{}] with asset chain [{}]";
+    private static final String CHAIN_EXCHANGE_DESCRIPTION = "Chain exchange [{}] with asset chain {}";
     private static final String CHAIN_EXCHANGE_WAS_EXECUTED = LOG_MSG_PREFIX + CHAIN_EXCHANGE_DESCRIPTION + " was executed with profit [{}]";
     private static final String CHAIN_EXCHANGE_EXECUTION_FAILED = LOG_MSG_PREFIX + CHAIN_EXCHANGE_DESCRIPTION + " execution failed";
     private static final String ORDER_DESCRIPTION = "Order [{}]: {} {}";
@@ -73,18 +73,18 @@ public class EventBus {
         });
     }
 
-    public void publishChainExchangeWasExecutedEvent(ChainExchange chainExchange) {
-        log.info(CHAIN_EXCHANGE_WAS_EXECUTED, chainExchange.getId(), chainExchange.getAssetChain(), chainExchange.getProfit());
+    public void publishChainExchangeWasExecutedEvent(ChainExchange chainExchange, List<String> assetChain) {
+        log.info(CHAIN_EXCHANGE_WAS_EXECUTED, chainExchange.getId(), assetChain, chainExchange.getProfit());
         subscribers.forEach(subscriber -> {
             try {
-                subscriber.acceptChainExchangeWasExecutedEvent(chainExchange);
+                subscriber.acceptChainExchangeWasExecutedEvent(chainExchange, assetChain);
             } catch (Exception e) {
                 log.error(ACCEPTANCE_FAILURE, subscriber.getClass().getSimpleName(), "chain exchange was executed", e);
             }
         });
     }
 
-    public void publishChainExchangeExecutionFailedEvent(String chainExchangeId, String assetChain) {
+    public void publishChainExchangeExecutionFailedEvent(String chainExchangeId, List<String> assetChain) {
         log.error(CHAIN_EXCHANGE_EXECUTION_FAILED, chainExchangeId, assetChain);
         subscribers.forEach(subscriber -> {
             try {

@@ -90,7 +90,6 @@ class TestUtils {
     public static final ASSET_CHAIN_ID = 1
     public static final ASSET_CHAIN = [ASSET_1_CODE, ASSET_2_CODE, ASSET_3_CODE, ASSET_1_CODE]
     public static final ASSET_CHAINS = [(ASSET_CHAIN_ID) : ASSET_CHAIN]
-    public static final ASSET_CHAIN_AS_STRING = "$ASSET_1_CODE$ASSET_CODE_DELIMITER$ASSET_2_CODE$ASSET_CODE_DELIMITER$ASSET_3_CODE$ASSET_CODE_DELIMITER$ASSET_1_CODE"
     public static final CHAIN_SYMBOL_1 = "$ASSET_2_CODE$ASSET_CODE_DELIMITER$ASSET_1_CODE" as String
     public static final CHAIN_SYMBOL_2 = "$ASSET_2_CODE$ASSET_CODE_DELIMITER$ASSET_3_CODE" as String
     public static final CHAIN_SYMBOL_3 = "$ASSET_3_CODE$ASSET_CODE_DELIMITER$ASSET_1_CODE" as String
@@ -128,9 +127,10 @@ class TestUtils {
         .assetChains(ASSET_CHAINS).assetCodeDelimiter(ASSET_CODE_DELIMITER).symbolToPrecisionMap(SYMBOL_TO_PRECISION_MAP)
         .nAmountSelectionSteps(N_AMOUNT_SELECTION_STEPS).build()
     public static final CHAIN_EXCHANGE_EXECUTION_CONTEXT = ChainExchangeExecutionContext.builder()
-        .assetChain(ASSET_CHAIN).assetCodeDelimiter(ASSET_CODE_DELIMITER).amount(CHAIN_EXCHANGE_AMOUNT)
-        .symbolToPrecisionMap(SYMBOL_TO_PRECISION_MAP).minProfitThreshold(MIN_PROFIT_THRESHOLD)
-        .orderExecutionType(ORDER_EXECUTION_TYPE).nAmountSelectionSteps(N_AMOUNT_SELECTION_STEPS).build()
+        .assetChainId(ASSET_CHAIN_ID).assetChain(ASSET_CHAIN).assetCodeDelimiter(ASSET_CODE_DELIMITER)
+        .amount(CHAIN_EXCHANGE_AMOUNT).symbolToPrecisionMap(SYMBOL_TO_PRECISION_MAP)
+        .minProfitThreshold(MIN_PROFIT_THRESHOLD).orderExecutionType(ORDER_EXECUTION_TYPE)
+        .nAmountSelectionSteps(N_AMOUNT_SELECTION_STEPS).build()
     public static final CHAIN_ORDER_1 = Order.builder().type(BUY).executionType(ORDER_EXECUTION_TYPE)
         .symbol(CHAIN_SYMBOL_1).amount(CHAIN_ORDER_1_AMOUNT).price(CHAIN_SYMBOL_1_BUY_PRICE).build()
     public static final CHAIN_ORDER_2 = Order.builder().type(SELL).executionType(ORDER_EXECUTION_TYPE)
@@ -141,7 +141,7 @@ class TestUtils {
     public static final CHAIN_EXCHANGE_EXECUTION_TIMESTAMP = 1643284983000L
     public static final EXPECTED_CHAIN_EXCHANGE = ChainExchange.builder()
         .id(CHAIN_EXCHANGE_ID)
-        .assetChain(ASSET_CHAIN_AS_STRING)
+        .assetChainId(ASSET_CHAIN_ID)
         .orderFeePercent(ORDER_FEE_PERCENT)
         .order1(CHAIN_ORDER_1)
         .order2(CHAIN_ORDER_2)
@@ -156,7 +156,7 @@ class TestUtils {
         .build()
     public static final CHAIN_EXCHANGE_DB_ENTRY = ChainExchangeDbEntry.builder()
         .id(CHAIN_EXCHANGE_ID)
-        .assetChain(ASSET_CHAIN_AS_STRING)
+        .assetChainId(ASSET_CHAIN_ID)
         .orderFeePercent(ORDER_FEE_PERCENT)
         .executionTimestamp(Instant.ofEpochMilli(CHAIN_EXCHANGE_EXECUTION_TIMESTAMP))
         .orderExecutionType(ORDER_EXECUTION_TYPE)

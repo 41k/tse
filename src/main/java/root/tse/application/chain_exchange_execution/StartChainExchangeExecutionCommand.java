@@ -8,7 +8,7 @@ import root.tse.domain.order.OrderExecutionType;
 @Builder
 public class StartChainExchangeExecutionCommand {
     Integer assetChainId;
+    OrderExecutionType orderExecutionType;
     Double amount;
     Double minProfitThreshold;
-    OrderExecutionType orderExecutionType;
 }

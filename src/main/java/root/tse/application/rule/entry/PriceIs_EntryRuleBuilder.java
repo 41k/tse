@@ -25,14 +25,17 @@ public class PriceIs_EntryRuleBuilder implements EntryRuleBuilder {
         return RuleDescription.builder()
             .id("25e00ce8cac9")
             .name("Price is")
-            .parameters(List.of(COMPARISON_OPERATOR, TARGET_PRICE))
+            .parameters(List.of(
+                COMPARISON_OPERATOR.getName(),
+                TARGET_PRICE.getName()
+            ))
             .build();
     }
 
     @Override
     public EntryRule build(RuleContext context) {
-        var comparisonOperator = context.getParameterValue(COMPARISON_OPERATOR, String::valueOf);
-        var targetPrice = context.getParameterValue(TARGET_PRICE, Double::valueOf);
+        var comparisonOperator = context.getParameterValue(COMPARISON_OPERATOR);
+        var targetPrice = context.getParameterValue(TARGET_PRICE);
         var comparison = new Comparison(comparisonOperator, targetPrice);
         return new EntryRule() {
             @Override

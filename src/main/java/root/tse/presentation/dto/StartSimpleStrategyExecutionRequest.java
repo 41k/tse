@@ -1,16 +1,12 @@
 package root.tse.presentation.dto;
 
 import lombok.Data;
-import org.springframework.validation.annotation.Validated;
-import root.tse.application.rule.RuleParameter;
 import root.tse.domain.order.OrderExecutionType;
 
-import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import java.util.Map;
 
 @Data
-@Validated
 public class StartSimpleStrategyExecutionRequest {
     @NotNull
     private OrderExecutionType orderExecutionType;
@@ -22,8 +18,6 @@ public class StartSimpleStrategyExecutionRequest {
     private String entryRuleId;
     @NotNull
     private String exitRuleId;
-    @NotEmpty
-    private Map<RuleParameter, String> entryRuleParameters;
-    @NotEmpty
-    private Map<RuleParameter, String> exitRuleParameters;
+    private Map<String, String> entryRuleParameters;
+    private Map<String, String> exitRuleParameters;
 }

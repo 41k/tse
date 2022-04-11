@@ -42,6 +42,7 @@ public class ChainExchangeProfitCalculator implements CommandLineRunner {
         var initialOrderAmountCalculator = new InitialOrderAmountCalculator();
         var chainExchangeService = new ChainExchangeService(idGenerator, exchangeGateway, initialOrderAmountCalculator, chainExchangeRepository, clock);
         var context = ChainExchangeExecutionContext.builder()
+            .assetChainId(1)
             .assetChain(List.of("USD", "LTC", "BTC", "USD"))
             .amount(50d)
             .minProfitThreshold(-10d)

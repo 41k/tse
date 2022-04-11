@@ -29,6 +29,7 @@ class ChainExchangeExecutionFunctionalTest extends BaseFunctionalTest {
         exchangeGatewayMock().currentPrices = CHAIN_PRICES
         exchangeGatewayMock().orderExecutionSuccess = true
         def context = ChainExchangeExecutionContext.builder()
+            .assetChainId(ASSET_CHAIN_ID)
             .assetChain(ASSET_CHAIN)
             .assetCodeDelimiter(ASSET_CODE_DELIMITER)
             .symbolToPrecisionMap(SYMBOL_TO_PRECISION_MAP)
@@ -53,7 +54,7 @@ class ChainExchangeExecutionFunctionalTest extends BaseFunctionalTest {
 
         and:
         chainExchanges.get(0).id
-        chainExchanges.get(0).assetChain == ASSET_CHAIN_AS_STRING
+        chainExchanges.get(0).assetChainId == ASSET_CHAIN_ID
         chainExchanges.get(0).orderFeePercent == ORDER_FEE_PERCENT
         chainExchanges.get(0).executionTimestamp.toEpochMilli() == CHAIN_EXCHANGE_EXECUTION_TIMESTAMP
         chainExchanges.get(0).orderExecutionType == MARKET

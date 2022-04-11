@@ -2,7 +2,8 @@ package root.tse.infrastructure.persistence.chain_exchange
 
 import root.tse.BaseFunctionalTest
 
-import static root.tse.util.TestUtils.*
+import static root.tse.util.TestUtils.CHAIN_EXCHANGE_DB_ENTRY
+import static root.tse.util.TestUtils.CHAIN_EXCHANGE_ID
 
 class ChainExchangeDbEntryJpaRepositoryTest extends BaseFunctionalTest {
 
@@ -24,13 +25,5 @@ class ChainExchangeDbEntryJpaRepositoryTest extends BaseFunctionalTest {
 
         then:
         chainExchangeDbEntryJpaRepository.count() == 0
-    }
-
-    def 'should find chain exchanges by asset chain'() {
-        given:
-        chainExchangeDbEntryJpaRepository.save(CHAIN_EXCHANGE_DB_ENTRY)
-
-        expect:
-        chainExchangeDbEntryJpaRepository.findAllByAssetChain(ASSET_CHAIN_AS_STRING) == [CHAIN_EXCHANGE_DB_ENTRY]
     }
 }

@@ -68,4 +68,19 @@ class ChainExchangeExecutionServiceTest extends Specification {
         chainExchangeExecutionStore.size() == 1
         chainExchangeExecutionStore.get(2) == chainExchangeExecution2
     }
+
+    def 'should provide chain exchange executions'() {
+        given:
+        chainExchangeExecutionStore.put('1', chainExchangeExecution1)
+        chainExchangeExecutionStore.put('2', chainExchangeExecution2)
+        assert chainExchangeExecutionStore.size() == 2
+
+        expect:
+        chainExchangeExecutionService.getChainExchangeExecutions() as List == [chainExchangeExecution1, chainExchangeExecution2]
+    }
+
+    def 'should provide asset chains'() {
+        expect:
+        chainExchangeExecutionService.getAssetChains() == ASSET_CHAINS
+    }
 }

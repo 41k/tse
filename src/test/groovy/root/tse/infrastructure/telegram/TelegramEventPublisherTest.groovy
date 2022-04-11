@@ -81,13 +81,13 @@ class TelegramEventPublisherTest extends Specification {
 
     def 'should publish CHAIN EXCHANGE WAS EXECUTED event'() {
         when:
-        telegramEventPublisher.acceptChainExchangeWasExecutedEvent(EXECUTED_CHAIN_EXCHANGE)
+        telegramEventPublisher.acceptChainExchangeWasExecutedEvent(EXECUTED_CHAIN_EXCHANGE, ASSET_CHAIN)
 
         then:
         1 * telegramApiClient.sendMessage(
             "<b>Chain exchange was <u>EXECUTED</u></b>----------" +
             "<b>Chain exchange:</b> $CHAIN_EXCHANGE_ID-----" +
-            "<b>Asset chain:</b> $ASSET_CHAIN_AS_STRING-----" +
+            "<b>Asset chain:</b> $ASSET_CHAIN-----" +
             "<b>Profit:</b> $CHAIN_EXCHANGE_PROFIT"
         )
         0 * _
@@ -95,13 +95,13 @@ class TelegramEventPublisherTest extends Specification {
 
     def 'should publish CHAIN EXCHANGE EXECUTION FAILED event'() {
         when:
-        telegramEventPublisher.acceptChainExchangeExecutionFailedEvent(CHAIN_EXCHANGE_ID, ASSET_CHAIN_AS_STRING)
+        telegramEventPublisher.acceptChainExchangeExecutionFailedEvent(CHAIN_EXCHANGE_ID, ASSET_CHAIN)
 
         then:
         1 * telegramApiClient.sendMessage(
             "<b>Chain exchange execution <u>FAILED</u></b>----------" +
             "<b>Chain exchange:</b> $CHAIN_EXCHANGE_ID-----" +
-            "<b>Asset chain:</b> $ASSET_CHAIN_AS_STRING"
+            "<b>Asset chain:</b> $ASSET_CHAIN"
         )
         0 * _
     }

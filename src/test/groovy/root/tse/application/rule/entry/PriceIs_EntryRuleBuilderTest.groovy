@@ -25,7 +25,10 @@ class PriceIs_EntryRuleBuilderTest extends Specification {
             RuleDescription.builder()
                 .id('25e00ce8cac9')
                 .name('Price is')
-                .parameters([COMPARISON_OPERATOR, TARGET_PRICE])
+                .parameters([
+                    COMPARISON_OPERATOR.name,
+                    TARGET_PRICE.name
+                ])
                 .build()
     }
 
@@ -35,8 +38,8 @@ class PriceIs_EntryRuleBuilderTest extends Specification {
         def ruleContext = RuleContext.builder()
             .orderType(orderType)
             .parameters([
-                (COMPARISON_OPERATOR) : comparisonOperator as String,
-                (TARGET_PRICE) : targetPrice as String
+                (COMPARISON_OPERATOR.name) : comparisonOperator as String,
+                (TARGET_PRICE.name) : targetPrice as String
             ])
             .build()
 

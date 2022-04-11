@@ -174,7 +174,7 @@ exchange-gateway:
   order-uri: ${exchange-gateway.base-rest-api-url}/order
   wss-connection-uri: wss://${exchange-gateway.api-host}/connect
   current-price-wss-endpoint: marketData.subscribe
-  order-fee-percent: 0.2 # 0.2% (note: 1% should be set as 1, not as 0.01)
+  order-fee-percent: 2 # 2% (note: 1% should be set as 1, not as 0.01)
   interval-to-representation-map:
     ONE_MINUTE: 1m
     FIVE_MINUTES: 5m
@@ -246,7 +246,7 @@ exchange-gateway:
     6: USD,CAKE,BTC,USD
     7: USD,CRV,BTC,USD
     8: USD,MKR,BTC,USD
-  chain-exchange-run-interval-in-millis: 10000
+  chain-exchange-run-interval-in-millis: 1000
   rate-limit-per-second: 9
   retry-attempts-number: 4
   retry-backoff-in-milliseconds: 500

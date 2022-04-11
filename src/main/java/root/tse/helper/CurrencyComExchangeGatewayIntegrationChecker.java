@@ -17,7 +17,7 @@ import static root.tse.domain.order.OrderType.SELL;
 
 //@Component
 @RequiredArgsConstructor
-public class ExchangeGatewayIntegrationChecker implements CommandLineRunner {
+public class CurrencyComExchangeGatewayIntegrationChecker implements CommandLineRunner {
 
     private final ExchangeGateway exchangeGateway;
     private final Clock clock;
