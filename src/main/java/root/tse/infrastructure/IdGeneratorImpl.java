@@ -27,7 +27,7 @@ public class IdGeneratorImpl implements IdGenerator {
 
     @Override
     @SneakyThrows
-    public String generateId() {
+    public String generate() {
         var id = ids.take();
         executorService.submit(() -> {
             try {

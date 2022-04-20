@@ -6,6 +6,6 @@ export const ORDER_EXECUTIONS_ROUTE: Route = {
   component: OrderExecutionsComponent,
   data: {
     authorities: [],
-    pageTitle: 'global.title',
+    pageTitle: 'order-executions.title',
   },
 };

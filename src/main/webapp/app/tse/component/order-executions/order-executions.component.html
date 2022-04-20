@@ -1,62 +1,60 @@
-<div class="row mb-4">
-    <div class="col-sm-12 col-lg-4">
-        <h3>Order executions</h3>
-        <a routerLink="/new-order-execution" class="btn btn-success btn-block mt-3">New</a>
-    </div>
-</div>
+<button mat-fab color="accent" routerLink="/new-order-execution" class="add-button">
+    <mat-icon>add</mat-icon>
+</button>
 
 <div class="row">
 
-    <div class="col-sm-12 col-lg-4" *ngFor="let orderExecution of orderExecutions">
-        <div class="card bg-light mb-4 custom-card">
-            <div class="card-body">
-                <h4>
-                    <fa-icon icon="comment-dollar" [fixedWidth]="true"></fa-icon>
+    <div class="col-12 col-md-4 mb-3" *ngFor="let orderExecution of orderExecutions">
+        <mat-card>
+            <div class="mb-3">
+                <button mat-mini-fab disabled>
+                    <mat-icon>add_comment</mat-icon>
+                </button>
+                <span class="card-header-text">
                     {{orderExecution.id}}
-                    <span class="badge bg-primary text-white float-right" *ngIf="!orderExecution.timestamp">
-                        <small>In progress</small>
-                    </span>
-                    <span class="badge bg-success text-white float-right" *ngIf="orderExecution.timestamp">
-                        <small>Executed</small>
-                    </span>
-                </h4>
-                <table class="table table-hover mt-3">
+                </span>
+                <button mat-flat-button disabled class="float-right" *ngIf="!orderExecution.timestamp">In progress</button>
+                <button mat-flat-button color="primary" class="float-right" *ngIf="orderExecution.timestamp">Executed</button>
+            </div>
+            <mat-card-content>
+                <table class="table mb-0">
                     <tbody>
                         <tr>
-                            <th scope="row">Order execution type</th>
+                            <td>Order execution type</td>
                             <td>{{orderExecution.orderExecutionType}}</td>
                         </tr>
                         <tr>
-                            <th scope="row">Order type</th>
+                            <td>Order type</td>
                             <td>{{orderExecution.orderType}}</td>
                         </tr>
                         <tr>
-                            <th scope="row">Symbol</th>
+                            <td>Symbol</td>
                             <td>{{orderExecution.symbol}}</td>
                         </tr>
                         <tr>
-                            <th scope="row">Amount</th>
+                            <td>Amount</td>
                             <td>{{orderExecution.amount}}</td>
                         </tr>
                         <tr *ngIf="orderExecution.timestamp">
-                            <th scope="row">Execution price</th>
+                            <td>Execution price</td>
                             <td>{{orderExecution.price}}</td>
                         </tr>
                         <tr *ngIf="orderExecution.timestamp">
-                            <th scope="row">Execution time</th>
+                            <td>Execution time</td>
                             <td>{{ getExecutionTime(orderExecution) }}</td>
                         </tr>
                         <tr>
-                            <th scope="row">Rule</th>
+                            <td>Rule</td>
                             <td>
-                                <p *ngFor="let line of orderExecution?.ruleDescription">{{line}}</p>
+                                <p class="mb-0" *ngFor="let line of orderExecution?.ruleDescription">{{line}}</p>
                             </td>
                         </tr>
                     </tbody>
                 </table>
-                <button type="button" class="btn btn-md btn-primary btn-block" (click)="stopOrderExecution(orderExecution.id)">Stop</button>
-            </div>
-        </div>
+                <button mat-flat-button color="accent" class="full-width" *ngIf="!orderExecution.timestamp" (click)="stopOrderExecution(orderExecution.id)">Stop</button>
+                <button mat-flat-button color="accent" class="full-width" *ngIf="orderExecution.timestamp" (click)="removeOrderExecution(orderExecution.id)">Remove</button>
+            </mat-card-content>
+        </mat-card>
     </div>
 
 </div>

@@ -15,7 +15,7 @@ public class SimpleStrategyExecutionFactory {
     private final EventBus eventBus;
 
     public SimpleStrategyExecution create(StrategyExecutionContext context) {
-        var id = idGenerator.generateId();
+        var id = idGenerator.generate();
         return new SimpleStrategyExecution(id, context, clockSignalDispatcher, tradeService, eventBus);
     }
 }

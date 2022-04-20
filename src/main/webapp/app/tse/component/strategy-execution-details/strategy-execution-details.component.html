@@ -1,107 +1,108 @@
 <div class="row" *ngIf="!viewDataIsInitialized()">
-    <div class="col-sm-12">Loading...</div>
+    <div class="col-12">Loading...</div>
 </div>
 
-<div class="row mb-4" *ngIf="viewDataIsInitialized()">
-    <div class="col-sm-12 col-lg-4">
-        <h3>Strategy execution details</h3>
-        <button type="button" class="btn btn-md btn-primary btn-block mt-3" (click)="stopStrategyExecution()">Stop</button>
+<div class="row mb-3" *ngIf="viewDataIsInitialized()">
+    <div class="col-12 col-md-3">
+        <button mat-raised-button color="accent" class="full-width" (click)="stopStrategyExecution()">Stop</button>
     </div>
 </div>
 
 <div class="row" *ngIf="viewDataIsInitialized()">
-    <div class="col-sm-12 col-lg-6 mb-4">
-        <div class="card bg-light custom-card">
-            <div class="card-body">
-                <h4>General information</h4>
-                <table class="table">
+
+    <div class="col-12 col-md-6 mb-3">
+        <mat-card>
+            <h4 class="mb-3">General information</h4>
+            <mat-card-content>
+                <table class="table mb-0">
                     <tbody>
                         <tr>
-                            <th scope="row">Id</th>
+                            <td>Id</td>
                             <td>{{strategyExecution?.id}}</td>
                         </tr>
                         <tr>
-                            <th scope="row">Order execution type</th>
+                            <td>Order execution type</td>
                             <td>{{strategyExecution?.orderExecutionType}}</td>
                         </tr>
                         <tr>
-                            <th scope="row">Symbols</th>
+                            <td>Symbols</td>
                             <td>{{strategyExecution?.symbols}}</td>
                         </tr>
                         <tr>
-                            <th scope="row">Funds per trade</th>
+                            <td>Funds per trade</td>
                             <td>{{strategyExecution?.fundsPerTrade}}</td>
                         </tr>
                     </tbody>
                 </table>
-            </div>
-        </div>
+            </mat-card-content>
+        </mat-card>
     </div>
-    <div class="col-sm-12 col-lg-6 mb-4">
-        <div class="card bg-light custom-card">
-            <div class="card-body">
-                <h4>Rules</h4>
-                <table class="table">
+
+    <div class="col-12 col-md-6 mb-3">
+        <mat-card>
+            <h4 class="mb-3">Rules</h4>
+            <mat-card-content>
+                <table class="table mb-0">
                     <tbody>
                         <tr>
-                            <th scope="row">Entry</th>
+                            <td>Entry</td>
                             <td>
-                                <p *ngFor="let line of strategyExecution?.entryRuleDescription">{{line}}</p>
+                                <p class="mb-0" *ngFor="let line of strategyExecution?.entryRuleDescription">{{line}}</p>
                             </td>
                         </tr>
                         <tr>
-                            <th scope="row">Exit</th>
+                            <td>Exit</td>
                             <td>
-                                <p *ngFor="let line of strategyExecution?.exitRuleDescription">{{line}}</p>
+                                <p class="mb-0" *ngFor="let line of strategyExecution?.exitRuleDescription">{{line}}</p>
                             </td>
                         </tr>
                     </tbody>
                 </table>
-            </div>
-        </div>
+            </mat-card-content>
+        </mat-card>
     </div>
-    <div class="col-sm-12 col-lg-6 mb-4">
-        <div class="card bg-light custom-card">
-            <div class="card-body">
-                <h4>Performance metrics</h4>
-                <table class="table">
+
+    <div class="col-12 col-md-6 mb-3" *ngIf="equityCurveShouldBeShown">
+        <mat-card>
+            <h4 class="mb-3">Equity curve</h4>
+            <mat-card-content>
+                <apx-chart
+                    [series]="chartOptions.series"
+                    [chart]="chartOptions.chart"
+                    [stroke]="chartOptions.stroke"
+                    [labels]="chartOptions.labels"
+                    [colors]="chartOptions.colors"
+                ></apx-chart>
+            </mat-card-content>
+        </mat-card>
+    </div>
+
+    <div class="col-12 col-md-6 mb-3">
+        <mat-card>
+            <h4 class="mb-3">Performance metrics</h4>
+            <mat-card-content>
+                <table class="table mb-0">
                     <tbody>
                         <tr>
-                            <th scope="row">N trades:</th>
+                            <td>N trades</td>
                             <td>{{report?.ntrades}}</td>
                         </tr>
                         <tr>
-                            <th scope="row">N closed trades:</th>
+                            <td>N closed trades</td>
                             <td>{{report?.nclosedTrades}}</td>
                         </tr>
                         <tr>
-                            <th scope="row">N profitable trades:</th>
+                            <td>N profitable trades</td>
                             <td>{{report?.nprofitableTrades}}</td>
                         </tr>
                         <tr>
-                            <th scope="row">Total profit:</th>
+                            <td>Total profit</td>
                             <td>{{report?.totalProfit}}</td>
                         </tr>
                     </tbody>
                 </table>
-            </div>
-        </div>
+            </mat-card-content>
+        </mat-card>
     </div>
-    <div class="col-sm-12 col-lg-6 mb-3">
-        <div class="card bg-light custom-card">
-            <div class="card-body">
-                <h4>Equity curve</h4>
-                <apx-chart
-                    [series]="chartOptions.series"
-                    [chart]="chartOptions.chart"
-                    [xaxis]="chartOptions.xaxis"
-                    [stroke]="chartOptions.stroke"
-                    [dataLabels]="chartOptions.dataLabels"
-                    [yaxis]="chartOptions.yaxis"
-                    [labels]="chartOptions.labels"
-                    [legend]="chartOptions.legend"
-                ></apx-chart>
-            </div>
-        </div>
-    </div>
+
 </div>

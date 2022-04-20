@@ -1,9 +1,25 @@
-<div>
-    <router-outlet name="navbar"></router-outlet>
-</div>
-
-<div class="container-fluid">
-    <div class="jh-card">
-        <router-outlet></router-outlet>
-    </div>
-</div>
+<mat-sidenav-container>
+    <mat-sidenav #sidenav>
+        <div>
+            <router-outlet name="navbar"></router-outlet>
+        </div>
+    </mat-sidenav>
+    <mat-sidenav-content>
+        <div *ngIf="isAuthenticated()">
+            <div id="header" class="mat-elevation-z16">
+                <mat-toolbar color="primary">
+                    <div style="width: 100%;">TSE</div>
+                    <button mat-icon-button (click)="sidenav.toggle()">
+                        <mat-icon>menu</mat-icon>
+                    </button>
+                </mat-toolbar>
+            </div>
+            <div id="page-title">{{ pageTitle }}</div>
+        </div>
+        <div class="container-fluid">
+            <div class="jh-card">
+                <router-outlet></router-outlet>
+            </div>
+        </div>
+    </mat-sidenav-content>
+</mat-sidenav-container>

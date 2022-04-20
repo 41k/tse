@@ -15,7 +15,7 @@ public class OrderExecutionFactory {
     private final EventBus eventBus;
 
     public OrderExecution create(OrderExecutionContext context) {
-        var id = idGenerator.generateId();
+        var id = idGenerator.generate();
         return new OrderExecution(id, context, clockSignalDispatcher, exchangeGateway, eventBus);
     }
 }

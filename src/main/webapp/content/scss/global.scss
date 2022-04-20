@@ -1,6 +1,5 @@
 @import 'bootstrap-variables';
 @import '~bootstrap/scss/functions';
-@import '~bootswatch/dist/materia/variables';
 @import '~bootstrap/scss/variables';
 
 /* ==============================================================
@@ -40,15 +39,55 @@ Generic styles
 
 /* other generic styles */
 
-.custom-card,
-.custom-form-control,
-.custom-select {
+html,
+body,
+mat-sidenav-container {
+  height: 100%;
+}
+
+mat-sidenav-content {
   background: #f0f0f0 !important;
 }
 
-.custom-form-control {
-  font-weight: bold;
-  color: #000 !important;
+button {
+  outline: none !important;
+}
+
+.full-width {
+  width: 100%;
+}
+
+#header {
+  width: 100%;
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 1000;
+}
+
+#page-title {
+  width: 100%;
+  padding: 80px 20px 20px 20px;
+  color: #ffffff;
+  background-color: #3f51b5;
+  font-size: 1.2rem;
+}
+
+.add-button {
+  position: fixed !important;
+  right: 20px;
+  bottom: 20px;
+  z-index: 1000;
+}
+
+mat-card {
+  font-family: inherit !important;
+}
+
+.card-header-text {
+  font-size: 1.2rem;
+  vertical-align: middle;
+  padding-left: 8px;
 }
 
 .jh-card {

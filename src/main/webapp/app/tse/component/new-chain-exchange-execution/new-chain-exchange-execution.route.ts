@@ -6,6 +6,6 @@ export const NEW_CHAIN_EXCHANGE_EXECUTION_ROUTE: Route = {
   component: NewChainExchangeExecutionComponent,
   data: {
     authorities: [],
-    pageTitle: 'global.title',
+    pageTitle: 'new-chain-exchange-execution.title',
   },
 };

@@ -1,44 +1,39 @@
 <div class="row" *ngIf="!viewDataIsInitialized()">
-    <div class="col-sm-12">Loading...</div>
+    <div class="col-12">Loading...</div>
 </div>
 
-<div class="row" *ngIf="viewDataIsInitialized()">
-    <div class="col-sm-12 col-lg-6">
-
-        <h3>New chain exchange execution</h3>
-
-        <div class="card bg-light mt-4 mb-4 custom-card">
-            <div class="card-body">
-                <h4>Settings</h4>
-                <div class="form-group mt-4">
-                    <span class="input-group-text">Asset chain</span>
-                    <select class="custom-select custom-form-control" [(ngModel)]="selectedAssetChainId">
-                        <option selected disabled value="undefined">Choose...</option>
+<div class="row mb-3" *ngIf="viewDataIsInitialized()">
+    <div class="col-12 col-md-6">
+        <mat-card>
+            <h4 class="mb-3">Settings</h4>
+            <mat-card-content>
+                <mat-form-field appearance="fill" class="full-width">
+                    <mat-label>Asset chain</mat-label>
+                    <select matNativeControl [(ngModel)]="selectedAssetChainId">
+                        <option disabled></option>
                         <option *ngFor="let assetChainId of getAssetChainIds()" [value]="assetChainId">
                             {{ formAssetChainString(assetChainId) }}
                         </option>
                     </select>
-                </div>
-                <div class="form-group mt-4">
-                    <span class="input-group-text">Order execution type</span>
-                    <select class="custom-select custom-form-control" [(ngModel)]="selectedOrderExecutionType">
-                        <option selected disabled value="undefined">Choose...</option>
+                </mat-form-field>
+                <mat-form-field appearance="fill" class="full-width">
+                    <mat-label>Order execution type</mat-label>
+                    <select matNativeControl [(ngModel)]="selectedOrderExecutionType">
+                        <option disabled></option>
                         <option value="STUB">STUB</option>
                         <option value="MARKET">MARKET</option>
                     </select>
-                </div>
-                <div class="form-group">
-                    <span class="input-group-text">Amount</span>
-                    <input type="number" class="form-control custom-form-control" [(ngModel)]="amount">
-                </div>
-                <div class="form-group">
-                    <span class="input-group-text">Min profit threshold</span>
-                    <input type="number" class="form-control custom-form-control" [(ngModel)]="minProfitThreshold">
-                </div>
-            </div>
-        </div>
-
-        <button type="button" class="btn btn-md btn-success btn-block mb-5" (click)="startNewChainExchangeExecution()">Start</button>
-
+                </mat-form-field>
+                <mat-form-field appearance="fill" class="full-width">
+                    <mat-label>Amount</mat-label>
+                    <input matInput type="number" [(ngModel)]="amount">
+                </mat-form-field>
+                <mat-form-field appearance="fill" class="full-width">
+                    <mat-label>Min profit threshold</mat-label>
+                    <input matInput type="number" [(ngModel)]="minProfitThreshold">
+                </mat-form-field>
+            </mat-card-content>
+        </mat-card>
+        <button mat-raised-button color="primary" class="full-width mt-3" (click)="startNewChainExchangeExecution()">Start</button>
     </div>
 </div>

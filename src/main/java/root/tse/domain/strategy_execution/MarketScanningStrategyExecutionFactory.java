@@ -22,7 +22,7 @@ public class MarketScanningStrategyExecutionFactory {
     private final Clock clock;
 
     public MarketScanningStrategyExecution create(StrategyExecutionContext context) {
-        var id = idGenerator.generateId();
+        var id = idGenerator.generate();
         return new MarketScanningStrategyExecution(
             id, context, marketScanningTaskExecutor,
             clockSignalDispatcher, tradeService, tradeExecutionFactory, eventBus, clock);

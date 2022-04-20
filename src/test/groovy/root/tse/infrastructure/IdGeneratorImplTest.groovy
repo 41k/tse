@@ -9,7 +9,7 @@ class IdGeneratorImplTest extends Specification {
     def 'should generate id'() {
         expect:
         1.upto(20, {
-            assert idGenerator.generateId().length() == 8
+            assert idGenerator.generate().length() == 8
         })
     }
 }

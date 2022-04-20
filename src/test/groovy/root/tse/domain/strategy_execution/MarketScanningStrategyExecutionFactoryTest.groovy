@@ -31,7 +31,7 @@ class MarketScanningStrategyExecutionFactoryTest extends Specification {
         def strategyExecution = strategyExecutionFactory.create(strategyExecutionContext)
 
         then:
-        1 * idGenerator.generateId() >> STRATEGY_EXECUTION_ID
+        1 * idGenerator.generate() >> STRATEGY_EXECUTION_ID
         0 * _
 
         and:

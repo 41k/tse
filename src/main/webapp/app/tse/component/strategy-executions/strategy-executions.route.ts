@@ -6,6 +6,6 @@ export const STRATEGY_EXECUTIONS_ROUTE: Route = {
   component: StrategyExecutionsComponent,
   data: {
     authorities: [],
-    pageTitle: 'global.title',
+    pageTitle: 'strategy-executions.title',
   },
 };

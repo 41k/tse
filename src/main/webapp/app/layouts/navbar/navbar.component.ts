@@ -54,6 +54,10 @@ export class NavbarComponent implements OnInit {
     return this.accountService.isAuthenticated();
   }
 
+  hasAnyAuthority(authorities: string[] | string): boolean {
+    return this.accountService.hasAnyAuthority(authorities);
+  }
+
   login(): void {
     this.loginModalService.open();
   }

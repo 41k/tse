@@ -4,8 +4,15 @@
         <div class="alert alert-danger mb-3" *ngIf="authenticationError" jhiTranslate="login.messages.error.authentication">
             <strong>Failed to sign in!</strong> Please check your credentials and try again.
         </div>
-        <input type="login" class="form-control mb-3" [(ngModel)]="login" placeholder="{{ 'global.form.login' | translate }}"/>
-        <input type="password" class="form-control mb-3" [(ngModel)]="password" placeholder="{{ 'global.form.password' | translate }}"/>
-        <button type="button" class="btn btn-primary btn-block" (click)="signIn()" jhiTranslate="login.form.button">Sign in</button>
+
+        <mat-form-field class="full-width" appearance="fill">
+            <mat-label>Login</mat-label>
+            <input matInput [(ngModel)]="login">
+        </mat-form-field>
+        <mat-form-field class="full-width" appearance="fill">
+            <mat-label>Password</mat-label>
+            <input matInput type="password" [(ngModel)]="password">
+        </mat-form-field>
+        <button mat-flat-button color="primary" class="full-width" (click)="signIn()">Sign in</button>
     </div>
 </div>

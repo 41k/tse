@@ -14,6 +14,7 @@ import { Report } from 'app/tse/model/report.model';
 export class StrategyExecutionDetailsComponent {
   chartTimeFormat = 'yyyy-MM-dd HH:mm';
   fractionDigitsCount = 5;
+  equityCurveShouldBeShown = false;
 
   strategyExecutionId: string;
   strategyExecution?: StrategyExecution | null;
@@ -74,39 +75,23 @@ export class StrategyExecutionDetailsComponent {
       chart: {
         type: 'area',
         height: 180,
-        zoom: {
-          enabled: false,
+        sparkline: {
+          enabled: true,
         },
-        toolbar: {
-          show: false,
-        },
-      },
-      dataLabels: {
-        enabled: false,
       },
       stroke: {
-        curve: 'straight',
-        width: 2,
+        curve: 'smooth',
+        width: 3,
       },
       labels: [],
-      xaxis: {
-        type: 'category',
-        labels: {
-          show: false,
-        },
-      },
-      yaxis: {
-        opposite: true,
-      },
-      legend: {
-        horizontalAlign: 'left',
-      },
+      colors: ['#3f51b5'],
     };
   }
 
   private initChart(): void {
     const equityCurvePoints = this.report?.equityCurve;
-    if (equityCurvePoints && equityCurvePoints.length > 0) {
+    if (equityCurvePoints && equityCurvePoints.length > 1) {
+      this.equityCurveShouldBeShown = true;
       const data = [];
       const labels = [];
       for (let i = 0; i < equityCurvePoints.length; i++) {

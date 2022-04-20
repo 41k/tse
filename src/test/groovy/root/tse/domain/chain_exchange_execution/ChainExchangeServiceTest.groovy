@@ -28,7 +28,7 @@ class ChainExchangeServiceTest extends Specification {
         1 * exchangeGateway.getOrderFeePercent() >> ORDER_FEE_PERCENT
         1 * exchangeGateway.getCurrentPrices(CHAIN_SYMBOLS) >> Optional.of(CHAIN_PRICES)
         1 * initialOrderAmountCalculator.tryToCalculate(CHAIN_EXCHANGE_EXECUTION_CONTEXT, CHAIN_PRICES, ORDER_FEE_PERCENT) >> Optional.of(CHAIN_ORDER_1_AMOUNT)
-        1 * idGenerator.generateId() >> CHAIN_EXCHANGE_ID
+        1 * idGenerator.generate() >> CHAIN_EXCHANGE_ID
         1 * clock.millis() >> CHAIN_EXCHANGE_EXECUTION_TIMESTAMP
         0 * _
 

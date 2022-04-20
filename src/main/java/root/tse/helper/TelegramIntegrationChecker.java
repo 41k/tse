@@ -17,8 +17,8 @@ public class TelegramIntegrationChecker implements CommandLineRunner {
 
     @Override
     public void run(String... args) {
-        var tradeId = idGenerator.generateId();
-        var strategyExecutionId = idGenerator.generateId();
+        var tradeId = idGenerator.generate();
+        var strategyExecutionId = idGenerator.generate();
         var symbol = "ETH/USD";
         var openedTrade = Trade.builder()
             .id(tradeId)

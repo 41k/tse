@@ -1,10 +1,11 @@
-import { Component, OnInit, RendererFactory2, Renderer2 } from '@angular/core';
+import { Component, OnInit, RendererFactory2, Renderer2, ViewChild } from '@angular/core';
 import { Title } from '@angular/platform-browser';
 import { Router, ActivatedRouteSnapshot, NavigationEnd, NavigationError } from '@angular/router';
 import { TranslateService, LangChangeEvent } from '@ngx-translate/core';
 
 import { AccountService } from 'app/core/auth/account.service';
 import { AuthServerProvider } from 'app/core/auth/auth-jwt.service';
+import { MatSidenav } from '@angular/material/sidenav';
 
 @Component({
   selector: 'jhi-main',
@@ -12,6 +13,9 @@ import { AuthServerProvider } from 'app/core/auth/auth-jwt.service';
 })
 export class MainComponent implements OnInit {
   private renderer: Renderer2;
+
+  @ViewChild(MatSidenav) sidenav!: MatSidenav;
+  pageTitle?: string;
 
   constructor(
     private accountService: AccountService,
@@ -34,6 +38,7 @@ export class MainComponent implements OnInit {
     this.router.events.subscribe(event => {
       if (event instanceof NavigationEnd) {
         this.updateTitle();
+        this.sidenav.close();
       }
       if (event instanceof NavigationError && event.error.status === 404) {
         this.router.navigate(['/404']);
@@ -60,6 +65,13 @@ export class MainComponent implements OnInit {
     if (!pageTitle) {
       pageTitle = 'global.title';
     }
-    this.translateService.get(pageTitle).subscribe(title => this.titleService.setTitle(title));
+    this.translateService.get(pageTitle).subscribe(title => {
+      this.titleService.setTitle(title);
+      this.pageTitle = title;
+    });
+  }
+
+  isAuthenticated(): boolean {
+    return this.accountService.isAuthenticated();
   }
 }

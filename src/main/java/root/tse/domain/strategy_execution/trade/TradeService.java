@@ -36,7 +36,7 @@ public class TradeService {
             .flatMap(exchangeGateway::tryToExecute)
             .map(executedEntryOrder -> {
                 var openedTrade = Trade.builder()
-                    .id(idGenerator.generateId())
+                    .id(idGenerator.generate())
                     .strategyExecutionId(context.getStrategyExecutionId())
                     .type(tradeType)
                     .orderFeePercent(exchangeGateway.getOrderFeePercent())

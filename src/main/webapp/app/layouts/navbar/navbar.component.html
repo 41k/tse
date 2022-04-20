@@ -1,134 +1,72 @@
-<nav class="navbar navbar-light navbar-expand-md bg-light" *ngIf="isAuthenticated()">
-    <a class="navbar-brand logo" routerLink="/" (click)="collapseNavbar()">
-        <span jhiTranslate="global.title" class="navbar-title">TSE</span> <span class="navbar-version">{{ version }}</span>
-    </a>
-    <a class="navbar-toggler d-lg-none" href="javascript:void(0);" data-toggle="collapse" data-target="#navbarResponsive" aria-controls="navbarResponsive" aria-expanded="false" aria-label="Toggle navigation" (click)="toggleNavbar()">
-        <fa-icon icon="bars"></fa-icon>
-    </a>
-    <div class="navbar-collapse collapse" id="navbarResponsive" [ngbCollapse]="isNavbarCollapsed" [ngSwitch]="isAuthenticated()">
-        <ul class="navbar-nav ml-auto">
-            <li *jhiHasAnyAuthority="'ROLE_USER'" class="nav-item" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">
-                <a class="nav-link" routerLink="order-executions" (click)="collapseNavbar()">
-                    <span>
-                        <fa-icon icon="comment-dollar" [fixedWidth]="true"></fa-icon>
-                        <span>Order</span>
-                    </span>
-                </a>
-            </li>
-            <li *jhiHasAnyAuthority="'ROLE_USER'" class="nav-item" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">
-                <a class="nav-link" routerLink="strategy-executions" (click)="collapseNavbar()">
-                    <span>
-                        <fa-icon icon="random" [fixedWidth]="true"></fa-icon>
-                        <span>Strategy</span>
-                    </span>
-                </a>
-            </li>
-            <li *jhiHasAnyAuthority="'ROLE_USER'" class="nav-item" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">
-                <a class="nav-link" routerLink="chain-exchange-executions" (click)="collapseNavbar()">
-                    <span>
-                        <fa-icon icon="recycle" [fixedWidth]="true"></fa-icon>
-                        <span>Chain exchange</span>
-                    </span>
-                </a>
-            </li>
-            <li *jhiHasAnyAuthority="'ROLE_ADMIN'" ngbDropdown class="nav-item dropdown pointer" display="dynamic" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">
-                <a class="nav-link dropdown-toggle" ngbDropdownToggle href="javascript:void(0);" id="admin-menu">
-                    <span>
-                        <fa-icon icon="cogs"></fa-icon>
-                        <span jhiTranslate="global.menu.admin.main">Administration</span>
-                    </span>
-                </a>
-                <ul class="dropdown-menu" ngbDropdownMenu aria-labelledby="admin-menu">
-                    <li>
-                        <a class="dropdown-item" routerLink="admin/user-management" routerLinkActive="active" (click)="collapseNavbar()">
-                            <fa-icon icon="user" [fixedWidth]="true"></fa-icon>
-                            <span jhiTranslate="global.menu.admin.userManagement">User management</span>
-                        </a>
-                    </li>
-                    <li>
-                        <a class="dropdown-item" routerLink="admin/tracker" routerLinkActive="active" (click)="collapseNavbar()">
-                            <fa-icon icon="eye" [fixedWidth]="true"></fa-icon>
-                            <span jhiTranslate="global.menu.admin.tracker">User tracker</span>
-                        </a>
-                    </li>
-                    <li>
-                        <a class="dropdown-item" routerLink="admin/metrics" routerLinkActive="active" (click)="collapseNavbar()">
-                            <fa-icon icon="tachometer-alt" [fixedWidth]="true"></fa-icon>
-                            <span jhiTranslate="global.menu.admin.metrics">Metrics</span>
-                        </a>
-                    </li>
-                    <li>
-                        <a class="dropdown-item" routerLink="admin/health" routerLinkActive="active" (click)="collapseNavbar()">
-                            <fa-icon icon="heart" [fixedWidth]="true"></fa-icon>
-                            <span jhiTranslate="global.menu.admin.health">Health</span>
-                        </a>
-                    </li>
-                    <li>
-                        <a class="dropdown-item" routerLink="admin/configuration" routerLinkActive="active" (click)="collapseNavbar()">
-                            <fa-icon icon="list" [fixedWidth]="true"></fa-icon>
-                            <span jhiTranslate="global.menu.admin.configuration">Configuration</span>
-                        </a>
-                    </li>
-                    <li>
-                        <a class="dropdown-item" routerLink="admin/audits" routerLinkActive="active" (click)="collapseNavbar()">
-                            <fa-icon icon="bell" [fixedWidth]="true"></fa-icon>
-                            <span jhiTranslate="global.menu.admin.audits">Audits</span>
-                        </a>
-                    </li>
-                    <li>
-                        <a class="dropdown-item" routerLink="admin/logs" routerLinkActive="active" (click)="collapseNavbar()">
-                            <fa-icon icon="tasks" [fixedWidth]="true"></fa-icon>
-                            <span jhiTranslate="global.menu.admin.logs">Logs</span>
-                        </a>
-                    </li>
-                    <li *ngIf="swaggerEnabled">
-                        <a class="dropdown-item" routerLink="admin/docs" routerLinkActive="active" (click)="collapseNavbar()">
-                            <fa-icon icon="book" [fixedWidth]="true"></fa-icon>
-                            <span jhiTranslate="global.menu.admin.apidocs">API</span>
-                        </a>
-                    </li>
-                    <!-- jhipster-needle-add-element-to-admin-menu - JHipster will add entities to the admin menu here -->
-                </ul>
-            </li>
-            <li ngbDropdown class="nav-item dropdown pointer" display="dynamic" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">
-                <a class="nav-link dropdown-toggle" ngbDropdownToggle href="javascript:void(0);" id="account-menu">
-                    <span *ngIf="!getImageUrl()">
-                        <fa-icon icon="user"></fa-icon>
-                        <span jhiTranslate="global.menu.account.main">
-                            Account
-                        </span>
-                    </span>
-                    <span *ngIf="getImageUrl()">
-                        <img [src]="getImageUrl()" class="profile-image rounded-circle" alt="Avatar">
-                    </span>
-                </a>
-                <ul class="dropdown-menu" ngbDropdownMenu aria-labelledby="account-menu">
-                    <li *ngSwitchCase="true">
-                        <a class="dropdown-item" routerLink="account/settings" routerLinkActive="active" (click)="collapseNavbar()">
-                            <fa-icon icon="wrench" [fixedWidth]="true"></fa-icon>
-                            <span jhiTranslate="global.menu.account.settings">Settings</span>
-                        </a>
-                    </li>
-                    <li *ngSwitchCase="true">
-                        <a class="dropdown-item" routerLink="account/password" routerLinkActive="active" (click)="collapseNavbar()">
-                            <fa-icon icon="lock" [fixedWidth]="true"></fa-icon>
-                            <span jhiTranslate="global.menu.account.password">Password</span>
-                        </a>
-                    </li>
-                    <li *ngSwitchCase="true">
-                        <a class="dropdown-item" (click)="logout()" id="logout">
-                            <fa-icon icon="sign-out-alt" [fixedWidth]="true"></fa-icon>
-                            <span jhiTranslate="global.menu.account.logout">Sign out</span>
-                        </a>
-                    </li>
-                    <li *ngSwitchCase="false">
-                        <a class="dropdown-item" (click)="login()" id="login">
-                            <fa-icon icon="sign-in-alt" [fixedWidth]="true"></fa-icon>
-                            <span jhiTranslate="global.menu.account.login">Sign in</span>
-                        </a>
-                    </li>
-                </ul>
-            </li>
-        </ul>
-    </div>
-</nav>
+<div *ngIf="hasAnyAuthority('ROLE_USER')">
+    <mat-selection-list [multiple]="false">
+        <div mat-subheader>Executions</div>
+        <mat-list-option routerLink="order-executions">
+            <mat-icon mat-list-icon>add_comment</mat-icon>
+            <div mat-line>Order</div>
+        </mat-list-option>
+        <mat-list-option routerLink="strategy-executions">
+            <mat-icon mat-list-icon>shuffle</mat-icon>
+            <div mat-line>Strategy</div>
+        </mat-list-option>
+        <mat-list-option routerLink="chain-exchange-executions">
+            <mat-icon mat-list-icon>repeat</mat-icon>
+            <div mat-line>Chain exchange</div>
+        </mat-list-option>
+        <div mat-subheader>Account</div>
+        <mat-list-option routerLink="account/settings">
+            <mat-icon mat-list-icon>settings</mat-icon>
+            <div mat-line>Settings</div>
+        </mat-list-option>
+        <mat-list-option routerLink="account/password">
+            <mat-icon mat-list-icon>vpn_key</mat-icon>
+            <div mat-line>Password</div>
+        </mat-list-option>
+        <mat-list-option (click)="logout()">
+            <mat-icon mat-list-icon>exit_to_app</mat-icon>
+            <div mat-line>Sign out</div>
+        </mat-list-option>
+    </mat-selection-list>
+</div>
+<div *ngIf="hasAnyAuthority('ROLE_ADMIN')">
+    <mat-selection-list [multiple]="false">
+        <div mat-subheader>Administration</div>
+        <mat-list-option routerLink="admin/user-management">
+            <mat-icon mat-list-icon>person</mat-icon>
+            <div mat-line>User management</div>
+        </mat-list-option>
+        <mat-list-option routerLink="admin/tracker">
+            <mat-icon mat-list-icon>remove_red_eye</mat-icon>
+            <div mat-line>User tracker</div>
+        </mat-list-option>
+        <mat-list-option routerLink="admin/metrics">
+            <mat-icon mat-list-icon>insert_chart_outlined</mat-icon>
+            <div mat-line>Metrics</div>
+        </mat-list-option>
+        <mat-list-option routerLink="admin/health">
+            <mat-icon mat-list-icon>enhanced_encryption</mat-icon>
+            <div mat-line>Health</div>
+        </mat-list-option>
+        <mat-list-option routerLink="admin/configuration">
+            <mat-icon mat-list-icon>playlist_add_check</mat-icon>
+            <div mat-line>Configuration</div>
+        </mat-list-option>
+        <mat-list-option routerLink="admin/audits">
+            <mat-icon mat-list-icon>notifications_active</mat-icon>
+            <div mat-line>Audits</div>
+        </mat-list-option>
+        <mat-list-option routerLink="admin/logs">
+            <mat-icon mat-list-icon>library_books</mat-icon>
+            <div mat-line>Logs</div>
+        </mat-list-option>
+        <mat-list-option routerLink="admin/docs">
+            <mat-icon mat-list-icon>device_hub</mat-icon>
+            <div mat-line>API</div>
+        </mat-list-option>
+        <div mat-subheader>Account</div>
+        <mat-list-option (click)="logout()">
+            <mat-icon mat-list-icon>exit_to_app</mat-icon>
+            <div mat-line>Sign out</div>
+        </mat-list-option>
+    </mat-selection-list>
+</div>

@@ -1,39 +1,46 @@
-<div class="row mb-4">
-    <div class="col-sm-12 col-lg-4">
-        <h3>Strategy executions</h3>
-        <a routerLink="/new-strategy-execution" class="btn btn-success btn-block mt-3">New</a>
-    </div>
-</div>
+<button mat-fab color="accent" routerLink="/new-strategy-execution" class="add-button">
+    <mat-icon>add</mat-icon>
+</button>
 
 <div class="row">
 
-    <div class="col-sm-12 col-lg-4" *ngFor="let strategyExecution of strategyExecutions">
-        <div class="card bg-light mb-4 custom-card">
-            <div class="card-body">
-                <h4>
-                    <fa-icon icon="random" [fixedWidth]="true"></fa-icon>
+    <div class="col-12 col-md-4 mb-3" *ngFor="let strategyExecution of strategyExecutions">
+        <mat-card>
+            <div class="mb-3">
+                <button mat-mini-fab disabled>
+                    <mat-icon>shuffle</mat-icon>
+                </button>
+                <span class="card-header-text">
                     {{strategyExecution.id}}
-                </h4>
-                <table class="table table-hover mt-3">
+                </span>
+            </div>
+            <mat-card-content>
+                <table class="table mb-0">
                     <tbody>
                         <tr>
-                            <th scope="row">Order execution type</th>
+                            <td>Order execution type</td>
                             <td>{{strategyExecution.orderExecutionType}}</td>
                         </tr>
                         <tr>
-                            <th scope="row">Symbols</th>
+                            <td>Symbols</td>
                             <td>{{strategyExecution.symbols}}</td>
                         </tr>
                         <tr>
-                            <th scope="row">Funds per trade</th>
+                            <td>Funds per trade</td>
                             <td>{{strategyExecution.fundsPerTrade}}</td>
                         </tr>
                     </tbody>
                 </table>
-                <a routerLink="/strategy-executions/{{strategyExecution.id}}" class="btn btn-md btn-info btn-block">Details</a>
-                <button type="button" class="btn btn-md btn-primary btn-block" (click)="stopStrategyExecution(strategyExecution.id)">Stop</button>
-            </div>
-        </div>
+                <div class="row">
+                    <div class="col-6">
+                        <button mat-flat-button color="primary" class="full-width" routerLink="/strategy-executions/{{strategyExecution.id}}">Details</button>
+                    </div>
+                    <div class="col-6">
+                        <button mat-flat-button color="accent" class="full-width" (click)="stopStrategyExecution(strategyExecution.id)">Stop</button>
+                    </div>
+                </div>
+            </mat-card-content>
+        </mat-card>
     </div>
 
 </div>

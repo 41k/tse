@@ -6,6 +6,6 @@ export const NEW_ORDER_EXECUTION_ROUTE: Route = {
   component: NewOrderExecutionComponent,
   data: {
     authorities: [],
-    pageTitle: 'global.title',
+    pageTitle: 'new-order-execution.title',
   },
 };

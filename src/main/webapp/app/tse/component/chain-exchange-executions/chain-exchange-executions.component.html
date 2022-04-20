@@ -1,38 +1,39 @@
-<div class="row mb-4">
-    <div class="col-sm-12 col-lg-4">
-        <h3>Chain exchange executions</h3>
-        <a routerLink="/new-chain-exchange-execution" class="btn btn-success btn-block mt-3">New</a>
-    </div>
-</div>
+<button mat-fab color="accent" routerLink="/new-chain-exchange-execution" class="add-button">
+    <mat-icon>add</mat-icon>
+</button>
 
 <div class="row">
 
-    <div class="col-sm-12 col-lg-4" *ngFor="let chainExchangeExecution of chainExchangeExecutions">
-        <div class="card bg-light mb-4 custom-card">
-            <div class="card-body">
-                <h4>
-                    <fa-icon icon="recycle" [fixedWidth]="true"></fa-icon>
+    <div class="col-12 col-md-4 mb-3" *ngFor="let chainExchangeExecution of chainExchangeExecutions">
+        <mat-card>
+            <div class="mb-3">
+                <button mat-mini-fab disabled>
+                    <mat-icon>repeat</mat-icon>
+                </button>
+                <span class="card-header-text">
                     {{ formAssetChainString(chainExchangeExecution) }}
-                </h4>
-                <table class="table table-hover mt-3">
+                </span>
+            </div>
+            <mat-card-content>
+                <table class="table mb-0">
                     <tbody>
                         <tr>
-                            <th scope="row">Order execution type</th>
+                            <td>Order execution type</td>
                             <td>{{chainExchangeExecution.orderExecutionType}}</td>
                         </tr>
                         <tr>
-                            <th scope="row">Amount</th>
+                            <td>Amount</td>
                             <td>{{chainExchangeExecution.amount}}</td>
                         </tr>
                         <tr>
-                            <th scope="row">Min profit threshold</th>
+                            <td>Min profit threshold</td>
                             <td>{{chainExchangeExecution.minProfitThreshold}}</td>
                         </tr>
                     </tbody>
                 </table>
-                <button type="button" class="btn btn-md btn-primary btn-block" (click)="stopChainExchangeExecution(chainExchangeExecution)">Stop</button>
-            </div>
-        </div>
+                <button mat-flat-button color="primary" class="full-width" (click)="stopChainExchangeExecution(chainExchangeExecution)">Stop</button>
+            </mat-card-content>
+        </mat-card>
     </div>
 
 </div>

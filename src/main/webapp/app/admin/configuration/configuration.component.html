@@ -1,6 +1,4 @@
 <div *ngIf="allBeans">
-    <h2 id="configuration-page-heading" jhiTranslate="configuration.title">Configuration</h2>
-
     <span jhiTranslate="configuration.filter">Filter (by prefix)</span> <input type="text" [(ngModel)]="beansFilter" (ngModelChange)="filterAndSortBeans()" class="form-control">
 
     <h3 id="spring-configuration">Spring configuration</h3>

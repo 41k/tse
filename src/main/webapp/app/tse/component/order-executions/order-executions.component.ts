@@ -34,6 +34,13 @@ export class OrderExecutionsComponent {
     }
   }
 
+  removeOrderExecution(orderExecutionId: string): void {
+    this.orderExecutionApiClient.stopOrderExecution(orderExecutionId).subscribe(
+      () => this.initViewData(),
+      () => alert('Failed to remove order execution')
+    );
+  }
+
   getExecutionTime(orderExecution: OrderExecution): string {
     return this.datePipe.transform(new Date(orderExecution.timestamp).getTime(), this.timeFormat)!;
   }

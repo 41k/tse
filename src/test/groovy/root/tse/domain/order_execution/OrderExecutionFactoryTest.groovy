@@ -23,7 +23,7 @@ class OrderExecutionFactoryTest extends Specification {
         def orderExecution = orderExecutionFactory.create(orderExecutionContext)
 
         then:
-        1 * idGenerator.generateId() >> ORDER_EXECUTION_ID
+        1 * idGenerator.generate() >> ORDER_EXECUTION_ID
         0 * _
 
         and:

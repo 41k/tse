@@ -1,84 +1,84 @@
 <div class="row" *ngIf="!viewDataIsInitialized()">
-    <div class="col-sm-12">Loading...</div>
+    <div class="col-12">Loading...</div>
 </div>
 
-<div class="row" *ngIf="viewDataIsInitialized()">
-    <div class="col-sm-12 col-lg-6">
+<div class="row mb-3" *ngIf="viewDataIsInitialized()">
+    <div class="col-12 col-md-6">
 
-        <h3>New strategy execution</h3>
-
-        <div class="card bg-light mt-4 mb-4 custom-card">
-            <div class="card-body">
-                <h4>Settings</h4>
-                <div class="form-group mt-4">
-                    <span class="input-group-text">Order execution type</span>
-                    <select class="custom-select custom-form-control" [(ngModel)]="selectedOrderExecutionType">
-                        <option selected disabled value="undefined">Choose...</option>
+        <mat-card class="mb-3">
+            <h4 class="mb-3">Settings</h4>
+            <mat-card-content>
+                <mat-form-field appearance="fill" class="full-width">
+                    <mat-label>Order execution type</mat-label>
+                    <select matNativeControl [(ngModel)]="selectedOrderExecutionType">
+                        <option disabled></option>
                         <option value="STUB">STUB</option>
                         <option value="MARKET">MARKET</option>
                     </select>
-                </div>
-                <div class="form-group mt-4">
-                    <span class="input-group-text">Symbol</span>
-                    <select class="custom-select custom-form-control" [(ngModel)]="selectedSymbol">
-                        <option selected disabled value="undefined">Choose...</option>
+                </mat-form-field>
+                <mat-form-field appearance="fill" class="full-width">
+                    <mat-label>Symbol</mat-label>
+                    <select matNativeControl [(ngModel)]="selectedSymbol">
+                        <option disabled></option>
                         <option *ngFor="let symbol of symbols" [value]="symbol">
                             {{symbol}}
                         </option>
                     </select>
-                </div>
-                <div class="form-group">
-                    <span class="input-group-text">Funds per trade</span>
-                    <input type="number" class="form-control custom-form-control" [(ngModel)]="fundsPerTrade">
-                </div>
-            </div>
-        </div>
+                </mat-form-field>
+                <mat-form-field appearance="fill" class="full-width">
+                    <mat-label>Funds per trade</mat-label>
+                    <input matInput type="number" [(ngModel)]="fundsPerTrade">
+                </mat-form-field>
+            </mat-card-content>
+        </mat-card>
 
-        <div class="card bg-light mb-4 custom-card">
-            <div class="card-body">
-                <h4>Entry rule</h4>
-                <div class="form-group">
-                    <select class="custom-select custom-form-control" [(ngModel)]="selectedEntryRule">
-                        <option selected disabled value="undefined">Choose...</option>
+        <mat-card class="mb-3">
+            <h4 class="mb-3">Entry rule settings</h4>
+            <mat-card-content>
+                <mat-form-field appearance="fill" class="full-width">
+                    <mat-label>Rule</mat-label>
+                    <select matNativeControl [(ngModel)]="selectedEntryRule">
+                        <option disabled></option>
                         <option *ngFor="let rule of entryRules" [ngValue]="rule">
                             {{rule.name}}
                         </option>
                     </select>
-                </div>
+                </mat-form-field>
                 <form #entryRuleInputs>
                     <div *ngFor="let parameter of selectedEntryRule?.parameters">
-                        <div class="form-group" *ngIf="ruleParameterInputs[parameter]">
-                            <span class="input-group-text">{{ruleParameterInputs[parameter].label}}</span>
-                            <input type="{{ruleParameterInputs[parameter].type}}" name="{{parameter}}" class="form-control custom-form-control">
-                        </div>
+                        <mat-form-field appearance="fill" class="full-width" *ngIf="ruleParameterInputs[parameter]">
+                            <mat-label>{{ruleParameterInputs[parameter].label}}</mat-label>
+                            <input matInput type="{{ruleParameterInputs[parameter].type}}" name="{{parameter}}">
+                        </mat-form-field>
                     </div>
                 </form>
-            </div>
-        </div>
+            </mat-card-content>
+        </mat-card>
 
-        <div class="card bg-light mb-4 custom-card">
-            <div class="card-body">
-                <h4>Exit rule</h4>
-                <div class="form-group">
-                    <select class="custom-select custom-form-control" [(ngModel)]="selectedExitRule">
-                        <option selected disabled value="undefined">Choose...</option>
+        <mat-card class="mb-3">
+            <h4 class="mb-3">Exit rule settings</h4>
+            <mat-card-content>
+                <mat-form-field appearance="fill" class="full-width">
+                    <mat-label>Rule</mat-label>
+                    <select matNativeControl [(ngModel)]="selectedExitRule">
+                        <option disabled></option>
                         <option *ngFor="let rule of exitRules" [ngValue]="rule">
                             {{rule.name}}
                         </option>
                     </select>
-                </div>
+                </mat-form-field>
                 <form #exitRuleInputs>
                     <div *ngFor="let parameter of selectedExitRule?.parameters">
-                        <div class="form-group" *ngIf="ruleParameterInputs[parameter]">
-                            <span class="input-group-text">{{ruleParameterInputs[parameter].label}}</span>
-                            <input type="{{ruleParameterInputs[parameter].type}}" name="{{parameter}}" class="form-control custom-form-control">
-                        </div>
+                        <mat-form-field appearance="fill" class="full-width" *ngIf="ruleParameterInputs[parameter]">
+                            <mat-label>{{ruleParameterInputs[parameter].label}}</mat-label>
+                            <input matInput type="{{ruleParameterInputs[parameter].type}}" name="{{parameter}}">
+                        </mat-form-field>
                     </div>
                 </form>
-            </div>
-        </div>
+            </mat-card-content>
+        </mat-card>
 
-        <button type="button" class="btn btn-md btn-success btn-block mb-5" (click)="startNewStrategyExecution()">Start</button>
+        <button mat-raised-button color="primary" class="full-width" (click)="startNewStrategyExecution()">Start</button>
 
     </div>
 </div>
